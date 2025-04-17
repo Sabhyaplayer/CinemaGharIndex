@@ -48,7 +48,6 @@
 }
 
 html, body {
-    /* Ensure html/body don't interfere with fullscreen */
     width: 100%;
     height: 100%;
 }
@@ -69,7 +68,7 @@ body {
     box-shadow: var(--shadow-md);
     position: relative;
     color: var(--text-color);
-    overflow: hidden; /* Helps contain floated/positioned elements */
+    overflow: hidden;
 }
 
 #cinemaghar-container header {
@@ -84,7 +83,6 @@ body {
     background-color: var(--header-bg);
     padding: 15px;
     border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-    /* Adjust margins to align with container padding */
     margin: -15px -15px 25px -15px;
 }
 #cinemaghar-container header img {
@@ -97,7 +95,7 @@ body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    min-width: 0; /* Prevent overflow issues */
+    min-width: 0;
 }
 #cinemaghar-container .header-title-signature h1 {
     font-size: 26px;
@@ -105,9 +103,9 @@ body {
     margin: 0;
     color: var(--text-color);
     line-height: 1.2;
-    white-space: nowrap; /* Prevent wrapping */
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Add ellipsis if title is too long */
+    text-overflow: ellipsis;
 }
 #cinemaghar-container .header-title-signature .signature {
     font-size: 13px;
@@ -146,7 +144,7 @@ body {
 
 .filter-search-area {
     display: flex;
-    gap: 15px; /* Adjusted gap */
+    gap: 15px;
     margin: 10px 0 25px 0;
     align-items: center;
     flex-wrap: wrap;
@@ -154,35 +152,33 @@ body {
 
 .search-group {
     display: flex;
-    flex-grow: 1; /* Allow search input to take available space */
-    min-width: 250px; /* Minimum width for the search group */
+    flex-grow: 1;
+    min-width: 250px;
 }
 
 #cinemaghar-container #searchInput {
-    flex-grow: 1; /* Input takes available space */
+    flex-grow: 1;
     padding: 12px 15px;
-    border-radius: var(--border-radius-md); /* Full radius now */
-    border: 1px solid var(--border-color); /* Standard border */
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
     font-size: 16px;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    height: 44px; /* Match select height */
-    outline: none; /* Handled by focus style */
+    height: 44px;
+    outline: none;
 }
 #cinemaghar-container #searchInput:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    z-index: 1; /* Ensure focus outline is on top */
-    position: relative; /* Needed for z-index */
+    z-index: 1;
+    position: relative;
 }
-
-/* REMOVED searchButton styles */
 
 .filter-group {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0; /* Prevent filter group from shrinking excessively */
+    flex-shrink: 0;
 }
 
 .filter-group label {
@@ -201,21 +197,21 @@ body {
     cursor: pointer;
     transition: border-color 0.2s ease, background-color 0.2s ease;
     min-width: 150px;
-    height: 44px; /* Explicit height */
-    line-height: 1.5; /* Adjust line height if needed */
-    -webkit-appearance: none; /* Style consistency */
+    height: 44px;
+    line-height: 1.5;
+    -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%236c757d" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 16px 12px;
-    padding-right: 35px; /* Space for arrow */
+    padding-right: 35px;
 }
 #cinemaghar-container #qualityFilterSelect:focus {
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus style like input */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 #cinemaghar-container #qualityFilterSelect.filter-active {
     border-color: var(--filter-active-border);
@@ -259,9 +255,9 @@ body {
     font-weight: 600;
     color: var(--text-color);
     white-space: nowrap;
-    position: sticky; /* Make header sticky for better scrolling */
-    top: 0;          /* Stick to the top */
-    z-index: 2;      /* Ensure header is above table content */
+    position: sticky;
+    top: 0;
+    z-index: 2;
     cursor: pointer;
     user-select: none;
 }
@@ -302,19 +298,19 @@ body {
 }
 #cinemaghar-container tbody tr:not(.action-row):hover {
     background-color: var(--table-row-hover);
-    cursor: default; /* Default cursor for row */
+    cursor: default;
 }
 
 #cinemaghar-container td.col-filename {
-    word-break: break-all; /* Keep allowing break */
+    word-break: break-all;
     text-align: left;
-    min-width: 150px; /* Keep min-width */
-    cursor: pointer; /* Cursor indicates clickability */
+    min-width: 150px;
+    cursor: pointer;
     color: var(--primary-color);
     font-weight: 500;
     transition: color 0.2s ease;
-    white-space: normal; /* Ensure long names can wrap if needed */
-    position: relative; /* For positioning logos if needed */
+    white-space: normal;
+    position: relative;
 }
 #cinemaghar-container td.col-filename:hover {
     color: var(--primary-hover);
@@ -324,7 +320,7 @@ body {
 #cinemaghar-container td.col-filename .quality-logo {
     height: 1.1em;
     width: auto;
-    vertical-align: text-bottom; /* Try text-bottom for better alignment */
+    vertical-align: text-bottom;
     margin-left: 5px;
     display: inline-block;
     line-height: 1;
@@ -364,7 +360,7 @@ body {
 
 /* Action Row */
 #cinemaghar-container tr.action-row {
-    display: none; /* Keep hidden by default */
+    display: none;
     background-color: #f0f2f5;
 }
 #cinemaghar-container .action-row td {
@@ -381,7 +377,7 @@ body {
     line-height: 1.7;
 }
 #cinemaghar-container .action-info .info-item {
-    display: block; /* Display items as blocks for clarity */
+    display: block;
     margin-bottom: 8px;
 }
 #cinemaghar-container .action-info strong {
@@ -394,7 +390,7 @@ body {
 #cinemaghar-container .action-info .quality-logo {
     height: 1.1em;
     width: auto;
-    vertical-align: text-bottom; /* Consistent alignment */
+    vertical-align: text-bottom;
     margin-left: 4px;
     display: inline-block;
 }
@@ -402,7 +398,7 @@ body {
 #cinemaghar-container .action-buttons-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start; /* Align buttons to the start */
+    justify-content: flex-start;
     gap: 10px;
     margin-bottom: 15px;
     border-top: 1px solid var(--border-color);
@@ -415,7 +411,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 9px 16px;
-    margin: 2px 0; /* Small vertical margin */
+    margin: 2px 0;
     background-color: var(--success-color); /* Default */
     color: white !important;
     border: none;
@@ -446,25 +442,26 @@ body {
 #cinemaghar-container .view-button { background-color: #6c757d; }
 #cinemaghar-container .view-button:hover { background-color: #5a6268; }
 #cinemaghar-container .play-button { background-color: var(--success-color); }
-#cinemaghar-container .intent-button { background-color: #17a2b8; } /* Color for the Android button */
+#cinemaghar-container .intent-button { background-color: #17a2b8; }
 #cinemaghar-container .vlc-button { background-color: #fd7e14; }
 #cinemaghar-container .download-button { background-color: var(--primary-color); }
 #cinemaghar-container .telegram-button { background-color: #0088cc; }
 #cinemaghar-container .gdflix-button { background-color: #E50914; }
-#cinemaghar-container .hubcloud-button { background-color: #1E90FF; }
-#cinemaghar-container .filepress-button { background-color: #6c757d; }
-#cinemaghar-container .gdtot-button { background-color: #ffc107; color: #333 !important; }
+#cinemaghar-container .hubcloud-button { background-color: #1E90FF; } /* Added */
+#cinemaghar-container .filepress-button { background-color: #6c757d; } /* Added */
+#cinemaghar-container .gdtot-button { background-color: #ffc107; color: #333 !important; } /* Added */
+
 
 /* Copy Feedback */
 #cinemaghar-container .copy-feedback {
     display: inline-block;
-    margin-left: 10px; /* More space */
-    font-size: 13px; /* Slightly larger */
+    margin-left: 10px;
+    font-size: 13px;
     color: var(--success-color);
     font-weight: 600;
     opacity: 0;
     transition: opacity 0.3s ease;
-    vertical-align: middle; /* Align with button text */
+    vertical-align: middle;
 }
 #cinemaghar-container .copy-feedback.show {
     opacity: 1;
@@ -472,18 +469,17 @@ body {
 
 /* Video Player Container */
 #cinemaghar-container .video-container {
-    display: none; /* Hidden by default */
+    display: none;
     margin: 20px auto 0 auto;
     background: #f1f3f5;
-    padding: 50px 20px 20px 20px; /* More top padding for close button */
+    padding: 50px 20px 20px 20px;
     border-radius: var(--border-radius-lg);
     box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    position: relative; /* For close button positioning */
+    position: relative;
     box-sizing: border-box;
-    width: 100%; /* Take full width of parent cell */
-    max-width: 850px; /* Limit max width for large screens */
+    width: 100%;
+    max-width: 850px;
     text-align: center;
-    /* Base styles for flex layout */
     display: flex;
     flex-direction: column;
 }
@@ -499,14 +495,14 @@ body {
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    z-index: 10; /* Above other content */
+    z-index: 10;
     transition: background-color 0.2s ease;
 }
 #cinemaghar-container .close-btn:hover {
     background-color: #c82333;
 }
 #cinemaghar-container #audioWarning {
-    display: none; /* Hidden by default */
+    display: none;
     background-color: var(--warning-bg);
     color: var(--warning-text);
     border: 1px solid var(--warning-border);
@@ -515,34 +511,34 @@ body {
     border-radius: var(--border-radius-md);
     font-size: 14px;
     text-align: center;
-    position: relative; /* Ensure it's part of flow */
+    position: relative;
     z-index: 1;
     line-height: 1.5;
-    flex-shrink: 0; /* Don't shrink warning message */
+    flex-shrink: 0;
 }
 #cinemaghar-container #audioWarning strong { font-weight: 600; }
 #cinemaghar-container #html5VideoPlayer {
     width: 100%;
-    max-height: 480px; /* Control max height IN NORMAL MODE */
+    max-height: 480px;
     display: block;
     margin: 10px auto 15px auto;
-    background: black; /* Background for letterboxing */
+    background: black;
     border-radius: var(--border-radius-md);
-    outline: none; /* Remove default outline */
+    outline: none;
     box-shadow: var(--shadow-md);
-    flex-shrink: 1; /* Allow video to shrink if needed */
-    flex-grow: 1;   /* Allow video to grow within flex container */
-    object-fit: contain; /* Maintain aspect ratio */
-    cursor: default; /* Standard cursor for video */
+    flex-shrink: 1;
+    flex-grow: 1;
+    object-fit: contain;
+    cursor: default;
 }
 #cinemaghar-container .custom-controls {
     margin-top: 10px;
-    display: flex; /* Make controls visible by default when not fullscreen */
+    display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
-    flex-shrink: 0; /* Prevent controls shrinking */
+    flex-wrap: wrap;
+    flex-shrink: 0;
     position: relative;
 }
 /* Style custom control buttons */
@@ -551,7 +547,7 @@ body {
     min-width: 60px;
     font-size: 12px;
     padding: 6px 10px;
-    color: white !important; /* Ensure text color */
+    color: white !important;
 }
 #cinemaghar-container .custom-controls .button:hover {
     background-color: #495057;
@@ -565,19 +561,19 @@ body {
     font-family: inherit;
     cursor: pointer;
     max-width: 150px;
-    display: none; /* Hidden until needed */
+    display: none;
     transition: border-color 0.2s ease;
-    height: 30px; /* Consistent height */
-    line-height: 1; /* Ensure text fits */
-    vertical-align: middle; /* Align with buttons */
-    -webkit-appearance: none; /* Basic styling */
+    height: 30px;
+    line-height: 1;
+    vertical-align: middle;
+    -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%236c757d" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 5px center;
     background-size: 12px 10px;
-    padding-right: 25px; /* Space for arrow */
+    padding-right: 25px;
 }
 #cinemaghar-container #audioTrackSelect:focus {
     border-color: var(--primary-color);
@@ -588,12 +584,12 @@ body {
     margin-bottom: 15px;
     font-size: 18px;
     color: var(--text-color);
-    position: relative; /* Part of flow */
+    position: relative;
     z-index: 1;
-    padding-top: 0; /* Reset padding */
-    text-align: left; /* Align title left */
-    word-break: break-word; /* Allow title to wrap */
-    flex-shrink: 0; /* Don't shrink title */
+    padding-top: 0;
+    text-align: left;
+    word-break: break-word;
+    flex-shrink: 0;
 }
 #cinemaghar-container .vlc-copy-box {
     margin-top: 20px;
@@ -606,7 +602,7 @@ body {
     color: var(--text-muted);
     text-align: left;
     border: 1px solid var(--border-color);
-    flex-shrink: 0; /* Don't shrink copy box */
+    flex-shrink: 0;
 }
 #cinemaghar-container .vlc-copy-box strong {
     color: var(--text-color);
@@ -624,7 +620,7 @@ body {
     font-size: 13px;
     display: block;
     margin-top: 3px;
-    user-select: all; /* Make code selectable */
+    user-select: all;
 }
 
 /* Player Controls Grouping */
@@ -644,7 +640,7 @@ body {
     height: 5px;
     transition: opacity 0.2s ease;
     vertical-align: middle;
-    accent-color: var(--primary-color); /* Modern way to color range slider */
+    accent-color: var(--primary-color);
 }
 #playbackSpeedSelect {
     padding: 4px 8px;
@@ -655,60 +651,56 @@ body {
     height: 30px;
     line-height: 1;
     vertical-align: middle;
-    -webkit-appearance: none; /* Basic styling */
+    -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%236c757d" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 5px center;
     background-size: 12px 10px;
-    padding-right: 25px; /* Space for arrow */
+    padding-right: 25px;
 }
 
 /* --- Fullscreen Specific Styles --- */
 #cinemaghar-container .video-container.is-fullscreen {
-    /* Override normal styles when fullscreen */
-    position: fixed; /* Take over the screen */
+    position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    max-width: none; /* Remove max-width constraint */
-    padding: 0; /* Remove padding */
+    max-width: none;
+    padding: 0;
     margin: 0;
-    border-radius: 0; /* Remove border-radius */
-    background-color: black; /* Ensure black background */
-    z-index: 2147483647; /* Highest possible z-index */
-    display: flex; /* Use flex to arrange children */
+    border-radius: 0;
+    background-color: black;
+    z-index: 2147483647;
+    display: flex;
     flex-direction: column;
-    justify-content: center; /* Center content vertically */
-    /* No cursor hiding needed here as controls are hidden */
+    justify-content: center;
 }
 
 #cinemaghar-container .video-container.is-fullscreen #html5VideoPlayer {
-    /* Ensure video expands */
     width: 100%;
-    height: 100%; /* Allow video to take full height */
-    max-height: none; /* Remove max-height */
-    flex-grow: 1; /* Take available space */
+    height: 100%;
+    max-height: none;
+    flex-grow: 1;
     flex-shrink: 1;
     border-radius: 0;
     box-shadow: none;
     margin: 0;
-    object-fit: contain; /* Keep aspect ratio, fit within container */
-    cursor: default; /* Use default cursor */
+    object-fit: contain;
+    cursor: default;
 }
 
 /* --- HIDE CONTROLS IN FULLSCREEN --- */
 #cinemaghar-container .video-container.is-fullscreen .custom-controls {
-    display: none !important; /* Hide custom controls container */
+    display: none !important;
 }
 #cinemaghar-container .video-container.is-fullscreen .close-btn {
-    display: none !important; /* Hide close button */
+    display: none !important;
 }
 
 #cinemaghar-container .video-container.is-fullscreen #videoTitle,
 #cinemaghar-container .video-container.is-fullscreen #audioWarning,
 #cinemaghar-container .video-container.is-fullscreen .vlc-copy-box {
-    /* Hide non-essential elements in fullscreen (already done) */
     display: none !important;
 }
 /* --- End Fullscreen Specific Styles --- */
@@ -717,7 +709,7 @@ body {
 .pagination-container {
     text-align: center;
     margin: 25px 0 10px 0;
-    user-select: none; /* Prevent text selection */
+    user-select: none;
 }
 .pagination-container button,
 .pagination-container span {
@@ -731,7 +723,7 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-    vertical-align: middle; /* Align elements */
+    vertical-align: middle;
 }
 .pagination-container button:hover:not(:disabled) {
     background-color: var(--pagination-hover-bg);
@@ -751,15 +743,15 @@ body {
     cursor: not-allowed;
     opacity: 0.7;
 }
-.pagination-container .page-info { /* Ellipsis */
+.pagination-container .page-info {
     font-size: 13px;
     color: var(--text-muted);
-    margin: 0 5px; /* Adjust spacing */
+    margin: 0 5px;
     padding: 8px 0;
     border: none;
     background: none;
     cursor: default;
-    display: inline-block; /* Ensure it aligns */
+    display: inline-block;
     vertical-align: middle;
 }
 
@@ -811,17 +803,16 @@ body {
       gap: 12px;
   }
   .search-group {
-      min-width: unset; /* Remove min-width on mobile */
+      min-width: unset;
   }
   #cinemaghar-container #searchInput {
       min-width: unset;
-      width: 100%; /* Takes available space */
+      width: 100%;
       font-size: 15px;
       padding: 11px 13px;
-      height: 40px; /* Adjust height */
-      border-radius: var(--border-radius-md); /* Full radius */
+      height: 40px;
+      border-radius: var(--border-radius-md);
   }
-   /* REMOVED searchButton mobile styles */
 
   .filter-group {
       justify-content: space-between;
@@ -834,8 +825,8 @@ body {
       min-width: unset;
       flex-grow: 1;
       width: auto;
-      height: 40px; /* Adjust height */
-      padding-right: 30px; /* Adjust padding for arrow */
+      height: 40px;
+      padding-right: 30px;
       background-position: right 8px center;
   }
 
@@ -845,37 +836,36 @@ body {
       border-radius: 0;
       margin-left: -10px;
       margin-right: -10px;
-      overflow-x: visible; /* Let table handle scroll */
+      overflow-x: visible;
    }
    #cinemaghar-container table {
-        min-width: unset; /* Allow table to shrink */
+        min-width: unset;
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius-md);
         box-shadow: var(--shadow-sm);
-        display: block; /* Force block display for overflow */
-        overflow-x: auto; /* Enable horizontal scroll ONLY on table */
-        white-space: nowrap; /* Prevent wrapping within table itself */
-        -webkit-overflow-scrolling: touch; /* Smoother scrolling on iOS */
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
    }
    #cinemaghar-container thead, #cinemaghar-container tbody, #cinemaghar-container tr {
-        display: table; /* Make children behave like table elements */
-        width: 100%;    /* Ensure they take full width */
-        table-layout: fixed; /* Use fixed layout for consistency */
+        display: table;
+        width: 100%;
+        table-layout: fixed;
    }
    #cinemaghar-container thead {
-        position: sticky; /* Sticky header on mobile too */
+        position: sticky;
         top: 0;
-        z-index: 3; /* Higher z-index */
+        z-index: 3;
    }
 
   #cinemaghar-container th, #cinemaghar-container td {
       padding: 10px 8px;
       font-size: 13px;
       border-bottom: 1px solid var(--border-color);
-      display: table-cell; /* Ensure cell behavior */
-      white-space: normal; /* Allow content wrapping within cell */
-      vertical-align: middle; /* Align content vertically */
-      /* Widths need careful management with fixed layout */
+      display: table-cell;
+      white-space: normal;
+      vertical-align: middle;
   }
 
   /* Hide columns on mobile */
@@ -883,7 +873,7 @@ body {
   #cinemaghar-container thead tr th.col-updated,
   #cinemaghar-container tbody tr:not(.action-row) td.col-size,
   #cinemaghar-container tbody tr:not(.action-row) td.col-updated {
-       display: none; /* Hide columns */
+       display: none;
   }
 
    /* Adjust visible column widths */
@@ -897,8 +887,8 @@ body {
   #cinemaghar-container th.sort-desc .sort-indicator { border-top-width: 4px; }
 
   #cinemaghar-container td.col-filename {
-      word-break: break-word; /* Ensure filename breaks */
-      white-space: normal; /* Allow wrapping */
+      word-break: break-word;
+      white-space: normal;
       cursor: pointer;
   }
   #cinemaghar-container td.col-filename .quality-logo {
@@ -910,20 +900,17 @@ body {
 
    #cinemaghar-container td.col-view .button.view-button {
       font-size: 12px;
-      padding: 6px 8px; /* Slightly smaller padding */
+      padding: 6px 8px;
       width: 100%;
-      min-width: 45px; /* Smaller min-width */
-      box-sizing: border-box; /* Include padding in width */
+      min-width: 45px;
+      box-sizing: border-box;
    }
 
-   /* Correct colspan for action row on mobile (visible columns: 4) */
-   /* Updated: When TD is block, colspan is irrelevant */
    #cinemaghar-container .action-row td {
         padding: 15px 10px;
-        display: block; /* Make action row cell block */
-        width: auto; /* Auto width */
-        white-space: normal; /* Allow wrapping */
-        /* colspan attribute is ignored when display is block */
+        display: block;
+        width: auto;
+        white-space: normal;
    }
 
   #cinemaghar-container .action-info {
@@ -947,30 +934,29 @@ body {
    }
 
   #cinemaghar-container .action-buttons-container {
-      flex-direction: column; /* Stack buttons vertically */
-      align-items: stretch; /* Make buttons full width */
+      flex-direction: column;
+      align-items: stretch;
       gap: 8px;
       padding-top: 15px;
   }
   #cinemaghar-container .action-buttons-container .button {
       font-size: 13px;
       padding: 10px 15px;
-      width: 100%; /* Full width */
+      width: 100%;
       max-width: none;
       margin: 0;
       box-sizing: border-box;
   }
 
-  #cinemaghar-container #html5VideoPlayer { max-height: 280px; } /* Normal max height on mobile */
+  #cinemaghar-container #html5VideoPlayer { max-height: 280px; }
   #cinemaghar-container .video-container {
       padding: 45px 10px 15px 10px;
       max-width: 100%;
-      margin-left: 0; /* Align within the cell */
+      margin-left: 0;
       margin-right: 0;
-      border-radius: var(--border-radius-md); /* Keep some radius */
+      border-radius: var(--border-radius-md);
   }
   #cinemaghar-container .video-container.is-fullscreen #html5VideoPlayer {
-      /* Override max-height in fullscreen on mobile too */
       max-height: none;
   }
   #cinemaghar-container .close-btn { top: 12px; right: 12px; padding: 5px 9px; font-size: 12px; }
@@ -1125,7 +1111,7 @@ body {
 // <![CDATA[
 
 const config = {
-    // !!! IMPORTANT: PASTE YOUR NEW GOOGLE APPS SCRIPT WEB APP URL BELOW !!!
+    // !!! IMPORTANT: Paste your **NEW** Google Apps Script Web App URL here !!!
     GSheetWebAppURL: "https://script.google.com/macros/s/AKfycbzcV_vEcrlZYVYnw-RFQOsHtzfdIIEwh4Vfp2tPp2wR1I8by2TDTGyQZH9i2Gy-0WMoAw/exec",
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1141,16 +1127,16 @@ const config = {
 let allMovieData = [];
 let filteredAndSortedData = [];
 let uniqueQualities = new Set();
-let activeActionRow = null; // Reference to the currently open action row DOM element
-let copyTimeout; // Timeout ID for copy feedback
-let searchDebounceTimeout; // Timeout ID for debouncing search input
+let activeActionRow = null;
+let copyTimeout;
+let searchDebounceTimeout;
 
 // --- State Management ---
 let currentState = {
     searchTerm: '',
     qualityFilter: '',
-    sortColumn: 'lastUpdated', // Default sort
-    sortDirection: 'desc',     // Default direction
+    sortColumn: 'lastUpdated',
+    sortDirection: 'desc',
     currentPage: 1
 };
 
@@ -1162,7 +1148,6 @@ const videoTitle = document.getElementById('videoTitle');
 const vlcBox = document.getElementById('vlcBox');
 const vlcText = document.getElementById('vlcText');
 const searchInput = document.getElementById('searchInput');
-// Search button reference removed
 const qualityFilterSelect = document.getElementById('qualityFilterSelect');
 const audioWarningDiv = document.getElementById('audioWarning');
 const updatesSection = document.getElementById('updatesSection');
@@ -1203,8 +1188,8 @@ const TimeAgo = {
     try {
       const date = new Date(isoString);
       const seconds = Math.floor((new Date() - date) / 1000);
-      if (isNaN(seconds) || seconds < 0) { // Handle invalid or future dates
-        return TimeAgo.formatFullDate(date); // Show full date for invalid/future
+      if (isNaN(seconds) || seconds < 0) {
+        return TimeAgo.formatFullDate(date);
       }
       if (seconds < 2) return "just now";
       if (seconds < TimeAgo.MINUTE) return `${seconds} sec${seconds > 1 ? 's' : ''} ago`;
@@ -1212,7 +1197,7 @@ const TimeAgo = {
       if (seconds < TimeAgo.DAY) return `${Math.floor(seconds / TimeAgo.HOUR)} hr${Math.floor(seconds / TimeAgo.HOUR) > 1 ? 's' : ''} ago`;
       if (seconds < TimeAgo.DAY * 2) return "Yesterday";
       if (seconds < TimeAgo.WEEK) return `${Math.floor(seconds / TimeAgo.DAY)} days ago`;
-      return TimeAgo.formatFullDate(date, true); // Use short format for older dates
+      return TimeAgo.formatFullDate(date, true);
     } catch (e) {
       console.error("Date Format Error (TimeAgo):", isoString, e);
       return 'Invalid Date';
@@ -1221,14 +1206,13 @@ const TimeAgo = {
   formatFullDate: (date, short = false) => {
       if (!(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date';
       const optsDate = short
-        ? { year: '2-digit', month: 'numeric', day: 'numeric' } // e.g., 12/25/23
-        : { year: 'numeric', month: 'short', day: 'numeric' }; // e.g., Dec 25, 2023
-      const optsTime = { hour: 'numeric', minute: '2-digit', hour12: true }; // e.g., 1:30 PM
+        ? { year: '2-digit', month: 'numeric', day: 'numeric' }
+        : { year: 'numeric', month: 'short', day: 'numeric' };
+      const optsTime = { hour: 'numeric', minute: '2-digit', hour12: true };
       try {
         return `${date.toLocaleDateString(undefined, optsDate)}${short ? '' : ', ' + date.toLocaleTimeString(undefined, optsTime)}`;
       } catch (e) {
           console.error("toLocaleDateString/Time failed:", e);
-          // Fallback to basic YYYY-MM-DD if locale formatting fails
           return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       }
   }
@@ -1236,14 +1220,14 @@ const TimeAgo = {
 
 /**
  * Extracts file size (e.g., "1.2 GB") from a string and returns structured data.
- * @param {string} filename - The string to parse.
+ * @param {string} inputString - The string to parse (can be filename or dedicated size field).
  * @returns {object} Object with value, unit, display string, and bytes.
  */
-function extractSizeData(filename) {
-    if (!filename) return { value: 0, unit: '', display: 'N/A', bytes: 0 };
-    // Regex to find size like (1.2 GB) or [200MB] etc.
-    const r = /[\(\[]?(?<size>[\d.]+)\s?(?<unit>GB|MB)[\)\]]?/i;
-    const m = filename.match(r);
+function extractSizeData(inputString) {
+    if (!inputString) return { value: 0, unit: '', display: 'N/A', bytes: 0 };
+    // Regex to find size like (1.2 GB) or [200MB] or just "1.2GB"
+    const r = /(?<size>[\d.]+)\s?(?<unit>GB|MB)/i;
+    const m = String(inputString).match(r);
     if (m?.groups?.size && m?.groups?.unit) {
         const value = parseFloat(m.groups.size);
         const unit = m.groups.unit.toUpperCase();
@@ -1262,21 +1246,16 @@ function extractSizeData(filename) {
  * @returns {string} The guessed MIME type or a generic 'video/*'.
  */
 function getMimeTypeFromUrl(url) {
-    if (!url) return 'video/*'; // Default generic video MIME type
-    // Match the file extension from the URL, ignoring query parameters or fragments
+    if (!url) return 'video/*';
     const m = url.match(/\.([a-zA-Z0-9]+)(?:[?#]|$)/);
-    if (!m) return 'video/*'; // Return generic if no extension found
-    const ext = m[1].toLowerCase(); // Get the extension in lowercase
-
-    // Map common video extensions to their MIME types
+    if (!m) return 'video/*';
+    const ext = m[1].toLowerCase();
     const mimeMap = {
         'mkv': 'video/x-matroska', 'mp4': 'video/mp4', 'mov': 'video/quicktime',
         'avi': 'video/x-msvideo', 'webm': 'video/webm', 'wmv': 'video/x-ms-wmv',
         'flv': 'video/x-flv', 'ts': 'video/mp2t', 'm4v': 'video/x-m4v',
         'ogv': 'video/ogg'
-        // Add more mappings if needed
     };
-    // Return the specific MIME type if found, otherwise the generic one
     return mimeMap[ext] || 'video/*';
 }
 
@@ -1296,7 +1275,6 @@ function handleVideoError(event) {
             default: msg = `An unknown video error occurred (Code: ${videoElement.error.code}).`; break;
         }
     }
-    // Display the error in the audio warning div
     if (audioWarningDiv) {
         audioWarningDiv.innerHTML = `<strong>Playback Error:</strong> ${sanitize(msg)} <br>Consider using 'Copy URL' with an external player like VLC or MX Player, or try the 'Open Externally' button if available (Android).`;
         audioWarningDiv.style.display = 'block';
@@ -1308,61 +1286,41 @@ if (videoElement) { videoElement.addEventListener('error', handleVideoError); }
 
 /**
  * Extracts a quality indicator (e.g., "1080p", "BluRay") from a filename.
- * Prioritizes resolution, then source type.
- * @param {string} filename - The filename string.
- * @returns {string|null} The extracted quality string or null if none found.
  */
 function extractQualityFromFilename(filename) {
     if (!filename) return null;
-    // Patterns to match quality indicators, ordered by priority (resolution first)
     const patterns = [
-        // Resolution (4K, 2160p, 1080p, 720p, 480p) - more specific match
         /(?:^|\.|\[|\(|\s|_|-)((?:4k|2160p|1080p|720p|480p))(?=$|\.|\]|\)|\s|_|-)/i,
-        // Source Type (WEBDL, BluRay, HDTV, etc.)
         /(?:^|\.|\[|\(|\s|_-)(WEB-?DL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVDrip|DVDScr|HDCAM|HC|TC|TS|CAM)(?=$|\.|\]|\)|\s|_|-)/i,
-         // Specific Tech/Codec (HDR, Dolby Vision, HEVC) - lower priority for main display, but useful
-         /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i
+        /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i
     ];
     let foundQuality = null;
     for (const regex of patterns) {
         const match = filename.match(regex);
         if (match && match[1]) {
             let quality = match[1].toUpperCase();
-            // Normalize common variations
             quality = quality.replace(/WEB-?DL/i, 'WEBDL');
             quality = quality.replace(/BLURAY/i, 'BluRay');
             quality = quality.replace(/DVDRIP/i, 'DVD');
             quality = quality.replace(/DOLBY.?VISION/i, 'Dolby Vision');
-            if (quality === '2160P') quality = '4K'; // Standardize 4K
+            if (quality === '2160P') quality = '4K';
 
-            // If we found a resolution or source type, return it immediately (highest priority)
-            if (patterns.indexOf(regex) < 2) {
-                return quality;
-            }
-            // If it's a tech/codec and we haven't found a quality yet, store it as a fallback
-            if (patterns.indexOf(regex) === 2 && !foundQuality) {
-                foundQuality = quality;
-            }
+            if (patterns.indexOf(regex) < 2) return quality;
+            if (patterns.indexOf(regex) === 2 && !foundQuality) foundQuality = quality;
         }
     }
-    // Return the tech/codec if no resolution or source was found, otherwise null
     return foundQuality;
 }
 
 /**
- * Normalizes text for searching (lowercase, removes specific punctuation WITHOUT adding space, collapses whitespace).
- * @param {string} text - The input string.
- * @returns {string} The normalized string.
+ * Normalizes text for searching (lowercase, removes specific punctuation, collapses whitespace).
  */
 function normalizeTextForSearch(text) {
     if (!text) return "";
     return String(text)
         .toLowerCase()
-        // Remove specific punctuation characters entirely
         .replace(/[.\-_\(\)\[\]]/g, '')
-        // Collapse multiple whitespace characters (spaces, tabs, newlines) into a single space
         .replace(/\s+/g, ' ')
-        // Remove leading/trailing whitespace
         .trim();
 }
 
@@ -1370,96 +1328,105 @@ function normalizeTextForSearch(text) {
 /**
  * Preprocesses raw movie data fetched from the source.
  * Adds calculated fields like display filename, size, quality, timestamp, and search text.
+ * Uses the keys provided by the backend API.
  * @param {object} movie - The raw movie object from the data source.
  * @returns {object} The processed movie object with added fields.
  */
 function preprocessMovieData(movie) {
-    // 1. Determine Display Filename (prefer explicit, fallback to URL, then placeholder)
-    movie.displayFilename = sanitize(movie.filename || ''); // Start with explicit filename if provided
-    movie.filenameSource = 'sheet'; // Track where the filename came from
-    if (!movie.displayFilename && movie.url) { // If no explicit filename, try deriving from URL
+    const processed = {}; // Create a new object to avoid modifying the original
+
+    // Directly map keys from backend that don't need complex processing
+    processed.id = movie.id || null; // Use null if missing
+    processed.url = movie.url || null;
+    processed.telegramLink = movie.telegramLink || null;
+    processed.gdflixLink = movie.gdflixLink || null;
+    processed.hubcloudLink = movie.hubcloudLink || null;
+    processed.filepressLink = movie.filepressLink || null;
+    processed.gdtotLink = movie.gdtotLink || null;
+    processed.languages = movie.languages || null;
+
+    // 1. Determine Display Filename
+    processed.filenameSource = 'sheet';
+    processed.displayFilename = sanitize(movie.filename || ''); // Start with sheet value
+    if (!processed.displayFilename && movie.url) { // Fallback to URL derivation
         try {
             const urlObject = new URL(movie.url);
             let potentialFilename = '';
-            // Check common patterns in URL for filename (e.g., last path segment, 'path' param)
             const pathParam = urlObject.searchParams.get('path');
             if (pathParam) {
-                const pathSegments = pathParam.split('/').filter(segment => segment); // Get non-empty segments
+                const pathSegments = pathParam.split('/').filter(Boolean);
                 if (pathSegments.length > 0) potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]);
             }
-            // If not found in param, check the pathname
             if (!potentialFilename && urlObject.pathname && urlObject.pathname !== '/') {
-                const pathSegments = urlObject.pathname.split('/').filter(segment => segment);
-                // Check if the last segment looks like a filename (contains '.')
+                const pathSegments = urlObject.pathname.split('/').filter(Boolean);
                 if (pathSegments.length > 0 && pathSegments[pathSegments.length - 1].includes('.')) {
                     potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]);
                 }
             }
             if (potentialFilename) {
-                movie.displayFilename = sanitize(potentialFilename);
-                movie.filenameSource = 'url'; // Mark as derived from URL
+                processed.displayFilename = sanitize(potentialFilename);
+                processed.filenameSource = 'url';
             }
         } catch (e) { console.warn("URL parsing failed for filename extraction:", movie.url, e); }
     }
-    // If still no filename, create a placeholder
-    if (!movie.displayFilename) {
-        movie.displayFilename = `File (ID: ${sanitize(movie.id || 'N/A')})`;
-        movie.filenameSource = 'placeholder';
+    if (!processed.displayFilename) { // Final fallback to placeholder
+        processed.displayFilename = `File (ID: ${sanitize(processed.id || 'N/A')})`;
+        processed.filenameSource = 'placeholder';
     }
+     // Store original sheet filename if different from display one (for info row)
+     if (processed.displayFilename !== sanitize(movie.filename || '')) {
+        processed.originalFilename = movie.filename || null;
+     } else {
+        processed.originalFilename = null;
+     }
 
-    // 2. Determine Size (prefer explicit 'size' field, fallback to extracting from filename)
-    movie.sizeData = { display: 'N/A', bytes: 0 }; // Initialize size data
-    // Check if an explicit size is provided and is not 'N/A'
+    // 2. Determine Size
+    processed.sizeData = { display: 'N/A', bytes: 0 }; // Initialize
     if (movie.size && String(movie.size).toLowerCase() !== 'n/a') {
-         // Try parsing the explicit size field (treat it like a filename snippet)
-         const explicitSize = extractSizeData(`[${movie.size}]`);
-         if (explicitSize && explicitSize.bytes > 0) movie.sizeData = explicitSize;
+         const explicitSize = extractSizeData(String(movie.size)); // Try parsing sheet 'size' value directly
+         if (explicitSize && explicitSize.bytes > 0) processed.sizeData = explicitSize;
     }
-    // If no valid explicit size, try extracting from the display filename
-    if (movie.sizeData.bytes === 0 && movie.filenameSource !== 'placeholder') {
-        const extractedSize = extractSizeData(movie.displayFilename);
-        if (extractedSize && extractedSize.bytes > 0) movie.sizeData = extractedSize;
-    }
-
-    // 3. Determine Quality (prefer explicit 'quality' field, fallback to extracting from filename)
-    movie.displayQuality = sanitize(movie.quality || 'N/A'); // Start with explicit quality
-    // If no explicit quality or it's 'N/A', try extracting from filename
-    if ((!movie.quality || String(movie.quality).toLowerCase() === 'n/a') && movie.filenameSource !== 'placeholder') {
-        const extractedQuality = extractQualityFromFilename(movie.displayFilename);
-        if (extractedQuality) movie.displayQuality = sanitize(extractedQuality); // Use extracted if found
-    }
-    // Add the determined quality to the set for the filter dropdown (if valid)
-    if (movie.displayQuality && movie.displayQuality !== 'N/A') {
-        uniqueQualities.add(movie.displayQuality);
+    // If no valid size from sheet, try extracting from display filename
+    if (processed.sizeData.bytes === 0 && processed.filenameSource !== 'placeholder') {
+        const extractedSize = extractSizeData(processed.displayFilename);
+        if (extractedSize && extractedSize.bytes > 0) processed.sizeData = extractedSize;
     }
 
-    // 4. Parse Last Updated Timestamp
-    movie.lastUpdatedTimestamp = 0; // Default to 0
-    if (movie.lastUpdated) {
+    // 3. Determine Quality
+    processed.displayQuality = sanitize(movie.quality || 'N/A'); // Start with sheet 'quality'
+    if ((!movie.quality || String(movie.quality).toLowerCase() === 'n/a') && processed.filenameSource !== 'placeholder') {
+        const extractedQuality = extractQualityFromFilename(processed.displayFilename);
+        if (extractedQuality) processed.displayQuality = sanitize(extractedQuality);
+    }
+    if (processed.displayQuality && processed.displayQuality !== 'N/A') {
+        uniqueQualities.add(processed.displayQuality); // Add valid quality to set
+    }
+
+    // 4. Parse Last Updated Timestamp (Backend sends ISO string)
+    processed.lastUpdated = movie.lastUpdated || null; // Store the ISO string
+    processed.lastUpdatedTimestamp = 0;
+    if (processed.lastUpdated) {
         try {
-            const parsedDate = new Date(movie.lastUpdated);
-            // Check if the parsed date is valid before getting the timestamp
+            const parsedDate = new Date(processed.lastUpdated);
             if (!isNaN(parsedDate.getTime())) {
-                movie.lastUpdatedTimestamp = parsedDate.getTime();
+                processed.lastUpdatedTimestamp = parsedDate.getTime();
             } else {
-                 console.warn("Invalid date format encountered for lastUpdated:", movie.lastUpdated);
+                 console.warn("Invalid date format received from backend for lastUpdated:", processed.lastUpdated);
             }
-        } catch (e) { console.warn("Error parsing lastUpdated date:", movie.lastUpdated, e); }
+        } catch (e) { console.warn("Error parsing lastUpdated date from backend:", processed.lastUpdated, e); }
     }
 
-    // 5. Parse Numeric ID (for sorting)
-    movie.numericId = Infinity; // Default for items without a parsable ID (sorts last)
-    if (movie.id) {
-        // Extract digits from the ID string and parse as integer
-        const parsedId = parseInt(String(movie.id).replace(/\D/g, ''), 10);
-        if (!isNaN(parsedId)) movie.numericId = parsedId;
+    // 5. Parse Numeric ID
+    processed.numericId = Infinity;
+    if (processed.id) {
+        const parsedId = parseInt(String(processed.id).replace(/\D/g, ''), 10);
+        if (!isNaN(parsedId)) processed.numericId = parsedId;
     }
 
-    // 6. Create Normalized Search Text (for filtering)
-    // Combine relevant fields into a single string for searching
-    movie.searchText = normalizeTextForSearch(`${movie.id || ''} ${movie.displayFilename}`);
+    // 6. Create Normalized Search Text
+    processed.searchText = normalizeTextForSearch(`${processed.id || ''} ${processed.displayFilename}`);
 
-    return movie; // Return the processed movie object
+    return processed; // Return the processed movie object
 }
 
 
@@ -1471,26 +1438,21 @@ function preprocessMovieData(movie) {
  * @returns {string} The combined HTML string for the main and action rows.
  */
 function createMovieRowsHTML(movie, index, context) {
-    // Generate a unique ID part based on movie ID or index
     const uniqueIdPart = movie.id ? String(movie.id).replace(/[^a-zA-Z0-9-_]/g, '') : `gen-${index}`;
-    const actionRowId = `${context}-actions-${uniqueIdPart}`; // ID for the hidden action row
+    const actionRowId = `${context}-actions-${uniqueIdPart}`;
 
-    // Get processed display values
     const displayFilename = movie.displayFilename;
     const displaySize = movie.sizeData.display;
     const displayQuality = movie.displayQuality;
 
-    // Create a cleaner title for the stream player
     const streamTitle = displayFilename
-        .split(/[\.\(\[]/)[0] // Take the part before the first dot, parenthesis, or bracket
-        .replace(/[_ ]+/g, ' ').trim() // Replace underscores/multiple spaces with single space
-        + (displayQuality !== 'N/A' ? ` (${displayQuality})` : ''); // Append quality if available
+        .split(/[\.\(\[]/)[0]
+        .replace(/[_ ]+/g, ' ').trim()
+        + (displayQuality !== 'N/A' ? ` (${displayQuality})` : '');
 
-    // Format dates for display and tooltip
     const formattedDateRelative = TimeAgo.format(movie.lastUpdated);
     const formattedDateFull = movie.lastUpdatedTimestamp > 0 ? TimeAgo.formatFullDate(new Date(movie.lastUpdatedTimestamp)) : 'N/A';
 
-    // Generate logos for 4K/HDR based on quality and filename hints
     let hdrLogoHtml = '';
     let fourkLogoHtml = '';
     const lowerFilename = displayFilename.toLowerCase();
@@ -1502,13 +1464,9 @@ function createMovieRowsHTML(movie, index, context) {
         hdrLogoHtml = `<img src="${config.HDR_LOGO_URL}" alt="HDR/DV" class="quality-logo hdr-logo" title="HDR / Dolby Vision Content" />`;
     }
 
-    // Escape quotes in strings that will be used inside JavaScript function calls in HTML attributes
     const escapedStreamTitle = streamTitle.replace(/'/g, "\\'");
     const escapedFilename = displayFilename.replace(/'/g, "\\'");
 
-    // Determine the colspan for the action row TD (accounts for hidden columns on mobile via CSS)
-    // For simplicity and robustness with CSS hiding columns, setting it statically.
-    // The CSS ensures the TD takes full width on mobile anyway (`display: block`).
     const colspanValue = 6;
 
     // --- Main Data Row HTML ---
@@ -1527,34 +1485,31 @@ function createMovieRowsHTML(movie, index, context) {
 
     // --- Action Buttons HTML (Conditional) ---
     let actionButtonsHTML = '';
-    if (movie.url) { // Only show stream/download buttons if a direct URL exists
+    if (movie.url) {
         actionButtonsHTML += `<button class="button play-button" onclick="streamVideo('${escapedStreamTitle}', '${sanitize(movie.url)}', '${escapedFilename}')">Play here</button>`;
         actionButtonsHTML += `<a class="button download-button" href="${sanitize(movie.url)}" download="${displayFilename}" target="_blank" rel="noopener noreferrer">Direct Download</a>`;
         actionButtonsHTML += `<button class="button vlc-button" onclick="copyVLCLink(this, '${sanitize(movie.url)}')">Copy URL (for VLC/MX)</button>`;
-        // Check for Android user agent to show the "Open Externally" button
         if (navigator.userAgent.toLowerCase().includes("android")) {
              actionButtonsHTML += `<button class="button intent-button" onclick="openWithIntent('${sanitize(movie.url)}')">Open Externally (Android)</button>`;
         }
     }
-    // Add buttons for other link types if they exist
     if (movie.telegramLink) actionButtonsHTML += `<a class="button telegram-button" href="${sanitize(movie.telegramLink)}" target="_blank" rel="noopener noreferrer">Telegram File</a>`;
 
     // Conditional GDFLIX button text
     if (movie.gdflixLink) {
-        // Determine the button text based on the URL content
-        let gdflixButtonText = "GDFLIX"; // Default text
-        if (movie.gdflixLink.includes('/pack/')) { // Check if link contains '/pack/'
-            gdflixButtonText = "GDFLIX (pack)"; // Change text if found
+        let gdflixButtonText = "GDFLIX";
+        if (movie.gdflixLink.includes('/pack/')) {
+            gdflixButtonText = "GDFLIX (pack)";
         }
-        // Construct the button HTML using the determined text
         actionButtonsHTML += `<a class="button gdflix-button" href="${sanitize(movie.gdflixLink)}" target="_blank" rel="noopener noreferrer">${gdflixButtonText}</a>`;
     }
 
+    // --- ADDED BUTTONS FOR NEW LINKS ---
     if (movie.hubcloudLink) actionButtonsHTML += `<a class="button hubcloud-button" href="${sanitize(movie.hubcloudLink)}" target="_blank" rel="noopener noreferrer">HubCloud</a>`;
     if (movie.filepressLink) actionButtonsHTML += `<a class="button filepress-button" href="${sanitize(movie.filepressLink)}" target="_blank" rel="noopener noreferrer">Filepress</a>`;
     if (movie.gdtotLink) actionButtonsHTML += `<a class="button gdtot-button" href="${sanitize(movie.gdtotLink)}" target="_blank" rel="noopener noreferrer">GDToT</a>`;
+    // --- END OF ADDED BUTTONS ---
 
-    // If no buttons were generated, show a message
     if (!actionButtonsHTML) {
         actionButtonsHTML = '<span style="color: var(--text-muted); font-style: italic; text-align: center; width: 100%; display: block; padding: 10px 0;">No stream/download actions available</span>';
     }
@@ -1567,20 +1522,20 @@ function createMovieRowsHTML(movie, index, context) {
                     <span class="info-item"><strong>Filename:</strong> ${displayFilename}</span>
                     <span class="info-item"><strong>Quality:</strong> ${displayQuality} ${fourkLogoHtml} ${hdrLogoHtml}</span>
                     <span class="info-item"><strong>Size:</strong> ${displaySize}</span>
-                    <span class="info-item"><strong>Language:</strong> ${sanitize(movie.languages || 'N/A')}</span>
+                    <span class="info-item"><strong>Language:</strong> ${sanitize(movie.languages || 'N/A')}</span> <!-- Added Languages -->
                     <span class="info-item"><strong>Updated:</strong> ${formattedDateFull} (${formattedDateRelative})</span>
-                    ${(movie.filenameSource !== 'sheet' && movie.filename && movie.filename !== movie.displayFilename)
-                       ? `<span class="info-item"><strong>Original Name:</strong> ${sanitize(movie.filename)}</span>` // Show original if different
+                    ${movie.originalFilename
+                       ? `<span class="info-item"><strong>Original Name:</strong> ${sanitize(movie.originalFilename)}</span>`
                        : ''}
                 </div>
                 <div class="action-buttons-container">
                    ${actionButtonsHTML}
                 </div>
-                <!-- Video player container will be moved into this TD dynamically when 'Play here' is clicked -->
+                <!-- Video player container will be moved into this TD dynamically -->
             </td>
         </tr>`;
 
-    return mainRowHTML + actionRowHTML; // Combine the two rows
+    return mainRowHTML + actionRowHTML;
 }
 
 /**
@@ -1588,88 +1543,75 @@ function createMovieRowsHTML(movie, index, context) {
  */
 function renderTables() {
     const now = Date.now();
-    const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000); // Timestamp 24 hours ago
+    const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
 
     // --- Render Updates Table ---
     let updatesHtml = '';
     let updatesFound = false;
     let updateIndex = 0;
-    // Sort original data by most recent update time for the "Updates" section
     const sortedOriginalDataForUpdates = [...allMovieData].sort((a, b) => b.lastUpdatedTimestamp - a.lastUpdatedTimestamp);
     sortedOriginalDataForUpdates.forEach((movie) => {
-        // Include if updated within the last 24 hours AND has an ID and some content/link
-        if (movie.lastUpdatedTimestamp >= twentyFourHoursAgo) {
-            if (movie.id && (movie.filenameSource !== 'placeholder' || movie.url || movie.gdflixLink || movie.hubcloudLink || movie.filepressLink || movie.telegramLink || movie.gdtotLink)) {
-                updatesHtml += createMovieRowsHTML(movie, updateIndex, 'upd'); // Use 'upd' context for unique IDs
+        // Check if updated recently AND has minimal required data (ID and some link/content)
+        if (movie.lastUpdatedTimestamp >= twentyFourHoursAgo &&
+            movie.id && (movie.url || movie.telegramLink || movie.gdflixLink || movie.hubcloudLink || movie.filepressLink || movie.gdtotLink || movie.filenameSource !== 'placeholder') ) {
+                updatesHtml += createMovieRowsHTML(movie, updateIndex, 'upd');
                 updatesFound = true;
                 updateIndex++;
-            }
         }
     });
-    updatesTableBody.innerHTML = updatesFound ? updatesHtml : '<tr><td colspan="6" class="status-message">No updates in the last 24 hours.</td></tr>';
-    // Hide updates section if a search term is active
+    if (updatesTableBody) updatesTableBody.innerHTML = updatesFound ? updatesHtml : '<tr><td colspan="6" class="status-message">No updates in the last 24 hours.</td></tr>';
     if (updatesSection) updatesSection.style.display = currentState.searchTerm ? 'none' : 'block';
 
     // --- Render Recent Movies Table (Paginated) ---
     let movieHtml = '';
-    const totalItems = filteredAndSortedData.length; // Use pre-filtered/sorted data
+    const totalItems = filteredAndSortedData.length;
     const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
 
-    // Validate current page number
     if (currentState.currentPage < 1) currentState.currentPage = 1;
-    if (currentState.currentPage > totalPages && totalPages > 0) currentState.currentPage = totalPages; // Go to last page if current is too high
-    if (totalItems === 0) currentState.currentPage = 1; // Reset to 1 if no items
+    if (currentState.currentPage > totalPages && totalPages > 0) currentState.currentPage = totalPages;
+    if (totalItems === 0) currentState.currentPage = 1;
 
-    // Calculate slice indices for the current page
     const startIndex = (currentState.currentPage - 1) * config.ITEMS_PER_PAGE;
     const endIndex = Math.min(startIndex + config.ITEMS_PER_PAGE, totalItems);
     const pageData = filteredAndSortedData.slice(startIndex, endIndex);
 
-    // Generate HTML for the current page
     if (totalItems === 0) {
-        // Show appropriate message if no results
-        movieTableBody.innerHTML = `<tr><td colspan="6" class="status-message">${currentState.searchTerm || currentState.qualityFilter ? 'No movies found matching your criteria.' : 'Loading movies or no movies listed yet.'}</td></tr>`;
-        if (paginationControlsContainer) paginationControlsContainer.style.display = 'none'; // Hide pagination
+        if (movieTableBody) movieTableBody.innerHTML = `<tr><td colspan="6" class="status-message">${currentState.searchTerm || currentState.qualityFilter ? 'No movies found matching your criteria.' : 'Loading movies or no movies listed yet.'}</td></tr>`;
+        if (paginationControlsContainer) paginationControlsContainer.style.display = 'none';
     } else {
-        pageData.forEach((movie, index) => movieHtml += createMovieRowsHTML(movie, startIndex + index, 'rec')); // Use 'rec' context
-        movieTableBody.innerHTML = movieHtml;
-        renderPaginationControls(totalItems, totalPages); // Render pagination
-        if (paginationControlsContainer) paginationControlsContainer.style.display = 'block'; // Show pagination
+        pageData.forEach((movie, index) => movieHtml += createMovieRowsHTML(movie, startIndex + index, 'rec'));
+        if (movieTableBody) movieTableBody.innerHTML = movieHtml;
+        renderPaginationControls(totalItems, totalPages);
+        if (paginationControlsContainer) paginationControlsContainer.style.display = 'block';
     }
 
-    // Update visual indicators for sort/filter
     updateSortIndicators();
     updateFilterIndicator();
 
     // --- Handle Active Action Row State ---
-    // If an action row was open, check if its corresponding main row is still visible after re-render
     if (activeActionRow && activeActionRow.style.display !== 'none') {
         const mainRow = activeActionRow.previousElementSibling;
-        const isMainRowVisible = (movieTableBody.contains(mainRow) || updatesTableBody.contains(mainRow));
+        const isMainRowVisible = (movieTableBody?.contains(mainRow) || updatesTableBody?.contains(mainRow));
         if (!isMainRowVisible) {
-             // If main row disappeared (due to filter/page change), close the player and the action row
              closePlayer();
              activeActionRow.style.display = 'none';
              activeActionRow = null;
         }
     } else if (activeActionRow && activeActionRow.style.display === 'none') {
-         // If the active row was somehow hidden, clear the reference
          activeActionRow = null;
-         closePlayerIfNeeded(); // Ensure player is closed if no row is active
+         closePlayerIfNeeded();
     }
 }
 
 
 /**
  * Renders the pagination controls based on total items and current page.
- * @param {number} totalItems - Total number of items after filtering.
- * @param {number} totalPages - Total number of pages.
  */
 function renderPaginationControls(totalItems, totalPages) {
     if (!paginationControlsContainer) return;
-    paginationControlsContainer.innerHTML = ''; // Clear previous controls
+    paginationControlsContainer.innerHTML = '';
     if (totalPages <= 1) {
-        paginationControlsContainer.style.display = 'none'; // Hide if only one page or less
+        paginationControlsContainer.style.display = 'none';
         return;
     }
 
@@ -1680,48 +1622,42 @@ function renderPaginationControls(totalItems, totalPages) {
     paginationHTML += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled title="Already on first page"' : 'title="Go to previous page"'}>« Prev</button>`;
 
     // Page Number Buttons (with ellipsis logic)
-    const maxPagesToShow = 5; // Max number of direct page links shown (excluding first/last)
+    const maxPagesToShow = 5;
     const halfPages = Math.floor(maxPagesToShow / 2);
 
-    if (totalPages <= maxPagesToShow + 2) { // Show all pages if total is small
+    if (totalPages <= maxPagesToShow + 2) { // Show all
         for (let i = 1; i <= totalPages; i++) {
             paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`;
         }
-    } else { // Show ellipsis logic for large number of pages
-        // Determine start and end page numbers for the middle block
+    } else { // Show ellipsis
         let startPage = Math.max(2, currentPage - halfPages);
         let endPage = Math.min(totalPages - 1, currentPage + halfPages);
 
-        // Adjust start/end if near the beginning or end
-        if (currentPage <= halfPages + 1) { // Near the start
+        if (currentPage <= halfPages + 1) {
             endPage = Math.min(totalPages - 1, maxPagesToShow);
         }
-        if (currentPage >= totalPages - halfPages) { // Near the end
+        if (currentPage >= totalPages - halfPages) {
             startPage = Math.max(2, totalPages - maxPagesToShow + 1);
         }
 
-        // First page button
+        // First page
         paginationHTML += (1 === currentPage) ? `<span class="current-page">1</span>` : `<button onclick="changePage(1)" title="Go to page 1">1</button>`;
-
-        // Ellipsis after first page?
         if (startPage > 2) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
 
-        // Middle page buttons
+        // Middle pages
         for (let i = startPage; i <= endPage; i++) {
             paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`;
         }
 
         // Ellipsis before last page?
         if (endPage < totalPages - 1) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
-
-        // Last page button
+        // Last page
         paginationHTML += (totalPages === currentPage) ? `<span class="current-page">${totalPages}</span>` : `<button onclick="changePage(${totalPages})" title="Go to page ${totalPages}">${totalPages}</button>`;
     }
 
     // Next Button
     paginationHTML += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled title="Already on last page"' : 'title="Go to next page"'}>Next »</button>`;
 
-    // Update the container and make it visible
     paginationControlsContainer.innerHTML = paginationHTML;
     paginationControlsContainer.style.display = 'block';
 }
@@ -1730,36 +1666,28 @@ function renderPaginationControls(totalItems, totalPages) {
  * Applies current search, filter, and sort criteria to the data, then renders the table.
  */
 function applyUserActions() {
-    // --- Filtering ---
     const normalizedSearch = normalizeTextForSearch(currentState.searchTerm);
-    // Split search term into keywords for more flexible matching
-    const searchKeywords = normalizedSearch ? normalizedSearch.split(' ').filter(k => k) : []; // Filter out empty strings
+    const searchKeywords = normalizedSearch ? normalizedSearch.split(' ').filter(Boolean) : [];
 
     filteredAndSortedData = allMovieData.filter(movie => {
-        // Apply quality filter
         if (currentState.qualityFilter && movie.displayQuality !== currentState.qualityFilter) {
             return false;
         }
-        // Apply search term filter (match all keywords)
         if (searchKeywords.length > 0 && !searchKeywords.every(keyword => movie.searchText.includes(keyword))) {
             return false;
         }
-        // Mark if it's an exact match for potential boosting in sort (optional)
         movie.isExactMatch = searchKeywords.length > 0 && movie.searchText.includes(normalizedSearch);
-        return true; // Include if passes filters
+        return true;
     });
 
-    // --- Sorting ---
     const sortKey = currentState.sortColumn;
-    const direction = currentState.sortDirection === 'asc' ? 1 : -1; // 1 for asc, -1 for desc
+    const direction = currentState.sortDirection === 'asc' ? 1 : -1;
 
     filteredAndSortedData.sort((a, b) => {
-        // Optional: Boost exact matches to the top if searching
         if (searchKeywords.length > 0 && a.isExactMatch !== b.isExactMatch) {
             return a.isExactMatch ? -1 : 1;
         }
 
-        // Get values to compare based on the sort key
         let valA, valB;
         switch (sortKey) {
             case 'id': valA = a.numericId; valB = b.numericId; break;
@@ -1769,51 +1697,43 @@ function applyUserActions() {
             case 'lastUpdated': default: valA = a.lastUpdatedTimestamp; valB = b.lastUpdatedTimestamp; break;
         }
 
-        // Comparison logic (handle null/undefined values gracefully)
         const aIsLess = (valA === null || typeof valA === 'undefined') || (valA < valB && valB !== null && typeof valB !== 'undefined');
         const bIsLess = (valB === null || typeof valB === 'undefined') || (valB < valA && valA !== null && typeof valA !== 'undefined');
 
         if (aIsLess) return -1 * direction;
         if (bIsLess) return 1 * direction;
 
-        // Secondary sort: Use descending numeric ID for stability if primary values are equal
-        if (b.numericId < a.numericId) return -1; // Newer ID first
+        // Secondary sort by ID desc for stability
+        if (b.numericId < a.numericId) return -1;
         if (b.numericId > a.numericId) return 1;
 
-        return 0; // Items are equal
+        return 0;
     });
 
-    // --- Render ---
-    renderTables(); // Update the displayed tables and pagination
-    saveStateToLocalStorage(); // Persist the current state
+    renderTables();
+    saveStateToLocalStorage();
 }
 
 
 /**
  * Handles clicks on sortable table headers.
- * @param {Event} event - The click event.
  */
 function handleSort(event) {
-    // Find the closest sortable TH element clicked
     const header = event.target.closest('th.sortable');
-    if (!header) return; // Click was not on a sortable header
+    if (!header) return;
     const sortKey = header.dataset.sortKey;
-    if (!sortKey) return; // Header missing data-sort-key
+    if (!sortKey) return;
 
-    // Determine new sort direction
     if (currentState.sortColumn === sortKey) {
-        // If clicking the same column, reverse the direction
         currentState.sortDirection = currentState.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-        // If clicking a new column, set the default direction
         currentState.sortColumn = sortKey;
-        // Default 'asc' for text columns, 'desc' for numeric/date columns
         currentState.sortDirection = ['filename', 'quality'].includes(sortKey) ? 'asc' : 'desc';
     }
 
-    currentState.currentPage = 1; // Reset to page 1 when sort changes
-    closePlayerIfNeeded(); // Close player if open
-    applyUserActions(); // Apply the new sort and re-render
+    currentState.currentPage = 1;
+    closePlayerIfNeeded();
+    applyUserActions();
 }
 
 /**
@@ -1821,52 +1741,44 @@ function handleSort(event) {
  */
 function updateSortIndicators() {
     if (!movieTableHead) return;
-    // Loop through all sortable headers
     movieTableHead.querySelectorAll('th.sortable').forEach(th => {
-        th.classList.remove('sort-asc', 'sort-desc'); // Remove existing sort classes
-        // If this header is the currently sorted column, add the appropriate class
+        th.classList.remove('sort-asc', 'sort-desc');
         if (th.dataset.sortKey === currentState.sortColumn) {
             th.classList.add(currentState.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
-            // Set ARIA attribute for accessibility
             th.setAttribute('aria-sort', currentState.sortDirection === 'asc' ? 'ascending' : 'descending');
         } else {
-            // Remove ARIA attribute if not the sorted column
             th.removeAttribute('aria-sort');
         }
     });
 }
 
 /**
- * Updates the visual style of the quality filter select element (adds/removes 'filter-active' class).
+ * Updates the visual style of the quality filter select element.
  */
 function updateFilterIndicator() {
     if (!qualityFilterSelect) return;
-    // Add the class if a quality filter is selected, remove it otherwise
     qualityFilterSelect.classList.toggle('filter-active', !!currentState.qualityFilter);
 }
 
 
 /**
  * Changes the current page and re-renders the table.
- * @param {number} newPage - The page number to navigate to.
  */
 function changePage(newPage) {
     const totalItems = filteredAndSortedData.length;
     const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
 
-    // Validate the new page number and check if it's different from the current page
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentState.currentPage) {
-        currentState.currentPage = newPage; // Update the current page state
-        closePlayerIfNeeded(); // Close player if open
-        renderTables(); // Re-render the table for the new page
-        saveStateToLocalStorage(); // Save the new page number
+        currentState.currentPage = newPage;
+        closePlayerIfNeeded();
+        renderTables();
+        saveStateToLocalStorage();
 
-        // Scroll the top of the table (below the sticky header) into view
         const tableElement = document.getElementById('movieTable') || document.getElementById('updatesTable');
         if (tableElement) {
             const headerElement = tableElement.querySelector('thead');
             const headerHeight = headerElement ? headerElement.offsetHeight : 0;
-            const scrollOffset = 20; // Extra space below header
+            const scrollOffset = 20;
             const elementPosition = tableElement.getBoundingClientRect().top + window.pageYOffset;
             const offsetPosition = elementPosition - headerHeight - scrollOffset;
 
@@ -1878,195 +1790,162 @@ function changePage(newPage) {
 
 /**
  * Toggles the visibility of the action row associated with a clicked element.
- * Manages the state of the `activeActionRow` and the video player placement.
- * @param {HTMLElement} clickedElement - The element clicked (button or filename TD).
- * @param {string} targetRowId - The ID of the action row to toggle.
  */
 function toggleActions(clickedElement, targetRowId) {
     const targetRow = document.getElementById(targetRowId);
-    if (!targetRow) return; // Target row not found
+    if (!targetRow) return;
 
-    // Find the associated main row and view button
     let mainRowElement = clickedElement.closest('tr');
-    if (!mainRowElement) return; // Should always find a parent row
+    if (!mainRowElement) return;
     let buttonElement = mainRowElement.querySelector('.view-button');
-    if (!buttonElement) return; // View button not found
+    if (!buttonElement) return;
 
-    const isCurrentlyVisible = targetRow.style.display !== 'none'; // Check if target is currently visible
+    const isCurrentlyVisible = targetRow.style.display !== 'none';
 
-    // If opening a new action row while the player is visible in another, close the player first.
     if (!isCurrentlyVisible && videoContainer?.style.display === 'flex' && activeActionRow !== targetRow) {
         closePlayer();
     }
 
-    // Close any *other* currently open action row
     if (activeActionRow && activeActionRow !== targetRow && activeActionRow.style.display !== 'none') {
-        activeActionRow.style.display = 'none'; // Hide the other row
+        activeActionRow.style.display = 'none';
         const otherMainRow = activeActionRow.previousElementSibling;
         const otherButton = otherMainRow?.querySelector('.view-button');
-        if (otherButton) { // Reset its button text
+        if (otherButton) {
             otherButton.textContent = 'View';
             otherButton.setAttribute('aria-expanded', 'false');
         }
-        // If the player was inside the row being closed implicitly, ensure it's closed
         if (videoContainer?.parentElement === activeActionRow.querySelector('td')) {
             closePlayer();
         }
     }
 
-    // Toggle the target row's visibility
     if (isCurrentlyVisible) {
-        // --- Closing the currently open row ---
         targetRow.style.display = 'none';
-        buttonElement.textContent = 'View'; // Reset button text
+        buttonElement.textContent = 'View';
         buttonElement.setAttribute('aria-expanded', 'false');
-        activeActionRow = null; // No row is active now
-        closePlayer(); // Close player if it was associated with this row
+        activeActionRow = null;
+        closePlayer();
     } else {
-        // --- Opening the target row ---
-        targetRow.style.display = 'table-row'; // Use 'table-row' for proper table layout
-        buttonElement.textContent = 'Hide'; // Change button text
+        targetRow.style.display = 'table-row';
+        buttonElement.textContent = 'Hide';
         buttonElement.setAttribute('aria-expanded', 'true');
-        activeActionRow = targetRow; // This row is now the active one
+        activeActionRow = targetRow;
 
-        // Ensure the video container element is moved *into* the newly opened action row's cell
-        // This prepares it for potential playback within this row.
         const actionCell = targetRow.querySelector('td');
         if (actionCell && videoContainer?.parentElement !== actionCell) {
-             // Reset player state before moving if it was somewhere else
              if (videoElement && videoElement.hasAttribute('src')) {
                  videoElement.pause();
                  videoElement.removeAttribute('src');
                  videoElement.load();
              }
-             if (videoContainer) videoContainer.style.display = 'none'; // Ensure it's hidden before moving
-             if (videoContainer) actionCell.appendChild(videoContainer); // Move the player element
+             if (videoContainer) videoContainer.style.display = 'none';
+             if (videoContainer) actionCell.appendChild(videoContainer);
         } else if (!actionCell) {
             console.error("Could not find action cell to move player into:", targetRowId);
         }
 
-        // Scroll the main row (just above the action row) into view smoothly after a brief delay
         setTimeout(() => {
             const headerElement = document.querySelector('#movieTable thead') || document.querySelector('#updatesTable thead');
             const headerHeight = headerElement ? headerElement.offsetHeight : 0;
             const elementRect = mainRowElement.getBoundingClientRect();
             const absoluteElementTop = elementRect.top + window.pageYOffset;
-            const scrollOffset = 10; // Small offset below header
+            const scrollOffset = 10;
             const offsetPosition = absoluteElementTop - headerHeight - scrollOffset;
             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }, 100); // Delay allows the row to render/expand first
+        }, 100);
     }
 }
 
 
 /**
  * Starts streaming a video in the inline player within the active action row.
- * @param {string} title - The title to display for the video.
- * @param {string} url - The URL of the video source.
- * @param {string} filenameForAudioCheck - The filename to check for audio codec hints.
  */
  function streamVideo(title, url, filenameForAudioCheck) {
-     // Ensure essential elements exist and an action row is active
      if (!videoContainer || !videoElement || !activeActionRow) {
-         console.error("Cannot stream: player container, video element, or active action row not found.");
+         console.error("Cannot stream: player/element/active row missing.");
          return;
      }
 
-     // Ensure the video container is correctly placed within the *currently active* action row's cell
       const actionCell = activeActionRow.querySelector('td');
-      if (!actionCell) { console.error("Cannot stream: action cell not found in active row."); return; }
-      // If the player isn't already in this cell, move it.
+      if (!actionCell) { console.error("Cannot stream: action cell not found."); return; }
       if (videoContainer.parentElement !== actionCell) {
           console.warn("Video container not in expected cell. Moving.");
-           // Reset player state if moving from elsewhere
            if(videoElement && videoElement.hasAttribute('src')) {
-               videoElement.pause();
-               videoElement.removeAttribute('src');
-               videoElement.load();
+               videoElement.pause(); videoElement.removeAttribute('src'); videoElement.load();
            }
-           actionCell.appendChild(videoContainer); // Move the container
+           actionCell.appendChild(videoContainer);
       }
 
-     // Reset UI elements before loading new video
      if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
      if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-     if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show'); // Hide copy feedback
+     if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show');
 
-     // Load saved settings (volume, speed) or use defaults
      const savedVolume = localStorage.getItem(config.PLAYER_VOLUME_KEY);
      const savedSpeed = localStorage.getItem(config.PLAYER_SPEED_KEY);
-     videoElement.volume = (savedVolume !== null) ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 1; // Default vol 1
-     if (volumeSlider) volumeSlider.value = videoElement.volume; // Update slider visual
-     videoElement.muted = (videoElement.volume === 0); // Mute if volume is 0
-     videoElement.playbackRate = (savedSpeed !== null) ? parseFloat(savedSpeed) : 1; // Default speed 1x
-     if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate); // Update speed dropdown
-     updateMuteButton(); // Update mute button text/state
+     videoElement.volume = (savedVolume !== null) ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 1;
+     if (volumeSlider) volumeSlider.value = videoElement.volume;
+     videoElement.muted = (videoElement.volume === 0);
+     videoElement.playbackRate = (savedSpeed !== null) ? parseFloat(savedSpeed) : 1;
+     if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate);
+     updateMuteButton();
 
-     // --- Check for potential audio issues based on filename ---
-     const ddp51Regex = /\bDDP?([ ._-]?5\.1)?\b/i; // Matches DDP, DDP5.1, DD+5.1 etc.
-     const advancedAudioRegex = /\b(DTS|ATMOS|TrueHD)\b/i; // Matches DTS, Atmos, TrueHD
-     const multiAudioHintRegex = /\b(Multi|Dual)[ ._-]?Audio\b/i; // Matches Multi Audio, Dual-Audio etc.
+     // --- Audio Check ---
+     const ddp51Regex = /\bDDP?([ ._-]?5\.1)?\b/i;
+     const advancedAudioRegex = /\b(DTS|ATMOS|TrueHD)\b/i;
+     const multiAudioHintRegex = /\b(Multi|Dual)[ ._-]?Audio\b/i;
      let warningText = "";
       if (filenameForAudioCheck) {
-          filenameForAudioCheck = filenameForAudioCheck.toLowerCase(); // Normalize for case-insensitive matching
-          if (ddp51Regex.test(filenameForAudioCheck)) {
+          const lowerFilename = filenameForAudioCheck.toLowerCase();
+          if (ddp51Regex.test(lowerFilename)) {
               warningText = "<strong>Audio Note:</strong> Dolby Digital Plus (DDP) audio might not be supported in this browser. Use 'Copy URL' or 'Open Externally' if you experience sound issues.";
-          } else if (advancedAudioRegex.test(filenameForAudioCheck)) {
+          } else if (advancedAudioRegex.test(lowerFilename)) {
               warningText = "<strong>Audio Note:</strong> DTS/Atmos/TrueHD audio is likely unsupported in this browser. Use 'Copy URL' or 'Open Externally' for playback with compatible players.";
-          } else if (multiAudioHintRegex.test(filenameForAudioCheck)) {
+          } else if (multiAudioHintRegex.test(lowerFilename)) {
               warningText = "<strong>Audio Note:</strong> This file may contain multiple audio tracks. Use the audio track selector below (if available after loading) or an external player.";
           }
       }
-      // Display warning if applicable
       if (warningText && audioWarningDiv) {
           audioWarningDiv.innerHTML = warningText;
           audioWarningDiv.style.display = 'block';
       }
 
-     // --- Setup and Play Video ---
-     if (videoTitle) videoTitle.innerText = title; // Set the player title
-     if (vlcText) vlcText.innerText = url; // Update URL in the copy box
-     if (vlcBox) vlcBox.style.display = 'block'; // Show the copy box
-     videoElement.src = url; // Set the video source URL
-     videoElement.load(); // Load the video source
+     // --- Setup and Play ---
+     if (videoTitle) videoTitle.innerText = title;
+     if (vlcText) vlcText.innerText = url;
+     if (vlcBox) vlcBox.style.display = 'block';
+     videoElement.src = url;
+     videoElement.load();
 
-     // Attempt to play (catch potential autoplay restrictions)
      videoElement.play().catch(e => {
           console.log("Autoplay prevented or failed:", e.message);
-          // Browser controls should allow the user to manually start playback.
      });
-     videoContainer.style.display = 'flex'; // Make the video container visible (using flex display)
+     videoContainer.style.display = 'flex';
 
-     // Scroll the player container into view smoothly after a short delay
      setTimeout(() => {
          videoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
      }, 150);
  }
 
 /**
- * Closes the inline video player, stops playback, resets its state, and moves it back to the main container.
+ * Closes the inline video player, stops playback, resets its state, and moves it back.
  */
  function closePlayer() {
     if (!videoContainer || !videoElement) return;
 
-    const wasPlaying = videoContainer.style.display !== 'none'; // Check if it was visible before closing
+    const wasPlaying = videoContainer.style.display !== 'none';
 
-    // Attempt to exit fullscreen if the player or its container is fullscreen
     try {
         const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
         if (fsElement && (fsElement === videoElement || fsElement === videoContainer)) {
             if (document.exitFullscreen) document.exitFullscreen();
             else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            // The 'fullscreenchange' event listener will handle class toggling
         }
     } catch(err) { console.error("Error exiting fullscreen:", err); }
 
-    // Stop video playback and clear the source
     videoElement.pause();
     videoElement.removeAttribute('src');
-    videoElement.load(); // Important to clear buffer and stop network requests
+    videoElement.load();
 
-    // Hide the player container and reset related UI elements
     videoContainer.style.display = 'none';
     if (vlcBox) vlcBox.style.display = 'none';
     if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
@@ -2074,45 +1953,37 @@ function toggleActions(clickedElement, targetRowId) {
     if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show');
     if (videoTitle) videoTitle.innerText = '';
 
-    // Move the player container back to the main #cinemaghar-container for structural cleanliness
-    // This prevents it from being orphaned if the action row is removed from the DOM later.
+    // Move player container back to main container
      if (container && videoContainer.parentElement !== container) {
-        // Only move back if the main container still exists in the DOM
         if (document.body.contains(container)) {
              container.appendChild(videoContainer);
         } else {
-             console.warn("Main container #cinemaghar-container not found in DOM, cannot move player back.");
+             console.warn("Main container #cinemaghar-container not found, cannot move player back.");
         }
      }
 
-    // If the player was closed while its corresponding action row was still marked as active and visible,
-    // reset the 'View/Hide' button for that row.
-     if (wasPlaying && activeActionRow && activeActionRow.style.display !== 'none') { // Check if row is still 'active' and visible
+     // Reset view button if corresponding row was active
+     if (wasPlaying && activeActionRow && activeActionRow.style.display !== 'none') {
          const actionCell = activeActionRow.querySelector('td');
-         // Check if the player was *actually inside* this specific action row's cell when closed
-         // (This check might be redundant if closePlayer is always called correctly, but adds safety)
+         // Check if player was inside this row's cell when closed (safety check)
          if (actionCell && videoContainer.parentElement === actionCell) {
-              // Reset the button text/state for the corresponding main row
               const viewButton = activeActionRow.previousElementSibling?.querySelector('.view-button');
-              if (viewButton && viewButton.textContent === 'Hide') { // Only reset if it says 'Hide'
+              if (viewButton && viewButton.textContent === 'Hide') {
                   viewButton.textContent = 'View';
                   viewButton.setAttribute('aria-expanded', 'false');
               }
          }
      }
 
-     // Ensure fullscreen class is removed if manually closed while fullscreen was active
-     // (Safety net, as the event listener should handle this)
+     // Ensure fullscreen class is removed
      if (videoContainer.classList.contains('is-fullscreen')) {
         videoContainer.classList.remove('is-fullscreen');
      }
  }
 
-/**
- * Utility to close the player only if it's currently visible ('flex' display).
- */
+/** Utility to close the player only if it's currently visible. */
 function closePlayerIfNeeded() {
-    if (videoContainer?.style.display === 'flex') { // Check specifically for 'flex'
+    if (videoContainer?.style.display === 'flex') {
          closePlayer();
     }
 }
@@ -2123,9 +1994,7 @@ function togglePlayPause() {
     if (!videoElement) return;
     if (videoElement.paused || videoElement.ended) {
         videoElement.play().catch(e => console.log("Play error:", e.message));
-    } else {
-        videoElement.pause();
-    }
+    } else { videoElement.pause(); }
 }
 function toggleMute() { if (videoElement) videoElement.muted = !videoElement.muted; }
 function updateMuteButton() {
@@ -2134,13 +2003,12 @@ function updateMuteButton() {
     muteButton.textContent = isMuted ? "Unmute" : "Mute";
     muteButton.setAttribute('aria-pressed', String(isMuted));
     if (volumeSlider) {
-        volumeSlider.style.opacity = isMuted ? '0.5' : '1'; // Dim slider when muted
-        volumeSlider.disabled = isMuted; // Disable slider when muted
-        // If unmuting via button and volume was 0, set a sensible default volume
+        volumeSlider.style.opacity = isMuted ? '0.5' : '1';
+        volumeSlider.disabled = isMuted;
         if (!isMuted && videoElement.volume === 0) {
-             const defaultUnmuteVolume = 0.5; // Set volume to 50% when unmuting from 0
+             const defaultUnmuteVolume = 0.5;
              videoElement.volume = defaultUnmuteVolume;
-             volumeSlider.value = defaultUnmuteVolume; // Update slider visually
+             volumeSlider.value = defaultUnmuteVolume;
         }
     }
 }
@@ -2148,131 +2016,110 @@ function setVolume(value) {
     if (videoElement) {
         const newVolume = parseFloat(value);
         videoElement.volume = newVolume;
-        videoElement.muted = (newVolume === 0); // Automatically mute if slider goes to 0
-        // The 'volumechange' event listener will call updateMuteButton
+        videoElement.muted = (newVolume === 0);
     }
 }
 function setPlaybackSpeed(value) { if (videoElement) videoElement.playbackRate = parseFloat(value); }
 function toggleFullscreen() {
-    const elementToMakeFullscreen = videoContainer; // Target the container for fullscreen
+    const elementToMakeFullscreen = videoContainer;
     if (!elementToMakeFullscreen) return;
-    const fsElement = document.fullscreenElement || document.webkitFullscreenElement; // Check current fullscreen element
+    const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
 
     try {
-        if (!fsElement) { // If not currently fullscreen, request it
+        if (!fsElement) {
             if (elementToMakeFullscreen.requestFullscreen) elementToMakeFullscreen.requestFullscreen();
-            else if (elementToMakeFullscreen.webkitRequestFullscreen) elementToMakeFullscreen.webkitRequestFullscreen(); // Safari prefix
-        } else { // If currently fullscreen, exit it
+            else if (elementToMakeFullscreen.webkitRequestFullscreen) elementToMakeFullscreen.webkitRequestFullscreen();
+        } else {
             if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); // Safari prefix
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
         }
     } catch (err) {
         console.error("Fullscreen API error:", err);
-        alert("Could not enter/exit fullscreen mode. Your browser might not support it or the request was denied.");
+        alert("Could not enter/exit fullscreen mode.");
     }
 }
 
 // --- Fullscreen Change Handler ---
-// This function is called automatically by the browser when fullscreen state changes.
 function handleFullscreenChange() {
-    // Check if *any* element is fullscreen, or specifically if our container/video is
     const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
     if (!videoContainer) return;
-    // Toggle a class on the video container based on the fullscreen state.
-    // CSS rules associated with '.is-fullscreen' will handle hiding/showing controls.
     videoContainer.classList.toggle('is-fullscreen', isFullscreen);
     console.log("Fullscreen state changed. Is fullscreen:", isFullscreen);
 }
 
  // --- Event Listeners for Player State ---
  if(videoElement) {
-     // Update volume slider and save volume when changed internally or externally
      videoElement.addEventListener('volumechange', () => {
          if (volumeSlider && parseFloat(volumeSlider.value) !== videoElement.volume) {
-              volumeSlider.value = videoElement.volume; // Sync slider if volume changed programmatically
+              volumeSlider.value = videoElement.volume;
          }
-         updateMuteButton(); // Update mute button state
-         try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); } // Save volume
+         updateMuteButton();
+         try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); }
          catch (e) { console.warn("Could not save volume to localStorage", e); }
      });
-     // Save playback speed when changed
      videoElement.addEventListener('ratechange', () => {
-        if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate); // Sync dropdown
-         try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); } // Save speed
+        if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate);
+         try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); }
          catch (e) { console.warn("Could not save playback speed to localStorage", e); }
      });
-     // Populate audio tracks when video metadata is loaded
      videoElement.addEventListener('loadedmetadata', populateAudioTrackSelector);
  }
- // Listen for browser fullscreen change events (standard and prefixed)
  document.addEventListener('fullscreenchange', handleFullscreenChange);
  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
 
  // --- Audio Track Selection Logic ---
  function populateAudioTrackSelector() {
-      // Ensure necessary elements and browser support exist
       if (!videoElement || typeof videoElement.audioTracks === 'undefined' || !audioTrackSelect) {
-          if(audioTrackSelect) audioTrackSelect.style.display = 'none'; // Hide select if not applicable
+          if(audioTrackSelect) audioTrackSelect.style.display = 'none';
           return;
       }
       const tracks = videoElement.audioTracks;
-      audioTrackSelect.innerHTML = ''; // Clear previous options
+      audioTrackSelect.innerHTML = '';
 
-      // Hide the selector if there's only one audio track (or none)
       if (tracks.length <= 1) {
           audioTrackSelect.style.display = 'none';
           return;
       }
 
-      let hasEnabledTrack = false; // Check if any track is enabled by default
+      let hasEnabledTrack = false;
       for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) hasEnabledTrack = true; }
-
-      // If no track is enabled, attempt to enable the first one (browser default might vary)
       if (!hasEnabledTrack && tracks.length > 0) {
           try { tracks[0].enabled = true; } catch(e) { console.warn("Could not auto-enable first audio track:", e); }
       }
 
-      let preferredTrackIndex = -1; // Index of the preferred Hindi track
+      let preferredTrackIndex = -1;
 
-      // Create <option> elements for each audio track and find preferred track
       for (let i = 0; i < tracks.length; i++) {
           const track = tracks[i];
           const option = document.createElement('option');
-          const trackValue = track.id || i; // Use track ID if available, otherwise index as value
+          const trackValue = track.id || i;
           option.value = trackValue;
 
-          // Create a user-friendly label
-          let label = track.label || `Track ${i + 1}`; // Use track label or generate default
-          let languageName = ''; // Store full language name if found
-          if (track.language) { // Add language information if available
+          let label = track.label || `Track ${i + 1}`;
+          let languageName = '';
+          if (track.language) {
               try {
-                  // Attempt to get the full language name (e.g., "English" from "en")
                   languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]);
-                  label += ` (${languageName || track.language})`; // Use name or fallback to code
-              } catch (e) { label += ` (${track.language})`; } // Fallback for older browsers
+                  label += ` (${languageName || track.language})`;
+              } catch (e) { label += ` (${track.language})`; }
           }
           option.textContent = label;
-          option.selected = track.enabled; // Mark the currently selected/enabled track
-          option.disabled = track.readyState === 'ended'; // Disable option if track failed to load
+          option.selected = track.enabled;
+          option.disabled = track.readyState === 'ended';
           audioTrackSelect.appendChild(option);
 
-          // --- Check for preferred (Hindi) track ---
-          // Check language code first (more reliable)
           if (track.language && track.language.toLowerCase().startsWith('hi')) {
-             if (preferredTrackIndex === -1) preferredTrackIndex = i; // Found first Hindi track by code
+             if (preferredTrackIndex === -1) preferredTrackIndex = i;
           }
-          // Check label/languageName as fallback (case-insensitive)
           else if (preferredTrackIndex === -1 && (label.toLowerCase().includes('hindi') || (languageName && languageName.toLowerCase() === 'hindi'))) {
-              preferredTrackIndex = i; // Found first Hindi track by label/name
+              preferredTrackIndex = i;
           }
       }
 
-      // --- Auto-select Preferred Track if Found ---
       if (preferredTrackIndex !== -1) {
-          console.log(`Hindi audio track found at index ${preferredTrackIndex}. Attempting auto-selection.`);
+          console.log(`Preferred track found at index ${preferredTrackIndex}. Attempting auto-selection.`);
           try {
-              // Disable all other tracks and enable the preferred one
               let trackChanged = false;
               for (let i = 0; i < tracks.length; i++) {
                    const shouldBeEnabled = (i === preferredTrackIndex);
@@ -2281,16 +2128,12 @@ function handleFullscreenChange() {
                        trackChanged = true;
                    }
               }
-              // Update the select dropdown to reflect the change
               const preferredTrackValue = tracks[preferredTrackIndex].id || preferredTrackIndex;
               audioTrackSelect.value = preferredTrackValue;
-              if (trackChanged) console.log("Successfully auto-selected Hindi track.");
-          } catch(e) {
-               console.error("Error auto-selecting preferred audio track:", e);
-          }
+              if (trackChanged) console.log("Successfully auto-selected preferred track.");
+          } catch(e) { console.error("Error auto-selecting preferred audio track:", e); }
       } else {
-          console.log("No Hindi audio track found for auto-selection.");
-          // Ensure the dropdown reflects the browser's default selected track
+          console.log("No preferred audio track found for auto-selection.");
           for (let i = 0; i < tracks.length; i++) {
               if (tracks[i].enabled) {
                   audioTrackSelect.value = tracks[i].id || i;
@@ -2299,28 +2142,23 @@ function handleFullscreenChange() {
           }
       }
 
-      audioTrackSelect.style.display = 'inline-block'; // Show the populated dropdown
+      audioTrackSelect.style.display = 'inline-block';
 
-       // Listen for changes in the AudioTrackList (e.g., if tracks load later)
-       // Note: Support for this specific event listener might vary across browsers.
-       try { tracks.addEventListener('change', populateAudioTrackSelector); }
-       catch(e) { console.warn("Browser might not support 'change' listener on AudioTrackList", e)}
+       try { if (tracks.onchange === null) tracks.onchange = populateAudioTrackSelector; } // Use onchange as addEventListener might not be supported
+       catch(e) { console.warn("Browser might not support 'onchange' on AudioTrackList", e)}
   }
 
  function changeAudioTrack(selectElement) {
       if (!videoElement || !videoElement.audioTracks) return;
-      const selectedTrackValue = selectElement.value; // Value from the <option> (ID or index)
+      const selectedTrackValue = selectElement.value;
       const tracks = videoElement.audioTracks;
       let trackChanged = false;
-      // Iterate through all tracks: enable the selected one, disable others.
       for (let i = 0; i < tracks.length; i++) {
            const track = tracks[i];
-           // Determine if this track is the one selected in the dropdown
            const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue;
-           // Only change the 'enabled' status if it's different from the desired state
            if (track.enabled !== isSelectedTrack) {
                 try {
-                    track.enabled = isSelectedTrack; // Enable or disable the track
+                    track.enabled = isSelectedTrack;
                     if (isSelectedTrack) console.log("Enabled audio track:", track.label || track.id || i);
                     trackChanged = true;
                 }
@@ -2332,127 +2170,76 @@ function handleFullscreenChange() {
 
 
 // --- External Player / Copy Functionality ---
-
-/**
- * Attempts to open the video URL using a generic Android VIEW Intent,
- * prompting the user with the "Open with" chooser.
- * @param {string} url - The video URL.
- */
 function openWithIntent(url) {
     if (!url) return;
-    const mime = getMimeTypeFromUrl(url); // Get the MIME type (e.g., video/mp4, video/x-matroska)
-    // Try to get a somewhat meaningful title for the player
+    const mime = getMimeTypeFromUrl(url);
     const videoTitleEncoded = encodeURIComponent(videoTitle?.innerText || document.title || 'Video');
-
-    // Construct the GENERIC Intent URI:
-    // - action=android.intent.action.VIEW: Standard action to view data.
-    // - type=<mime>: Specifies the data type so Android knows which apps can handle it.
-    // - S.title=<title>: Passes the title as an extra String (optional, but nice).
-    // - NO 'package=' parameter: This is crucial for showing the chooser.
-    // - 'end': Standard intent URI terminator.
     const genericIntentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${videoTitleEncoded};end`;
-
     console.log("Attempting generic VIEW intent:", genericIntentUri);
-
-    // Directly navigate the main window to the intent URI.
-    // On Android, the system intercepts this navigation attempt and resolves the intent.
-    // If multiple apps can handle the action+type, the "Open with" chooser is displayed.
-    // If only one app can handle it, that app opens directly.
-    // If no app can handle it, Android typically shows a "No app found..." message.
     window.location.href = genericIntentUri;
 }
 
-
-/**
- * Copies the provided URL to the clipboard. Shows feedback on success/failure.
- * Uses modern Clipboard API if available, otherwise falls back to older execCommand.
- * @param {HTMLElement} buttonElement - The button that was clicked (to find the feedback span).
- * @param {string} url - The URL to copy.
- */
 function copyVLCLink(buttonElement, url) {
     if (!url) return;
-    // Find the feedback span specific to the action row where the button was clicked
     const currentActionRow = buttonElement.closest('.action-row');
     const feedbackSpan = currentActionRow?.querySelector('.copy-feedback');
 
-    // Use modern Clipboard API if available (preferred, more secure)
     if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
         navigator.clipboard.writeText(url).then(() => {
-            if (feedbackSpan) showCopyFeedback(feedbackSpan); // Show feedback in the correct row
+            if (feedbackSpan) showCopyFeedback(feedbackSpan);
         }).catch(err => {
             console.error("Async clipboard write failed:", err);
             alert("Could not copy URL automatically. Please copy manually.");
-            highlightVlcText(); // Highlight text for manual copy on failure
+            highlightVlcText();
         });
     } else {
-        // Fallback for older browsers or non-secure contexts
-        console.warn("Using fallback clipboard method (navigator.clipboard unavailable or insecure context).");
+        console.warn("Using fallback clipboard method.");
         fallbackCopyTextToClipboard(url, feedbackSpan);
     }
 }
 
-/**
- * Fallback method to copy text using document.execCommand('copy').
- * @param {string} text - The text to copy.
- * @param {HTMLElement|null} feedbackSpan - The feedback element to show success message.
- */
 function fallbackCopyTextToClipboard(text, feedbackSpan) {
-    // Create a temporary textarea element
     const textArea = document.createElement("textarea");
-    textArea.value = text; // Set its value to the text to copy
-
-    // Make the textarea invisible and offscreen
+    textArea.value = text;
     textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px";
     textArea.style.opacity = "0";
-    textArea.setAttribute("readonly", ""); // Prevent editing
-
-    document.body.appendChild(textArea); // Add to DOM
+    textArea.setAttribute("readonly", "");
+    document.body.appendChild(textArea);
     let successful = false;
     try {
-        textArea.select(); // Select the text inside
-        textArea.setSelectionRange(0, textArea.value.length); // Ensure full selection on mobile
-        successful = document.execCommand('copy'); // Execute the copy command
-        if (successful && feedbackSpan) showCopyFeedback(feedbackSpan); // Show feedback on success
-        else if (!successful) throw new Error('document.execCommand("copy") returned false');
+        textArea.select();
+        textArea.setSelectionRange(0, textArea.value.length);
+        successful = document.execCommand('copy');
+        if (successful && feedbackSpan) showCopyFeedback(feedbackSpan);
+        else if (!successful) throw new Error('execCommand returned false');
     } catch (err) {
-        console.error('Fallback copy method failed:', err);
-        alert("Automatic copy failed. Please select and copy the URL manually from the box below.");
-        highlightVlcText(); // Highlight text for manual copy on failure
+        console.error('Fallback copy failed:', err);
+        alert("Automatic copy failed. Please select and copy the URL manually.");
+        highlightVlcText();
     } finally {
-        document.body.removeChild(textArea); // Always remove the temporary textarea
+        document.body.removeChild(textArea);
     }
 }
 
-/**
- * Shows the copy feedback message for a short duration.
- * @param {HTMLElement} spanElement - The feedback span element to show.
- */
 function showCopyFeedback(spanElement) {
     if (!spanElement) return;
-    clearTimeout(copyTimeout); // Clear any existing timer for this specific element
-    spanElement.classList.add('show'); // Add class to make it visible (CSS handles animation)
-    // Set a timer to remove the class after 2 seconds
+    clearTimeout(copyTimeout);
+    spanElement.classList.add('show');
     copyTimeout = setTimeout(() => {
         spanElement.classList.remove('show');
     }, 2000);
 }
 
-/**
- * Highlights the text within the VLC/External Player URL code block for easy manual copying.
- */
 function highlightVlcText() {
-     // Check if the code element exists and its container is visible
      if (vlcText && vlcBox?.style.display === 'block') {
          try {
-             // Create a range and select the contents of the code element
              const range = document.createRange(); range.selectNodeContents(vlcText);
-             const selection = window.getSelection(); // Get the current selection object
+             const selection = window.getSelection();
              if (selection) {
-                 selection.removeAllRanges(); // Clear any previous selection
-                 selection.addRange(range); // Apply the new range
+                 selection.removeAllRanges(); selection.addRange(range);
              }
          } catch (selectErr) {
-             console.warn("Could not highlight VLC text for manual copy:", selectErr);
+             console.warn("Could not highlight VLC text:", selectErr);
          }
      }
 }
@@ -2478,281 +2265,206 @@ function loadStateFromLocalStorage() {
         const savedState = localStorage.getItem(config.LOCAL_STORAGE_KEY);
         if (savedState) {
             const parsedState = JSON.parse(savedState);
-            // Restore state, providing defaults if properties are missing or invalid
             currentState.searchTerm = typeof parsedState.searchTerm === 'string' ? parsedState.searchTerm : '';
             currentState.qualityFilter = typeof parsedState.qualityFilter === 'string' ? parsedState.qualityFilter : '';
             currentState.sortColumn = typeof parsedState.sortColumn === 'string' ? parsedState.sortColumn : 'lastUpdated';
             currentState.sortDirection = (typeof parsedState.sortDirection === 'string' && ['asc', 'desc'].includes(parsedState.sortDirection)) ? parsedState.sortDirection : 'desc';
             currentState.currentPage = (typeof parsedState.currentPage === 'number' && parsedState.currentPage > 0) ? Math.floor(parsedState.currentPage) : 1;
 
-            // Update UI elements to reflect loaded state
             if(searchInput) searchInput.value = currentState.searchTerm;
-            // Note: Quality filter select value is set *after* data loads and populates the dropdown options.
         }
     } catch (e) {
         console.error("Failed to load state from localStorage:", e);
-        localStorage.removeItem(config.LOCAL_STORAGE_KEY); // Clear potentially corrupted state
+        localStorage.removeItem(config.LOCAL_STORAGE_KEY);
     }
 }
 
 // --- Initial Data Loading and Setup ---
 async function loadInitialData() {
     const loadingHTML = '<tr><td colspan="6" class="status-message">Loading... <div class="spinner" style="margin: 10px auto;"></div></td></tr>';
-    // Show loading indicators in both tables
     if(updatesTableBody) updatesTableBody.innerHTML = loadingHTML;
     if(movieTableBody) movieTableBody.innerHTML = loadingHTML;
-    if(paginationControlsContainer) paginationControlsContainer.style.display = 'none'; // Hide pagination
+    if(paginationControlsContainer) paginationControlsContainer.style.display = 'none';
 
-    uniqueQualities.clear(); // Reset the set of unique qualities
-    loadStateFromLocalStorage(); // Load saved filters/sort/page *before* fetching data
+    uniqueQualities.clear();
+    loadStateFromLocalStorage();
 
     try {
-        // Ensure the URL has been replaced by the user
-        if (!config.GSheetWebAppURL || config.GSheetWebAppURL === "https://script.google.com/macros/library/d/1U72u97-mflTQmXF5svUvCKeONWd7REbeYMp6S9Ydt50CYxLA9wwIlhTe/5") {
-            throw new Error("Google Sheet Web App URL is missing. Please paste your deployed script URL into the 'config' object in the JavaScript code.");
+        // Check if the URL is still the default placeholder
+        if (!config.GSheetWebAppURL || config.GSheetWebAppURL.includes("macros/library/d/")) {
+            throw new Error("Google Sheet Web App URL is missing or incorrect. Please paste your deployed script URL into the 'config' object in the JavaScript code.");
         }
 
         console.log("Fetching data from:", config.GSheetWebAppURL);
         const response = await fetch(config.GSheetWebAppURL);
         console.log("Fetch response status:", response.status);
-        if (!response.ok) { // Check for network errors (4xx, 5xx)
-             let errorText = response.statusText || `HTTP status ${response.status}`;
-             try { // Attempt to parse potential JSON error from the API
-                const errorData = await response.json();
-                if(errorData?.error) errorText = errorData.error;
-             } catch(e) { /* Ignore if response is not JSON */ }
-             throw new Error(`Network error: ${errorText}`);
+
+        if (!response.ok) {
+             let errorText = `Network error: ${response.statusText || `HTTP status ${response.status}`}`;
+             try {
+                const errorData = await response.json(); // Try to get error message from backend JSON response
+                if(errorData?.error) errorText = `API Error: ${errorData.error}`;
+             } catch(e) { /* Ignore if response body isn't JSON */ }
+             throw new Error(errorText);
         }
+
         const result = await response.json();
 
-        // Check for application-level errors returned by the Google Apps Script
-        if (result.error) throw new Error(`API Error: ${result.error}`);
-        // Ensure the data received is in the expected array format
+        if (result.error) throw new Error(`API Error: ${result.error}`); // Check for errors returned within the JSON data
         if (!Array.isArray(result.data)) throw new Error("Invalid data format received from API (expected 'data' array).");
 
-        // Process the valid data
         allMovieData = result.data
-                        .filter(movie => movie && (movie.id || movie.filename || movie.url)) // Basic sanity check
-                        .map(preprocessMovieData); // Apply preprocessing to each item
+                        .filter(movie => movie && (movie.id || movie.filename || movie.url)) // Basic validation
+                        .map(preprocessMovieData); // Process each valid item
 
         console.log(`Successfully processed ${allMovieData.length} movie items.`);
 
-        // Populate UI elements that depend on the loaded data
-        populateQualityFilter(); // Create quality dropdown options based on processed data
+        populateQualityFilter(); // Populate dropdown based on processed data
 
-        // Restore selected quality filter *after* options are populated
+        // Restore selected quality filter if it exists
         if(qualityFilterSelect && uniqueQualities.has(currentState.qualityFilter)) {
-             qualityFilterSelect.value = currentState.qualityFilter; // Set dropdown to saved value
+             qualityFilterSelect.value = currentState.qualityFilter;
         } else {
-             // If saved quality no longer exists in the data, reset the filter
              currentState.qualityFilter = '';
              if (qualityFilterSelect) qualityFilterSelect.value = '';
         }
 
-        // Apply initial filters/sort (which also renders tables and pagination)
-        applyUserActions();
+        applyUserActions(); // Apply initial filters/sort and render
 
     } catch (error) {
         console.error('FATAL: Failed to load or process initial data:', error);
-        // Display a user-friendly error message in the tables
-        displayLoadError(`Error loading movie data: ${error.message}. Please check the script URL and sheet configuration, then refresh the page.`);
+        displayLoadError(`Error loading movie data: ${error.message}. Please check the script URL, sheet configuration, and ensure the script is deployed correctly. Then refresh the page.`);
     }
 }
 
 /**
- * Populates the quality filter dropdown with unique qualities found in the data, sorted logically.
+ * Populates the quality filter dropdown with unique qualities found in the data.
  */
 function populateQualityFilter() {
     if (!qualityFilterSelect) return;
-    const currentSelectedValue = currentState.qualityFilter; // Store current selection
-    qualityFilterSelect.innerHTML = '<option value="">All Qualities</option>'; // Reset dropdown
+    const currentSelectedValue = currentState.qualityFilter;
+    qualityFilterSelect.innerHTML = '<option value="">All Qualities</option>';
 
-    // Sort qualities for better user experience (e.g., 4K > 1080p > Source > Other)
     const sortedQualities = [...uniqueQualities].sort((a, b) => {
-        // Prioritize resolution, then source type, then alphabetically
         const resRegex = /^(4K|\d{3,4})P$/i;
         const sourceRegex = /^(WEBDL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVD|DVDScr|HDCAM|HC|TC|TS|CAM)$/i;
-
         const getScore = (q) => {
-            q = String(q || '').toUpperCase(); // Handle potential null/undefined
+            q = String(q || '').toUpperCase();
             if (q === '4K' || q === '2160P') return 10;
             if (q === '1080P') return 9;
             if (q === '720P') return 8;
             if (q === '480P') return 7;
             if (sourceRegex.test(q)) return 6;
-            // Give slightly lower score to tech terms if they end up here
             if (['HDR', 'DOLBY VISION', 'DV', 'HEVC', 'X265'].includes(q)) return 5;
-            return 0; // Lowest score for others
+            return 0;
         };
-
         const scoreA = getScore(a);
         const scoreB = getScore(b);
-
-        if (scoreA !== scoreB) return scoreB - scoreA; // Sort by score descending
-
-        // If scores are equal, sort alphabetically (case-insensitive)
+        if (scoreA !== scoreB) return scoreB - scoreA;
         return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' });
     });
 
-    // Add sorted qualities as <option> elements
     sortedQualities.forEach(quality => {
-        if (quality) { // Ensure quality is not empty/null
+        if (quality) {
             const option = document.createElement('option');
             option.value = quality; option.textContent = quality;
             qualityFilterSelect.appendChild(option);
         }
     });
 
-    // Restore previous selection if it still exists in the populated list
     if (currentSelectedValue && sortedQualities.includes(currentSelectedValue)) {
          qualityFilterSelect.value = currentSelectedValue;
     }
-    updateFilterIndicator(); // Visually mark if a filter is active
+    updateFilterIndicator();
 }
 
 /**
  * Displays a critical error message in the table bodies.
- * @param {string} message - The error message to display.
  */
 function displayLoadError(message) {
     const errorMsgHTML = `<tr><td colspan="6" class="error-message">${sanitize(message)}</td></tr>`;
-    // Display error in both table bodies
     if (updatesTableBody) updatesTableBody.innerHTML = errorMsgHTML;
     if (movieTableBody) movieTableBody.innerHTML = errorMsgHTML;
-    // Hide pagination controls on load error
     if (paginationControlsContainer) paginationControlsContainer.style.display = 'none';
-    // Ensure the "Updates" section header remains visible even on error
     if (updatesSection) updatesSection.style.display = 'block';
 }
 
 /**
- * Called when search criteria changes (typing, clearing).
- * Reads the current search input value and triggers the filtering/rendering process.
+ * Called when search criteria changes.
  */
 function triggerSearch() {
     if (!searchInput) return;
-    // Get the latest value from the input
     const newSearchTerm = searchInput.value;
-
-    // Only proceed if the search term has actually changed
     if (newSearchTerm !== currentState.searchTerm) {
-        currentState.searchTerm = newSearchTerm; // Update state with current input value
-        currentState.currentPage = 1; // Reset to page 1 for new search results
-        closePlayerIfNeeded(); // Close player if open
-        applyUserActions(); // Apply the search filter and re-render
+        currentState.searchTerm = newSearchTerm;
+        currentState.currentPage = 1;
+        closePlayerIfNeeded();
+        applyUserActions();
     }
 }
 
 // --- Keyboard Shortcuts for Player ---
-/**
- * Handles keyboard shortcuts for the video player when it's visible.
- * @param {KeyboardEvent} event - The keyboard event.
- */
 function handlePlayerKeyboardShortcuts(event) {
-    // Only act if the video player container is currently visible
     if (!videoContainer || videoContainer.style.display !== 'flex' || !videoElement) {
         return;
     }
-
-    // Prevent shortcuts if user is typing in an input/select/textarea within the controls area
     const targetTagName = event.target.tagName.toLowerCase();
     if (targetTagName === 'input' || targetTagName === 'select' || targetTagName === 'textarea') {
         return;
     }
 
     const key = event.key;
-    let prevented = false; // Flag to track if we prevented default action
-
+    let prevented = false;
     switch (key) {
-        case ' ': // Space bar
-        case 'k': // 'k' key (common alternative)
-            togglePlayPause();
-            prevented = true;
-            break;
-        case 'ArrowLeft':
-            seekVideo(-10); // Seek backward 10 seconds
-            prevented = true;
-            break;
-        case 'ArrowRight':
-            seekVideo(10); // Seek forward 10 seconds
-            prevented = true;
-            break;
-        case 'ArrowUp':
-            // Increase volume by 5%
-            setVolume(Math.min(videoElement.volume + 0.05, 1));
-            prevented = true;
-            break;
-        case 'ArrowDown':
-            // Decrease volume by 5%
-            setVolume(Math.max(videoElement.volume - 0.05, 0));
-            prevented = true;
-            break;
-        case 'm': // 'm' key for mute
-            toggleMute();
-            prevented = true;
-            break;
-        case 'f': // 'f' key for fullscreen
-            toggleFullscreen();
-            prevented = true;
-            break;
+        case ' ': case 'k': togglePlayPause(); prevented = true; break;
+        case 'ArrowLeft': seekVideo(-10); prevented = true; break;
+        case 'ArrowRight': seekVideo(10); prevented = true; break;
+        case 'ArrowUp': setVolume(Math.min(videoElement.volume + 0.05, 1)); prevented = true; break;
+        case 'ArrowDown': setVolume(Math.max(videoElement.volume - 0.05, 0)); prevented = true; break;
+        case 'm': toggleMute(); prevented = true; break;
+        case 'f': toggleFullscreen(); prevented = true; break;
     }
-
-    // Prevent default browser action (e.g., space scrolling, arrows scrolling)
-    // only if we handled the key press.
-    if (prevented) {
-        event.preventDefault();
-    }
+    if (prevented) { event.preventDefault(); }
 }
 
 
 // --- Global Event Listeners Setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Load initial data when the DOM is fully parsed
     loadInitialData();
 
-    // --- Real-time Search Event Listeners (Debounced) ---
+    // --- Search ---
     if (searchInput) {
-        // Trigger search on input, but debounced
         searchInput.addEventListener('input', () => {
-            clearTimeout(searchDebounceTimeout); // Clear previous timer
-            searchDebounceTimeout = setTimeout(() => {
-                triggerSearch(); // Call search after the delay
-            }, config.SEARCH_DEBOUNCE_DELAY);
+            clearTimeout(searchDebounceTimeout);
+            searchDebounceTimeout = setTimeout(triggerSearch, config.SEARCH_DEBOUNCE_DELAY);
         });
-
-        // Keep Enter key listener (optional but good UX) - trigger search immediately
         searchInput.addEventListener('keydown', (event) => {
              if (event.key === 'Enter') {
-                 event.preventDefault(); // Prevent default form submit behavior
-                 clearTimeout(searchDebounceTimeout); // Clear any pending debounce timer
-                 triggerSearch(); // Trigger immediately on Enter
+                 event.preventDefault(); clearTimeout(searchDebounceTimeout); triggerSearch();
              }
          });
-
-        // Keep 'search' event listener (for clear button 'x') - trigger immediately
-        searchInput.addEventListener('search', () => {
-            clearTimeout(searchDebounceTimeout); // Clear any pending debounce timer
-             // Needs a slight delay as 'search' event fires *before* the value is fully cleared
+        searchInput.addEventListener('search', () => { // Handles 'x' clear button
+            clearTimeout(searchDebounceTimeout);
             setTimeout(() => { if (searchInput.value === '') triggerSearch(); }, 0);
         });
     }
 
-    // --- Filter Event Listener ---
+    // --- Filter ---
     if (qualityFilterSelect) {
         qualityFilterSelect.addEventListener('change', () => {
-            currentState.qualityFilter = qualityFilterSelect.value; // Update state
-            currentState.currentPage = 1; // Reset to page 1
-            closePlayerIfNeeded(); // Close player
-            applyUserActions(); // Apply filter and re-render
+            currentState.qualityFilter = qualityFilterSelect.value;
+            currentState.currentPage = 1;
+            closePlayerIfNeeded();
+            applyUserActions();
         });
     }
 
-    // --- Sort Event Listener (using event delegation on the table head) ---
+    // --- Sort ---
     if (movieTableHead) {
         movieTableHead.addEventListener('click', handleSort);
     }
 
-    // --- Player Keyboard Shortcut Listener ---
+    // --- Player Keyboard ---
     document.addEventListener('keydown', handlePlayerKeyboardShortcuts);
 
 });
