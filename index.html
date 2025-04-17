@@ -2116,6 +2116,14 @@ function closePlayerIfNeeded() {
 
 // --- Player Control Functions ---
 function seekVideo(seconds) { if (videoElement) videoElement.currentTime += seconds; }
+function togglePlayPause() {
+    if (!videoElement) return;
+    if (videoElement.paused || videoElement.ended) {
+        videoElement.play().catch(e => console.log("Play error:", e.message));
+    } else {
+        videoElement.pause();
+    }
+}
 function toggleMute() { if (videoElement) videoElement.muted = !videoElement.muted; }
 function updateMuteButton() {
     if (!videoElement || !muteButton) return;
@@ -2222,26 +2230,72 @@ function handleFullscreenChange() {
           try { tracks[0].enabled = true; } catch(e) { console.warn("Could not auto-enable first audio track:", e); }
       }
 
-      // Create <option> elements for each audio track
+      let preferredTrackIndex = -1; // Index of the preferred Hindi track
+
+      // Create <option> elements for each audio track and find preferred track
       for (let i = 0; i < tracks.length; i++) {
           const track = tracks[i];
           const option = document.createElement('option');
-          option.value = track.id || i; // Use track ID if available, otherwise index as value
+          const trackValue = track.id || i; // Use track ID if available, otherwise index as value
+          option.value = trackValue;
+
           // Create a user-friendly label
           let label = track.label || `Track ${i + 1}`; // Use track label or generate default
+          let languageName = ''; // Store full language name if found
           if (track.language) { // Add language information if available
               try {
                   // Attempt to get the full language name (e.g., "English" from "en")
-                  const langName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]);
-                  label += ` (${langName || track.language})`; // Use name or fallback to code
+                  languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]);
+                  label += ` (${languageName || track.language})`; // Use name or fallback to code
               } catch (e) { label += ` (${track.language})`; } // Fallback for older browsers
           }
           option.textContent = label;
           option.selected = track.enabled; // Mark the currently selected/enabled track
-          // Disable option if track failed to load (readyState isn't always reliable)
-          option.disabled = track.readyState === 'ended';
+          option.disabled = track.readyState === 'ended'; // Disable option if track failed to load
           audioTrackSelect.appendChild(option);
+
+          // --- Check for preferred (Hindi) track ---
+          // Check language code first (more reliable)
+          if (track.language && track.language.toLowerCase().startsWith('hi')) {
+             if (preferredTrackIndex === -1) preferredTrackIndex = i; // Found first Hindi track by code
+          }
+          // Check label/languageName as fallback (case-insensitive)
+          else if (preferredTrackIndex === -1 && (label.toLowerCase().includes('hindi') || (languageName && languageName.toLowerCase() === 'hindi'))) {
+              preferredTrackIndex = i; // Found first Hindi track by label/name
+          }
       }
+
+      // --- Auto-select Preferred Track if Found ---
+      if (preferredTrackIndex !== -1) {
+          console.log(`Hindi audio track found at index ${preferredTrackIndex}. Attempting auto-selection.`);
+          try {
+              // Disable all other tracks and enable the preferred one
+              let trackChanged = false;
+              for (let i = 0; i < tracks.length; i++) {
+                   const shouldBeEnabled = (i === preferredTrackIndex);
+                   if (tracks[i].enabled !== shouldBeEnabled) {
+                       tracks[i].enabled = shouldBeEnabled;
+                       trackChanged = true;
+                   }
+              }
+              // Update the select dropdown to reflect the change
+              const preferredTrackValue = tracks[preferredTrackIndex].id || preferredTrackIndex;
+              audioTrackSelect.value = preferredTrackValue;
+              if (trackChanged) console.log("Successfully auto-selected Hindi track.");
+          } catch(e) {
+               console.error("Error auto-selecting preferred audio track:", e);
+          }
+      } else {
+          console.log("No Hindi audio track found for auto-selection.");
+          // Ensure the dropdown reflects the browser's default selected track
+          for (let i = 0; i < tracks.length; i++) {
+              if (tracks[i].enabled) {
+                  audioTrackSelect.value = tracks[i].id || i;
+                  break;
+              }
+          }
+      }
+
       audioTrackSelect.style.display = 'inline-block'; // Show the populated dropdown
 
        // Listen for changes in the AudioTrackList (e.g., if tracks load later)
@@ -2581,6 +2635,68 @@ function triggerSearch() {
     }
 }
 
+// --- Keyboard Shortcuts for Player ---
+/**
+ * Handles keyboard shortcuts for the video player when it's visible.
+ * @param {KeyboardEvent} event - The keyboard event.
+ */
+function handlePlayerKeyboardShortcuts(event) {
+    // Only act if the video player container is currently visible
+    if (!videoContainer || videoContainer.style.display !== 'flex' || !videoElement) {
+        return;
+    }
+
+    // Prevent shortcuts if user is typing in an input/select/textarea within the controls area
+    const targetTagName = event.target.tagName.toLowerCase();
+    if (targetTagName === 'input' || targetTagName === 'select' || targetTagName === 'textarea') {
+        return;
+    }
+
+    const key = event.key;
+    let prevented = false; // Flag to track if we prevented default action
+
+    switch (key) {
+        case ' ': // Space bar
+        case 'k': // 'k' key (common alternative)
+            togglePlayPause();
+            prevented = true;
+            break;
+        case 'ArrowLeft':
+            seekVideo(-10); // Seek backward 10 seconds
+            prevented = true;
+            break;
+        case 'ArrowRight':
+            seekVideo(10); // Seek forward 10 seconds
+            prevented = true;
+            break;
+        case 'ArrowUp':
+            // Increase volume by 5%
+            setVolume(Math.min(videoElement.volume + 0.05, 1));
+            prevented = true;
+            break;
+        case 'ArrowDown':
+            // Decrease volume by 5%
+            setVolume(Math.max(videoElement.volume - 0.05, 0));
+            prevented = true;
+            break;
+        case 'm': // 'm' key for mute
+            toggleMute();
+            prevented = true;
+            break;
+        case 'f': // 'f' key for fullscreen
+            toggleFullscreen();
+            prevented = true;
+            break;
+    }
+
+    // Prevent default browser action (e.g., space scrolling, arrows scrolling)
+    // only if we handled the key press.
+    if (prevented) {
+        event.preventDefault();
+    }
+}
+
+
 // --- Global Event Listeners Setup ---
 document.addEventListener('DOMContentLoaded', () => {
     // Load initial data when the DOM is fully parsed
@@ -2627,6 +2743,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (movieTableHead) {
         movieTableHead.addEventListener('click', handleSort);
     }
+
+    // --- Player Keyboard Shortcut Listener ---
+    document.addEventListener('keydown', handlePlayerKeyboardShortcuts);
+
 });
 
 // ]]>
