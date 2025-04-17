@@ -1125,7 +1125,10 @@ body {
 // <![CDATA[
 
 const config = {
-    GSheetWebAppURL: "https://script.google.com/macros/s/AKfycbxfTm1sXQfGS8hUG8BY4SLuBzeTFybOdiBNxyGJiHyYYoXpX9KgcYP311X-6ZfHgHN6lQ/exec",
+    // !!! IMPORTANT: PASTE YOUR NEW GOOGLE APPS SCRIPT WEB APP URL BELOW !!!
+    GSheetWebAppURL: "!!! PASTE YOUR NEW WEB APP URL HERE !!!",
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     HDR_LOGO_URL: "https://as1.ftcdn.net/v2/jpg/05/32/83/72/1000_F_532837228_v8CGZRU0jy39uCtqFRnJz6xDntrGuLLx.webp",
     FOURK_LOGO_URL: "https://i.pinimg.com/736x/85/c4/b0/85c4b0a2fb8612825d0cd2f53460925f.jpg",
     ITEMS_PER_PAGE: 50,
@@ -2504,6 +2507,11 @@ async function loadInitialData() {
     loadStateFromLocalStorage(); // Load saved filters/sort/page *before* fetching data
 
     try {
+        // Ensure the URL has been replaced by the user
+        if (!config.GSheetWebAppURL || config.GSheetWebAppURL === "!!! PASTE YOUR NEW WEB APP URL HERE !!!") {
+            throw new Error("Google Sheet Web App URL is missing. Please paste your deployed script URL into the 'config' object in the JavaScript code.");
+        }
+
         console.log("Fetching data from:", config.GSheetWebAppURL);
         const response = await fetch(config.GSheetWebAppURL);
         console.log("Fetch response status:", response.status);
@@ -2547,7 +2555,7 @@ async function loadInitialData() {
     } catch (error) {
         console.error('FATAL: Failed to load or process initial data:', error);
         // Display a user-friendly error message in the tables
-        displayLoadError(`Error loading movie data: ${error.message}. Please try refreshing the page.`);
+        displayLoadError(`Error loading movie data: ${error.message}. Please check the script URL and sheet configuration, then refresh the page.`);
     }
 }
 
