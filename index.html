@@ -604,7 +604,7 @@ body {
     width: 100%;
     max-width: 850px;
     text-align: center;
-    display: flex;
+    /* display: flex; */ /* Set by JS */
     flex-direction: column;
 }
 #cinemaghar-container .video-player-wrapper .close-btn {
@@ -733,7 +733,6 @@ body {
 }
 /* Enable native controls in fullscreen for better experience */
 #cinemaghar-container .video-player-wrapper.is-fullscreen #html5VideoPlayer {
-    /* Ensure native controls show if custom ones are hidden */
     /* Note: 'controls' attribute is already on the video tag */
 }
 
@@ -1170,15 +1169,12 @@ body {
 // <![CDATA[
 
 const config = {
-    GSheetWebAppURL: "https://script.google.com/macros/s/AKfycbyng7FXpp3dj5E3HSrEeDhLfivVjB4V3UVSbV8N_2RyNKYQEMXT_n89IhUH5IDC3-mvig/exec",
-    // Using inline SVGs now, these URLs are backups or for reference
-    // HDR_LOGO_URL: "https://as1.ftcdn.net/v2/jpg/05/32/83/72/1000_F_532837228_v8CGZRU0jy39uCtqFRnJz6xDntrGuLLx.webp",
-    // FOURK_LOGO_URL: "https://i.pinimg.com/736x/85/c4/b0/85c4b0a2fb8612825d0cd2f53460925f.jpg",
-    ITEMS_PER_PAGE: 50,
-    LOCAL_STORAGE_KEY: 'cinemaGharState_v2',
+    GSheetWebAppURL: "https://script.google.com/macros/s/AKfycbwKPBp9gxV41NK3ahv8d87yGUlqjXGztnWCYg12_lix8mcYurZEoElq73KgWkVgDUUl3g/exec", // <-- UPDATED URL
+    ITEMS_PER_PAGE: 50, // Default, server also uses this
+    LOCAL_STORAGE_KEY: 'cinemaGharState_v3', // Incremented key for new state structure
     PLAYER_VOLUME_KEY: 'cinemaGharPlayerVolume',
     PLAYER_SPEED_KEY: 'cinemaGharPlayerSpeed',
-    SEARCH_DEBOUNCE_MS: 300 // Delay for real-time search
+    SEARCH_DEBOUNCE_MS: 300
 };
 
 // Selectors and CSS Classes Constants
@@ -1201,7 +1197,7 @@ const selectors = {
     PLAYBACK_SPEED: '#playbackSpeedSelect',
     CUSTOM_CONTROLS: '#customControlsContainer',
     AUDIO_TRACK_SELECT: '#audioTrackSelect',
-    COPY_FEEDBACK: '#copyFeedback', // Note: Query within action row later
+    COPY_FEEDBACK: '.copy-feedback', // Class selector for dynamic lookup
     PAGINATION_CONTROLS: '#paginationControls',
     CLOSE_BUTTON: '.close-btn',
     FULLSCREEN_BUTTON: '#fullscreenButton',
@@ -1219,25 +1215,24 @@ const cssClasses = {
     COPY_FEEDBACK_SHOW: 'show',
     PLAYER_FULLSCREEN: 'is-fullscreen',
     SKELETON_ROW: 'skeleton-row',
-    TABLE_SCROLLABLE: 'is-scrollable' // For scroll hint
+    TABLE_SCROLLABLE: 'is-scrollable'
 };
 
 // Global state and data variables
-let allMovieData = [];
-let filteredAndSortedData = [];
-let uniqueQualities = new Set();
-let activeActionRow = null; // Reference to the currently open action row DOM element
-let activeMainRow = null; // Reference to the main row of the active action row
-let lastFocusElement = null; // Track focus for accessibility
-let copyTimeout; // Timeout ID for copy feedback
-let searchDebounceTimeout; // For debouncing search input
+let uniqueQualities = new Set(); // Still needed for filter dropdown
+let activeActionRow = null;
+let activeMainRow = null;
+let lastFocusElement = null;
+let copyTimeout;
+let searchDebounceTimeout;
+let isLoading = false; // Flag to prevent concurrent fetches
 
 // --- State Management ---
 let currentState = {
     searchTerm: '',
     qualityFilter: '',
-    sortColumn: 'lastUpdated', // Default sort
-    sortDirection: 'desc',     // Default direction
+    sortColumn: 'lastUpdated',
+    sortDirection: 'desc',
     currentPage: 1
 };
 
@@ -1249,232 +1244,110 @@ function getElement(selector) {
     }
     return domCache[selector];
 }
-function getElements(selector) { // For multiple elements
-    // Note: querySelectorAll results are not cached this way as they are live lists
-    return document.querySelectorAll(selector);
-}
+// No getElements needed as we query dynamically where needed
 
 // --- Utility Functions ---
-const sanitize = (str) => {
+const sanitize = (str) => { /* ... (same as before) ... */
     if (str === null || typeof str === 'undefined') return "";
-    const temp = document.createElement('div');
-    temp.textContent = String(str);
-    return temp.innerHTML;
+    const temp = document.createElement('div'); temp.textContent = String(str); return temp.innerHTML;
 };
 
-const TimeAgo = {
+const TimeAgo = { /* ... (same as before) ... */
   MINUTE: 60, HOUR: 3600, DAY: 86400, WEEK: 604800, MONTH: 2592000, YEAR: 31536000,
-  format: (isoString) => { /* ... (TimeAgo.format remains the same) ... */
-    if (!isoString) return 'N/A';
-    try {
-      const date = new Date(isoString);
-      const seconds = Math.floor((new Date() - date) / 1000);
-      if (isNaN(seconds) || seconds < 0) {
-        return TimeAgo.formatFullDate(date);
-      }
-      if (seconds < 2) return "just now";
-      if (seconds < TimeAgo.MINUTE) return `${seconds} sec${seconds > 1 ? 's' : ''} ago`;
-      if (seconds < TimeAgo.HOUR) return `${Math.floor(seconds / TimeAgo.MINUTE)} min${Math.floor(seconds / TimeAgo.MINUTE) > 1 ? 's' : ''} ago`;
-      if (seconds < TimeAgo.DAY) return `${Math.floor(seconds / TimeAgo.HOUR)} hr${Math.floor(seconds / TimeAgo.HOUR) > 1 ? 's' : ''} ago`;
-      if (seconds < TimeAgo.DAY * 2) return "Yesterday";
-      if (seconds < TimeAgo.WEEK) return `${Math.floor(seconds / TimeAgo.DAY)} days ago`;
-      return TimeAgo.formatFullDate(date, true);
-    } catch (e) {
-      console.error("Date Format Error (TimeAgo):", isoString, e);
-      return 'Invalid Date';
-    }
-  },
-  formatFullDate: (date, short = false) => { /* ... (TimeAgo.formatFullDate remains the same) ... */
-      if (!(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date';
-      const optsDate = short
-        ? { year: '2-digit', month: 'numeric', day: 'numeric' }
-        : { year: 'numeric', month: 'short', day: 'numeric' };
-      const optsTime = { hour: 'numeric', minute: '2-digit', hour12: true };
-      try {
-        return `${date.toLocaleDateString(undefined, optsDate)}${short ? '' : ', ' + date.toLocaleTimeString(undefined, optsTime)}`;
-      } catch (e) {
-          console.error("toLocaleDateString/Time failed:", e);
-          return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-      }
-  }
+  format: (isoString) => { if (!isoString) return 'N/A'; try { const date = new Date(isoString); const seconds = Math.floor((new Date() - date) / 1000); if (isNaN(seconds) || seconds < 0) { return TimeAgo.formatFullDate(date); } if (seconds < 2) return "just now"; if (seconds < TimeAgo.MINUTE) return `${seconds} sec${seconds > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.HOUR) return `${Math.floor(seconds / TimeAgo.MINUTE)} min${Math.floor(seconds / TimeAgo.MINUTE) > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.DAY) return `${Math.floor(seconds / TimeAgo.HOUR)} hr${Math.floor(seconds / TimeAgo.HOUR) > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.DAY * 2) return "Yesterday"; if (seconds < TimeAgo.WEEK) return `${Math.floor(seconds / TimeAgo.DAY)} days ago`; return TimeAgo.formatFullDate(date, true); } catch (e) { console.error("Date Format Error:", isoString, e); return 'Invalid Date'; } },
+  formatFullDate: (date, short = false) => { if (!(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date'; const optsDate = short ? { year: '2-digit', month: 'numeric', day: 'numeric' } : { year: 'numeric', month: 'short', day: 'numeric' }; const optsTime = { hour: 'numeric', minute: '2-digit', hour12: true }; try { return `${date.toLocaleDateString(undefined, optsDate)}${short ? '' : ', ' + date.toLocaleTimeString(undefined, optsTime)}`; } catch (e) { console.error("toLocaleDateString/Time failed:", e); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; } }
 };
 
-function extractSizeData(filename) { /* ... (extractSizeData remains the same) ... */
-    if (!filename) return { value: 0, unit: '', display: 'N/A', bytes: 0 };
+function extractSizeData(text) { /* ... (same as before, used for display) ... */
+    if (!text) return { value: 0, unit: '', display: 'N/A', bytes: 0 };
     const r = /[\(\[]?(?<size>[\d.]+)\s?(?<unit>GB|MB)[\)\]]?/i;
-    const m = filename.match(r);
-    if (m?.groups?.size && m?.groups?.unit) {
-        const value = parseFloat(m.groups.size);
-        const unit = m.groups.unit.toUpperCase();
-        if (!isNaN(value)) {
-            const bytes = unit === 'GB' ? value * 1024 * 1024 * 1024 : value * 1024 * 1024;
-            return { value: value, unit: unit, display: `${value} ${unit}`, bytes: isNaN(bytes) ? 0 : bytes };
-        }
-    }
+    const m = String(text).match(r);
+    if (m?.groups?.size && m?.groups?.unit) { const value = parseFloat(m.groups.size); const unit = m.groups.unit.toUpperCase(); if (!isNaN(value)) { const bytes = unit === 'GB' ? value * 1024 * 1024 * 1024 : value * 1024 * 1024; return { value: value, unit: unit, display: `${value} ${unit}`, bytes: isNaN(bytes) ? 0 : bytes }; } }
     return { value: 0, unit: '', display: 'N/A', bytes: 0 };
 }
 
-function getMimeTypeFromUrl(url) { /* ... (getMimeTypeFromUrl remains the same) ... */
-    if (!url) return 'video/*';
-    const m = url.match(/\.([a-zA-Z0-9]+)(?:[?#]|$)/);
-    if (!m) return 'video/*';
-    const ext = m[1].toLowerCase();
-    const mimeMap = {
-        'mkv': 'video/x-matroska', 'mp4': 'video/mp4', 'mov': 'video/quicktime',
-        'avi': 'video/x-msvideo', 'webm': 'video/webm', 'wmv': 'video/x-ms-wmv',
-        'flv': 'video/x-flv', 'ts': 'video/mp2t', 'm4v': 'video/x-m4v',
-        'ogv': 'video/ogg'
-    };
-    return mimeMap[ext] || 'video/*';
+function getMimeTypeFromUrl(url) { /* ... (same as before) ... */
+    if (!url) return 'video/*'; const m = url.match(/\.([a-zA-Z0-9]+)(?:[?#]|$)/); if (!m) return 'video/*'; const ext = m[1].toLowerCase(); const mimeMap = { 'mkv': 'video/x-matroska', 'mp4': 'video/mp4', 'mov': 'video/quicktime', 'avi': 'video/x-msvideo', 'webm': 'video/webm', 'wmv': 'video/x-ms-wmv', 'flv': 'video/x-flv', 'ts': 'video/mp2t', 'm4v': 'video/x-m4v', 'ogv': 'video/ogg' }; return mimeMap[ext] || 'video/*';
 }
 
-function handleVideoError(event) { /* ... (handleVideoError remains mostly the same, uses constants) ... */
-    const videoElement = getElement(selectors.VIDEO_ELEMENT);
-    const audioWarningDiv = getElement(selectors.AUDIO_WARNING);
-    console.error("HTML5 Video Error:", event, videoElement?.error);
-    let msg = "An unknown error occurred while trying to play the video.";
-    if (videoElement?.error) {
-        switch (videoElement.error.code) {
-            case MediaError.MEDIA_ERR_ABORTED: msg = 'Playback was aborted.'; break;
-            case MediaError.MEDIA_ERR_NETWORK: msg = 'A network error caused the video download to fail.'; break;
-            case MediaError.MEDIA_ERR_DECODE: msg = 'Video decoding failed (corruption or unsupported features/codec).'; break;
-            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = 'Video format not supported by this browser or server/network error.'; break;
-            default: msg = `An unknown video error occurred (Code: ${videoElement.error.code}).`; break;
-        }
-    }
-    if (audioWarningDiv) {
-        audioWarningDiv.innerHTML = `<strong>Playback Error:</strong> ${sanitize(msg)} <br>Consider using 'Copy URL' with an external player like VLC or MX Player, or try the 'Open Externally' button if available (Android).`;
-        audioWarningDiv.style.display = 'block';
-        audioWarningDiv.focus(); // Focus the error for screen readers
-    }
+function handleVideoError(event) { /* ... (same as before) ... */
+    const videoElement = getElement(selectors.VIDEO_ELEMENT); const audioWarningDiv = getElement(selectors.AUDIO_WARNING); console.error("HTML5 Video Error:", event, videoElement?.error); let msg = "An unknown error occurred while trying to play the video."; if (videoElement?.error) { switch (videoElement.error.code) { case MediaError.MEDIA_ERR_ABORTED: msg = 'Playback was aborted.'; break; case MediaError.MEDIA_ERR_NETWORK: msg = 'A network error caused the video download to fail.'; break; case MediaError.MEDIA_ERR_DECODE: msg = 'Video decoding failed (corruption or unsupported features/codec).'; break; case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = 'Video format not supported by this browser or server/network error.'; break; default: msg = `An unknown video error occurred (Code: ${videoElement.error.code}).`; break; } } if (audioWarningDiv) { audioWarningDiv.innerHTML = `<strong>Playback Error:</strong> ${sanitize(msg)} <br>Consider using 'Copy URL' with an external player like VLC or MX Player, or try the 'Open Externally' button if available (Android).`; audioWarningDiv.style.display = 'block'; audioWarningDiv.focus(); }
 }
 
+function getQualityBadgeClass(quality) { /* ... (same as before) ... */
+    if (!quality || quality === 'N/A') return 'badge-other'; const lowerQuality = quality.toLowerCase().replace(/[-.\s]/g, ''); switch (lowerQuality) { case '4k': case '2160p': return 'badge-4k'; case '1080p': return 'badge-1080p'; case '720p': return 'badge-720p'; case '480p': return 'badge-480p'; case 'webdl': case 'webrip': return 'badge-webdl'; case 'bluray': case 'bdrip': case 'brrip': return 'badge-bluray'; case 'hdtv': return 'badge-hdtv'; case 'dvd': case 'dvdrip': return 'badge-dvd'; case 'hdr': return 'badge-hdr'; case 'dolbyvision': case 'dv': return 'badge-dv'; case 'cam': case 'ts': case 'hdcam': return 'badge-cam'; default: return 'badge-other'; }
+}
 
-function extractQualityFromFilename(filename) { /* ... (extractQualityFromFilename remains the same) ... */
-    if (!filename) return null;
-    const patterns = [
-        /(?:^|\.|\[|\(|\s|_|-)((?:4k|2160p|1080p|720p|480p))(?=$|\.|\]|\)|\s|_|-)/i,
-        /(?:^|\.|\[|\(|\s|_-)(WEB-?DL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVDrip|DVDScr|HDCAM|HC|TC|TS|CAM)(?=$|\.|\]|\)|\s|_|-)/i,
-        /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i
-    ];
-    let foundQuality = null;
-    for (const regex of patterns) {
-        const match = filename.match(regex);
-        if (match && match[1]) {
-            let quality = match[1].toUpperCase();
-            quality = quality.replace(/WEB-?DL/i, 'WEBDL');
-            quality = quality.replace(/BLURAY/i, 'BluRay');
-            quality = quality.replace(/DVDRIP/i, 'DVD');
-            quality = quality.replace(/DOLBY.?VISION/i, 'Dolby Vision');
-            if (quality === '2160P') quality = '4K';
-            if (patterns.indexOf(regex) < 2) return quality;
-            if (patterns.indexOf(regex) === 2 && !foundQuality) foundQuality = quality;
-        }
-    }
-    return foundQuality;
+function extractQualityFromFilename(filename) { /* ... (same as before, used for display fallback) ... */
+    if (!filename) return null; const patterns = [ /(?:^|\.|\[|\(|\s|_|-)((?:4k|2160p|1080p|720p|480p))(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(WEB-?DL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVDrip|DVDScr|HDCAM|HC|TC|TS|CAM)(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i ]; let foundQuality = null; for (let i = 0; i < patterns.length; i++) { const regex = patterns[i]; const match = String(filename).match(regex); if (match && match[1]) { let quality = match[1].toUpperCase(); quality = quality.replace(/WEB-?DL/i, 'WEBDL'); quality = quality.replace(/BLURAY/i, 'BluRay'); quality = quality.replace(/DVDRIP/i, 'DVD'); quality = quality.replace(/DOLBY.?VISION/i, 'Dolby Vision'); if (quality === '2160P') quality = '4K'; if (i < 2) return quality; if (i === 2 && !foundQuality) foundQuality = quality; } } return foundQuality;
 }
 
 /**
- * Generates a CSS class for the quality badge based on the quality string.
- * @param {string} quality - The quality string (e.g., "1080p", "BluRay").
- * @returns {string} The CSS class name (e.g., "badge-1080p").
+ * Prepares movie data received from the server for display.
+ * Calculates display values like filenames, quality badges, formatted dates.
+ * @param {object} movie - The raw movie object from the server response.
+ * @returns {object} The processed movie object ready for rendering.
  */
-function getQualityBadgeClass(quality) {
-    if (!quality || quality === 'N/A') return 'badge-other';
-    const lowerQuality = quality.toLowerCase().replace(/[-.\s]/g, ''); // Normalize
-    switch (lowerQuality) {
-        case '4k':
-        case '2160p': return 'badge-4k';
-        case '1080p': return 'badge-1080p';
-        case '720p': return 'badge-720p';
-        case '480p': return 'badge-480p';
-        case 'webdl':
-        case 'webrip': return 'badge-webdl';
-        case 'bluray':
-        case 'bdrip':
-        case 'brrip': return 'badge-bluray';
-        case 'hdtv': return 'badge-hdtv';
-        case 'dvd':
-        case 'dvdrip': return 'badge-dvd';
-        case 'hdr': return 'badge-hdr';
-        case 'dolbyvision':
-        case 'dv': return 'badge-dv';
-        case 'cam':
-        case 'ts':
-        case 'hdcam': return 'badge-cam'; // Group low quality
-        default: return 'badge-other'; // Fallback
-    }
-}
-
-
-function normalizeTextForSearch(text) { /* ... (normalizeTextForSearch remains the same) ... */
-    if (!text) return "";
-    return String(text)
-        .toLowerCase()
-        .replace(/[.\-_\(\)\[\]]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-
-function preprocessMovieData(movie) { /* ... (preprocessMovieData remains mostly the same) ... */
-    // Determine Display Filename
+function preprocessMovieDataForDisplay(movie) {
+    // 1. Determine Display Filename (Use provided, maybe fallback if needed)
     movie.displayFilename = sanitize(movie.filename || '');
-    movie.filenameSource = 'sheet';
+    // Simple URL derivation fallback if filename is missing (server should ideally handle this)
     if (!movie.displayFilename && movie.url) {
         try {
-            const urlObject = new URL(movie.url); let potentialFilename = '';
-            const pathParam = urlObject.searchParams.get('path');
-            if (pathParam) { const pathSegments = pathParam.split('/').filter(s=>s); if(pathSegments.length>0) potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]); }
-            if (!potentialFilename && urlObject.pathname && urlObject.pathname !== '/') { const pathSegments = urlObject.pathname.split('/').filter(s=>s); if (pathSegments.length > 0 && pathSegments[pathSegments.length - 1].includes('.')) potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]); }
-            if (potentialFilename) { movie.displayFilename = sanitize(potentialFilename); movie.filenameSource = 'url'; }
-        } catch (e) { console.warn("URL parsing failed:", movie.url, e); }
+            const urlParts = movie.url.split('?')[0].split('#')[0];
+            const pathSegments = urlParts.split('/').filter(s=>s);
+            if (pathSegments.length > 0 && pathSegments[pathSegments.length - 1].includes('.')) {
+                 movie.displayFilename = sanitize(decodeURIComponent(pathSegments[pathSegments.length - 1]));
+            }
+        } catch(e) { /* ignore */ }
     }
-    if (!movie.displayFilename) { movie.displayFilename = `File (ID: ${sanitize(movie.id || 'N/A')})`; movie.filenameSource = 'placeholder'; }
+    if (!movie.displayFilename) {
+         movie.displayFilename = `File (ID: ${sanitize(movie.id || 'N/A')})`;
+    }
 
-    // Determine Size
-    movie.sizeData = { display: 'N/A', bytes: 0 };
-    if (movie.size && String(movie.size).toLowerCase() !== 'n/a') { const explicitSize = extractSizeData(`[${movie.size}]`); if (explicitSize && explicitSize.bytes > 0) movie.sizeData = explicitSize; }
-    if (movie.sizeData.bytes === 0 && movie.filenameSource !== 'placeholder') { const extractedSize = extractSizeData(movie.displayFilename); if (extractedSize && extractedSize.bytes > 0) movie.sizeData = extractedSize; }
+    // 2. Determine Display Size (Use provided, fallback to extraction)
+    // Server might already provide a good size string, but we can format/extract as fallback
+    movie.sizeData = extractSizeData(movie.size || movie.displayFilename); // Prioritize 'size' field if present
 
-    // Determine Quality
+    // 3. Determine Display Quality & Badge (Use provided, fallback to extraction)
     movie.displayQuality = sanitize(movie.quality || 'N/A');
-    if ((!movie.quality || String(movie.quality).toLowerCase() === 'n/a') && movie.filenameSource !== 'placeholder') { const extractedQuality = extractQualityFromFilename(movie.displayFilename); if (extractedQuality) movie.displayQuality = sanitize(extractedQuality); }
-    if (movie.displayQuality && movie.displayQuality !== 'N/A') { uniqueQualities.add(movie.displayQuality); }
-    movie.qualityBadgeClass = getQualityBadgeClass(movie.displayQuality); // Get badge class
+    if (movie.displayQuality === 'N/A') { // Try extracting only if 'N/A'
+        const extractedQuality = extractQualityFromFilename(movie.displayFilename);
+        if (extractedQuality) movie.displayQuality = sanitize(extractedQuality);
+    }
+    movie.qualityBadgeClass = getQualityBadgeClass(movie.displayQuality);
 
-    // Parse Last Updated Timestamp
-    movie.lastUpdatedTimestamp = 0;
-    if (movie.lastUpdated) { try { const parsedDate = new Date(movie.lastUpdated); if (!isNaN(parsedDate.getTime())) movie.lastUpdatedTimestamp = parsedDate.getTime(); else console.warn("Invalid date:", movie.lastUpdated); } catch (e) { console.warn("Error parsing date:", movie.lastUpdated, e); } }
+    // 4. Format Last Updated Date
+    // Server sends ISO string, format it here
+    movie.formattedDateRelative = TimeAgo.format(movie.lastUpdated);
+    movie.formattedDateFull = movie.lastUpdated ? TimeAgo.formatFullDate(new Date(movie.lastUpdated)) : 'N/A';
 
-    // Parse Numeric ID
-    movie.numericId = Infinity;
-    if (movie.id) { const parsedId = parseInt(String(movie.id).replace(/\D/g, ''), 10); if (!isNaN(parsedId)) movie.numericId = parsedId; }
+    // Server handles numericId, searchableText, timestamp, sizeBytes for filtering/sorting
 
-    // Create Normalized Search Text
-    movie.searchText = normalizeTextForSearch(`${movie.id || ''} ${movie.displayFilename}`);
     return movie;
 }
 
+
 /**
  * Generates the HTML string for a single movie row and its corresponding action row.
- * Includes SVG icons, quality badges, and ARIA attributes.
+ * Uses preprocessed movie data.
  */
 function createMovieRowsHTML(movie, index, context) {
+    // movie object is already preprocessed by preprocessMovieDataForDisplay
     const uniqueIdPart = movie.id ? String(movie.id).replace(/[^a-zA-Z0-9-_]/g, '') : `gen-${index}`;
     const mainRowId = `${context}-main-${uniqueIdPart}`;
     const actionRowId = `${context}-actions-${uniqueIdPart}`;
 
     const displayFilename = movie.displayFilename;
-    const displaySize = movie.sizeData.display;
+    const displaySize = movie.sizeData.display; // Use precalculated size data
     const displayQuality = movie.displayQuality;
     const qualityBadgeClass = movie.qualityBadgeClass;
     const streamTitle = displayFilename.split(/[\.\(\[]/)[0].replace(/[_ ]+/g, ' ').trim() + (displayQuality !== 'N/A' ? ` (${displayQuality})` : '');
-    const formattedDateRelative = TimeAgo.format(movie.lastUpdated);
-    const formattedDateFull = movie.lastUpdatedTimestamp > 0 ? TimeAgo.formatFullDate(new Date(movie.lastUpdatedTimestamp)) : 'N/A';
+    const formattedDateRelative = movie.formattedDateRelative; // Use preformatted date
+    const formattedDateFull = movie.formattedDateFull; // Use preformatted date
 
     // Generate logos/badges
-    let qualityVisualsHTML = `<span class="quality-badge ${qualityBadgeClass}">${displayQuality}</span>`;
+    let qualityColHTML = `<span class="quality-badge ${qualityBadgeClass}">${displayQuality}</span>`;
     const lowerFilename = displayFilename.toLowerCase();
     let has4K = displayQuality === '4K' || lowerFilename.includes('2160p') || lowerFilename.includes('.4k.');
     let hasHDR = displayQuality.includes('HDR') || displayQuality.includes('DOLBY VISION') || displayQuality === 'DV' || lowerFilename.includes('hdr') || lowerFilename.includes('dolby.vision') || lowerFilename.includes('.dv.');
@@ -1482,11 +1355,8 @@ function createMovieRowsHTML(movie, index, context) {
     let filenameSuffixHTML = '';
     if (has4K) filenameSuffixHTML += ` <svg class="quality-logo" viewBox="0 0 128 72" aria-label="4K" role="img"><title>4K Ultra HD</title><use xlink:href="#logo-4k"></use></svg>`;
     if (hasHDR) filenameSuffixHTML += ` <svg class="quality-logo" viewBox="0 0 128 72" aria-label="HDR" role="img"><title>HDR / Dolby Vision Content</title><use xlink:href="#logo-hdr"></use></svg>`;
-
-    let qualityColHTML = `<span class="quality-badge ${qualityBadgeClass}">${displayQuality}</span>`;
     if (has4K) qualityColHTML += `<svg class="quality-logo" viewBox="0 0 128 72" aria-hidden="true" style="margin-left: 5px;"><use xlink:href="#logo-4k"></use></svg>`;
-     if (hasHDR) qualityColHTML += `<svg class="quality-logo" viewBox="0 0 128 72" aria-hidden="true" style="margin-left: 5px;"><use xlink:href="#logo-hdr"></use></svg>`;
-
+    if (hasHDR) qualityColHTML += `<svg class="quality-logo" viewBox="0 0 128 72" aria-hidden="true" style="margin-left: 5px;"><use xlink:href="#logo-hdr"></use></svg>`;
 
     const escapedStreamTitle = streamTitle.replace(/'/g, "\\'");
     const escapedFilename = displayFilename.replace(/'/g, "\\'");
@@ -1513,25 +1383,21 @@ function createMovieRowsHTML(movie, index, context) {
 
     // Action Buttons HTML
     let actionButtonsHTML = '';
-    if (movie.url) {
+    // Use the direct properties from the movie object
+    if (movie.url) { /* ... button generation ... */
         actionButtonsHTML += `<button class="button play-button" onclick="streamVideo(this, '${escapedStreamTitle}', '${sanitize(movie.url)}', '${escapedFilename}')"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-play"></use></svg>Play here</button>`;
         actionButtonsHTML += `<a class="button download-button" href="${sanitize(movie.url)}" download="${displayFilename}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-download"></use></svg>Direct Download</a>`;
         actionButtonsHTML += `<button class="button vlc-button" onclick="copyVLCLink(this, '${sanitize(movie.url)}')"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>Copy URL (for VLC/MX)</button>`;
-        if (navigator.userAgent.toLowerCase().includes("android")) {
-             actionButtonsHTML += `<button class="button intent-button" onclick="openWithIntent('${sanitize(movie.url)}')"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-external-link"></use></svg>Open Externally (Android)</button>`;
-        }
+        if (navigator.userAgent.toLowerCase().includes("android")) { actionButtonsHTML += `<button class="button intent-button" onclick="openWithIntent('${sanitize(movie.url)}')"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-external-link"></use></svg>Open Externally (Android)</button>`; }
     }
     if (movie.telegramLink) actionButtonsHTML += `<a class="button telegram-button" href="${sanitize(movie.telegramLink)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-telegram"></use></svg>Telegram File</a>`;
-    if (movie.gdflixLink) {
-        let gdflixButtonText = movie.gdflixLink.includes('/pack/') ? "GDFLIX (pack)" : "GDFLIX";
-        actionButtonsHTML += `<a class="button gdflix-button" href="${sanitize(movie.gdflixLink)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>${gdflixButtonText}</a>`; // Generic link icon
-    }
+    if (movie.gdflixLink) { let text=movie.gdflixLink.includes('/pack/')?"GDFLIX (pack)":"GDFLIX"; actionButtonsHTML += `<a class="button gdflix-button" href="${sanitize(movie.gdflixLink)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>${text}</a>`; }
     if (movie.hubcloudLink) actionButtonsHTML += `<a class="button hubcloud-button" href="${sanitize(movie.hubcloudLink)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>HubCloud</a>`;
     if (movie.filepressLink) actionButtonsHTML += `<a class="button filepress-button" href="${sanitize(movie.filepressLink)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>Filepress</a>`;
     if (movie.gdtotLink) actionButtonsHTML += `<a class="button gdtot-button" href="${sanitize(movie.gdtotLink)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-link"></use></svg>GDToT</a>`;
 
-    if (!actionButtonsHTML) {
-        actionButtonsHTML = '<span style="color: var(--text-muted); font-style: italic; text-align: center; width: 100%; display: block; padding: 10px 0;">No stream/download actions available</span>';
+    if (!actionButtonsHTML) { /* ... no actions message ... */
+        actionButtonsHTML = '<span style="color: var(--text-muted); font-style: italic; text-align: center; width: 100%; display: block; padding: 10px 0;">No actions available</span>';
     }
 
     // Action Row HTML
@@ -1545,14 +1411,14 @@ function createMovieRowsHTML(movie, index, context) {
                         <span class="info-item"><strong>Size:</strong> ${displaySize}</span>
                         <span class="info-item"><strong>Language:</strong> ${sanitize(movie.languages || 'N/A')}</span>
                         <span class="info-item"><strong>Updated:</strong> ${formattedDateFull} (${formattedDateRelative})</span>
-                        ${(movie.filenameSource !== 'sheet' && movie.filename && movie.filename !== movie.displayFilename)
+                        ${(movie.filenameSource !== 'sheet' && movie.filename && movie.filename !== displayFilename)
                            ? `<span class="info-item"><strong>Original Name:</strong> ${sanitize(movie.filename)}</span>`
                            : ''}
                     </div>
                     <div class="action-buttons-container">
                        ${actionButtonsHTML}
                     </div>
-                    <span class="copy-feedback" id="copy-${uniqueIdPart}" aria-live="polite">Copied!</span>
+                    <span class="${selectors.COPY_FEEDBACK.substring(1)}" id="copy-${uniqueIdPart}" aria-live="polite">Copied!</span>
                     <!-- Player wrapper will be moved here -->
                 </div>
             </td>
@@ -1563,72 +1429,39 @@ function createMovieRowsHTML(movie, index, context) {
 
 
 /**
- * Renders the tables using DocumentFragment for efficiency.
+ * Renders table rows from the provided page data.
+ * @param {Array} pageData - Array of movie objects for the current page (already preprocessed).
+ * @param {number} totalItems - Total items matching the query (for pagination).
+ * @param {number} itemsPerPage - Items per page (for pagination).
  */
-function renderTables() {
-    const now = Date.now();
-    const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
-    const updatesTbody = getElement(selectors.UPDATES_TBODY);
+function renderTables(pageData, totalItems, itemsPerPage) {
+    // Don't need updates table logic if fetching paginated 'recent' data
     const movieTbody = getElement(selectors.MOVIE_TBODY);
     const paginationControls = getElement(selectors.PAGINATION_CONTROLS);
     const updatesSectionEl = getElement(selectors.UPDATES_SECTION);
 
     // Clear existing content / remove skeletons
-    if(updatesTbody) updatesTbody.innerHTML = '';
-    if(movieTbody) movieTbody.innerHTML = '';
+    if (movieTbody) movieTbody.innerHTML = '';
+    if (updatesSectionEl) updatesSectionEl.style.display = 'none'; // Hide updates section when showing search/paginated results
 
-    // --- Render Updates Table ---
-    const updatesFragment = document.createDocumentFragment();
-    let updatesFound = false;
-    let updateIndex = 0;
-    const sortedOriginalDataForUpdates = [...allMovieData].sort((a, b) => b.lastUpdatedTimestamp - a.lastUpdatedTimestamp);
-
-    sortedOriginalDataForUpdates.forEach((movie) => {
-        if (movie.lastUpdatedTimestamp >= twentyFourHoursAgo) {
-            if (movie.id && (movie.filenameSource !== 'placeholder' || movie.url || movie.gdflixLink || movie.hubcloudLink || movie.filepressLink || movie.telegramLink || movie.gdtotLink)) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = createMovieRowsHTML(movie, updateIndex, 'upd');
-                while (tempDiv.firstChild) { updatesFragment.appendChild(tempDiv.firstChild); }
-                updatesFound = true;
-                updateIndex++;
-            }
-        }
-    });
-
-    if (updatesTbody) {
-        if (updatesFound) {
-            updatesTbody.appendChild(updatesFragment);
-        } else {
-            updatesTbody.innerHTML = '<tr><td colspan="6" class="status-message">No updates in the last 24 hours.</td></tr>';
-        }
-    }
-    if (updatesSectionEl) updatesSectionEl.style.display = currentState.searchTerm ? 'none' : 'block';
-
-    // --- Render Recent Movies Table (Paginated) ---
+    // --- Render Movies Table (Paginated Data) ---
     const movieFragment = document.createDocumentFragment();
-    const totalItems = filteredAndSortedData.length;
-    const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
-
-    if (currentState.currentPage < 1) currentState.currentPage = 1;
-    if (currentState.currentPage > totalPages && totalPages > 0) currentState.currentPage = totalPages;
-    if (totalItems === 0) currentState.currentPage = 1;
-
-    const startIndex = (currentState.currentPage - 1) * config.ITEMS_PER_PAGE;
-    const endIndex = Math.min(startIndex + config.ITEMS_PER_PAGE, totalItems);
-    const pageData = filteredAndSortedData.slice(startIndex, endIndex);
 
     if (movieTbody) {
         if (totalItems === 0) {
-            movieTbody.innerHTML = `<tr><td colspan="6" class="status-message">${currentState.searchTerm || currentState.qualityFilter ? 'No movies found matching your criteria.' : 'Loading movies or no movies listed yet.'}</td></tr>`;
+            movieTbody.innerHTML = `<tr><td colspan="6" class="status-message">${currentState.searchTerm || currentState.qualityFilter ? 'No movies found matching your criteria.' : 'No movies listed yet.'}</td></tr>`;
             if (paginationControls) paginationControls.style.display = 'none';
         } else {
+            // Calculate starting index for row generation context (doesn't affect data, just for unique IDs)
+             const startIndex = (currentState.currentPage - 1) * itemsPerPage;
             pageData.forEach((movie, index) => {
                  const tempDiv = document.createElement('div');
+                 // Pass the already preprocessed movie object
                  tempDiv.innerHTML = createMovieRowsHTML(movie, startIndex + index, 'rec');
                  while (tempDiv.firstChild) { movieFragment.appendChild(tempDiv.firstChild); }
             });
             movieTbody.appendChild(movieFragment);
-            renderPaginationControls(totalItems, totalPages);
+            renderPaginationControls(totalItems, itemsPerPage); // Render pagination
             if (paginationControls) paginationControls.style.display = 'block';
         }
     }
@@ -1636,34 +1469,37 @@ function renderTables() {
     // Update visual indicators
     updateSortIndicators();
     updateFilterIndicator();
-    checkTableScroll(); // Check if tables need scroll hint
+    checkTableScroll();
 
     // --- Handle Active Action Row State ---
     if (activeActionRow && !document.body.contains(activeActionRow)) {
-        // If the active row was removed from DOM (e.g., page change)
         closePlayer(); // Ensure player is fully closed and reset
-        activeActionRow = null;
-        activeMainRow = null;
+        activeActionRow = null; activeMainRow = null;
     } else if (activeActionRow && activeActionRow.style.maxHeight === '0px') {
-        // If row exists but is hidden (e.g., closed manually)
-        activeActionRow = null;
-        activeMainRow = null;
-        // Player should have been closed by toggleActions or closePlayer
+        activeActionRow = null; activeMainRow = null;
     }
 }
 
 
-function renderPaginationControls(totalItems, totalPages) { /* ... (renderPaginationControls remains the same, uses constants) ... */
+/**
+ * Renders pagination controls based on total items and items per page.
+ * @param {number} totalItems - Total number of items matching the current query.
+ * @param {number} itemsPerPage - Number of items displayed per page.
+ */
+function renderPaginationControls(totalItems, itemsPerPage) {
     const paginationControls = getElement(selectors.PAGINATION_CONTROLS);
     if (!paginationControls) return;
     paginationControls.innerHTML = '';
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
     if (totalPages <= 1) {
         paginationControls.style.display = 'none';
         return;
     }
 
     let paginationHTML = '';
-    const currentPage = currentState.currentPage;
+    const currentPage = currentState.currentPage; // Use current state
     const maxPagesToShow = 5;
     const halfPages = Math.floor(maxPagesToShow / 2);
 
@@ -1671,21 +1507,15 @@ function renderPaginationControls(totalItems, totalPages) { /* ... (renderPagina
     paginationHTML += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled title="Already on first page"' : 'title="Go to previous page"'}>« Prev</button>`;
 
     // Page Number Buttons
-    if (totalPages <= maxPagesToShow + 2) {
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`;
-        }
-    } else {
-        let startPage = Math.max(2, currentPage - halfPages);
-        let endPage = Math.min(totalPages - 1, currentPage + halfPages);
+    if (totalPages <= maxPagesToShow + 2) { /* ... (same logic) ... */
+        for (let i = 1; i <= totalPages; i++) { paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`; }
+    } else { /* ... (same ellipsis logic) ... */
+        let startPage = Math.max(2, currentPage - halfPages); let endPage = Math.min(totalPages - 1, currentPage + halfPages);
         if (currentPage <= halfPages + 1) endPage = Math.min(totalPages - 1, maxPagesToShow);
         if (currentPage >= totalPages - halfPages) startPage = Math.max(2, totalPages - maxPagesToShow + 1);
-
         paginationHTML += (1 === currentPage) ? `<span class="current-page">1</span>` : `<button onclick="changePage(1)" title="Go to page 1">1</button>`;
         if (startPage > 2) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
-        for (let i = startPage; i <= endPage; i++) {
-            paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`;
-        }
+        for (let i = startPage; i <= endPage; i++) { paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`; }
         if (endPage < totalPages - 1) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
         paginationHTML += (totalPages === currentPage) ? `<span class="current-page">${totalPages}</span>` : `<button onclick="changePage(${totalPages})" title="Go to page ${totalPages}">${totalPages}</button>`;
     }
@@ -1697,705 +1527,237 @@ function renderPaginationControls(totalItems, totalPages) { /* ... (renderPagina
     paginationControls.style.display = 'block';
 }
 
-function applyUserActions() { /* ... (applyUserActions remains the same, uses constants) ... */
-    // Filtering
-    const normalizedSearch = normalizeTextForSearch(currentState.searchTerm);
-    const searchKeywords = normalizedSearch ? normalizedSearch.split(' ').filter(k => k) : [];
-
-    filteredAndSortedData = allMovieData.filter(movie => {
-        if (currentState.qualityFilter && movie.displayQuality !== currentState.qualityFilter) return false;
-        if (searchKeywords.length > 0 && !searchKeywords.every(keyword => movie.searchText.includes(keyword))) return false;
-        movie.isExactMatch = searchKeywords.length > 0 && movie.searchText.includes(normalizedSearch);
-        return true;
-    });
-
-    // Sorting
-    const sortKey = currentState.sortColumn;
-    const direction = currentState.sortDirection === 'asc' ? 1 : -1;
-
-    filteredAndSortedData.sort((a, b) => {
-        if (searchKeywords.length > 0 && a.isExactMatch !== b.isExactMatch) return a.isExactMatch ? -1 : 1;
-        let valA, valB;
-        switch (sortKey) {
-            case 'id': valA = a.numericId; valB = b.numericId; break;
-            case 'filename': valA = a.displayFilename.toLowerCase(); valB = b.displayFilename.toLowerCase(); break;
-            case 'size': valA = a.sizeData.bytes; valB = b.sizeData.bytes; break;
-            case 'quality': valA = a.displayQuality.toLowerCase(); valB = b.displayQuality.toLowerCase(); break;
-            case 'lastUpdated': default: valA = a.lastUpdatedTimestamp; valB = b.lastUpdatedTimestamp; break;
-        }
-        const aIsLess = (valA === null || typeof valA === 'undefined') || (valA < valB && valB !== null && typeof valB !== 'undefined');
-        const bIsLess = (valB === null || typeof valB === 'undefined') || (valB < valA && valA !== null && typeof valA !== 'undefined');
-        if (aIsLess) return -1 * direction;
-        if (bIsLess) return 1 * direction;
-        if (b.numericId < a.numericId) return -1;
-        if (b.numericId > a.numericId) return 1;
-        return 0;
-    });
-
-    // Render
-    renderTables();
-    saveStateToLocalStorage();
-}
-
-
-function handleSort(event) { /* ... (handleSort remains the same, uses constants) ... */
-    const header = event.target.closest(`th.${cssClasses.SORTABLE}`);
-    if (!header) return;
-    const sortKey = header.dataset.sortKey;
-    if (!sortKey) return;
-
-    if (currentState.sortColumn === sortKey) {
-        currentState.sortDirection = currentState.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentState.sortColumn = sortKey;
-        currentState.sortDirection = ['filename', 'quality'].includes(sortKey) ? 'asc' : 'desc';
-    }
-
-    currentState.currentPage = 1;
-    closePlayerIfNeeded();
-    applyUserActions();
-}
-
-function updateSortIndicators() { /* ... (updateSortIndicators remains the same, uses constants) ... */
-    const movieTableHead = getElement(selectors.MOVIE_THEAD);
-    if (!movieTableHead) return;
-    movieTableHead.querySelectorAll(`th.${cssClasses.SORTABLE}`).forEach(th => {
-        th.classList.remove(cssClasses.SORT_ASC, cssClasses.SORT_DESC);
-        if (th.dataset.sortKey === currentState.sortColumn) {
-            const directionClass = currentState.sortDirection === 'asc' ? cssClasses.SORT_ASC : cssClasses.SORT_DESC;
-            th.classList.add(directionClass);
-            th.setAttribute('aria-sort', currentState.sortDirection === 'asc' ? 'ascending' : 'descending');
-        } else {
-            th.setAttribute('aria-sort', 'none');
-        }
-    });
-}
-
-function updateFilterIndicator() { /* ... (updateFilterIndicator remains the same, uses constants) ... */
-    const qualityFilter = getElement(selectors.QUALITY_FILTER);
-    if (!qualityFilter) return;
-    qualityFilter.classList.toggle(cssClasses.FILTER_ACTIVE, !!currentState.qualityFilter);
-}
-
-
-function changePage(newPage) { /* ... (changePage remains mostly the same, uses constants) ... */
-    const totalItems = filteredAndSortedData.length;
-    const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
-
-    if (newPage >= 1 && newPage <= totalPages && newPage !== currentState.currentPage) {
-        currentState.currentPage = newPage;
-        closePlayerIfNeeded();
-        renderTables();
-        saveStateToLocalStorage();
-
-        // Scroll to top of table
-        const tableElement = getElement('#movieTable') || getElement('#updatesTable');
-        if (tableElement) {
-             const headerElement = tableElement.querySelector('thead');
-             const headerHeight = headerElement ? headerElement.offsetHeight : 0;
-             const scrollOffset = 20;
-             const elementPosition = tableElement.getBoundingClientRect().top + window.pageYOffset;
-             const offsetPosition = Math.max(0, elementPosition - headerHeight - scrollOffset); // Ensure not negative
-
-             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }
-    }
-}
-
 /**
- * Toggles action row visibility, manages active state, player placement, and focus.
+ * Fetches data based on current state and triggers rendering.
  */
-function toggleActions(clickedElement, targetRowId, mainRowId) {
-    const targetRow = document.getElementById(targetRowId);
-    const mainRow = document.getElementById(mainRowId); // Get main row by its ID
-    const videoPlayerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER);
-    if (!targetRow || !mainRow || !clickedElement) return;
-
-    const buttonElement = mainRow.querySelector('.view-button'); // Button is always in main row
-    const buttonTextSpan = buttonElement?.querySelector('.view-button-text');
-    const buttonIcon = buttonElement?.querySelector('.icon use');
-    const isOpening = !targetRow.classList.contains(cssClasses.ACTION_ROW_VISIBLE);
-
-    lastFocusElement = clickedElement; // Store the element that triggered the toggle
-
-    // If opening a new row while player is active in another row
-    if (isOpening && videoPlayerWrapper?.style.display === 'flex' && activeActionRow !== targetRow) {
-        closePlayer();
-    }
-
-    // Close any *other* currently open action row
-    if (activeActionRow && activeActionRow !== targetRow) {
-        activeActionRow.classList.remove(cssClasses.ACTION_ROW_VISIBLE);
-        activeActionRow.style.maxHeight = '0'; // Ensure it's hidden
-        if(activeMainRow) activeMainRow.classList.remove(cssClasses.MAIN_ROW_ACTIVE);
-
-        const otherButton = activeMainRow?.querySelector('.view-button');
-        const otherButtonText = otherButton?.querySelector('.view-button-text');
-        const otherButtonIcon = otherButton?.querySelector('.icon use');
-        if (otherButtonText) otherButtonText.textContent = 'View';
-        if (otherButtonIcon) otherButtonIcon.setAttribute('xlink:href', '#icon-eye');
-        if (otherButton) otherButton.setAttribute('aria-expanded', 'false');
-
-        // If the player was inside the implicitly closed row, ensure it's handled
-        if (videoPlayerWrapper?.parentElement === activeActionRow?.querySelector('td .action-row-content')) {
-             closePlayer();
-        }
-    }
-
-    // Toggle the target row
-    if (isOpening) {
-        targetRow.classList.add(cssClasses.ACTION_ROW_VISIBLE);
-        mainRow.classList.add(cssClasses.MAIN_ROW_ACTIVE);
-        if (buttonTextSpan) buttonTextSpan.textContent = 'Hide';
-        if (buttonIcon) buttonIcon.setAttribute('xlink:href', '#icon-eye-off');
-        if (buttonElement) buttonElement.setAttribute('aria-expanded', 'true');
-        activeActionRow = targetRow;
-        activeMainRow = mainRow;
-
-        // Move player wrapper into this action row's content area
-        const actionCellContent = targetRow.querySelector('td .action-row-content');
-        if (actionCellContent && videoPlayerWrapper && videoPlayerWrapper.parentElement !== actionCellContent) {
-            if(getElement(selectors.VIDEO_ELEMENT)?.hasAttribute('src')) closePlayer(); // Reset if moving from elsewhere
-            actionCellContent.appendChild(videoPlayerWrapper);
-        }
-
-        // Scroll into view and focus first button after transition
-        setTimeout(() => {
-            mainRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            const firstButton = targetRow.querySelector('.action-buttons-container button, .action-buttons-container a');
-            firstButton?.focus();
-        }, 500); // Delay matching CSS transition time
-
-    } else {
-        // Closing the current row
-        targetRow.classList.remove(cssClasses.ACTION_ROW_VISIBLE);
-        mainRow.classList.remove(cssClasses.MAIN_ROW_ACTIVE);
-        if (buttonTextSpan) buttonTextSpan.textContent = 'View';
-        if (buttonIcon) buttonIcon.setAttribute('xlink:href', '#icon-eye');
-        if (buttonElement) buttonElement.setAttribute('aria-expanded', 'false');
-
-        // Close player if it was in this row
-        const actionCellContent = targetRow.querySelector('td .action-row-content');
-         if (actionCellContent && videoPlayerWrapper && videoPlayerWrapper.parentElement === actionCellContent) {
-             closePlayer(); // This will also handle moving the player back
-         }
-
-        activeActionRow = null;
-        activeMainRow = null;
-        // Return focus to the button that opened it
-        lastFocusElement?.focus();
-    }
-}
-
-
-/**
- * Starts video streaming, manages player state, UI, and focus.
- */
-function streamVideo(clickedButton, title, url, filenameForAudioCheck) {
-    const videoPlayerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER);
-    const videoElement = getElement(selectors.VIDEO_ELEMENT);
-    const audioWarningDiv = getElement(selectors.AUDIO_WARNING);
-    const audioTrackSelect = getElement(selectors.AUDIO_TRACK_SELECT);
-    const videoTitleEl = getElement(selectors.VIDEO_TITLE);
-    const vlcBox = getElement(selectors.VLC_BOX);
-    const vlcText = getElement(selectors.VLC_TEXT);
-    const muteButton = getElement(selectors.MUTE_BUTTON);
-    const volumeSlider = getElement(selectors.VOLUME_SLIDER);
-    const playbackSpeed = getElement(selectors.PLAYBACK_SPEED);
-    const closeBtn = videoPlayerWrapper?.querySelector(selectors.CLOSE_BUTTON);
-
-    if (!videoPlayerWrapper || !videoElement || !activeActionRow) {
-        console.error("Cannot stream: Player/video element or active action row missing.");
+async function fetchAndRenderData() {
+    if (isLoading) {
+        console.log("Fetch already in progress. Skipping.");
         return;
     }
+    isLoading = true;
+    showLoadingState(); // Show skeletons/spinner
+    closePlayerIfNeeded(); // Close player before fetching new data
 
-    // Ensure player is in the correct cell (should be moved by toggleActions)
-    const actionCellContent = activeActionRow.querySelector('td .action-row-content');
-    if (!actionCellContent || videoPlayerWrapper.parentElement !== actionCellContent) {
-         console.error("Player wrapper not in the expected action row cell. Aborting stream.");
-         // Optionally try to move it again, but this indicates a potential logic issue elsewhere
-         // if (actionCellContent) actionCellContent.appendChild(videoPlayerWrapper); else return;
-         return;
-    }
+    const fetchUrl = new URL(config.GSheetWebAppURL);
+    fetchUrl.searchParams.append('page', currentState.currentPage);
+    fetchUrl.searchParams.append('itemsPerPage', config.ITEMS_PER_PAGE);
+    if (currentState.searchTerm) fetchUrl.searchParams.append('searchTerm', currentState.searchTerm);
+    if (currentState.qualityFilter) fetchUrl.searchParams.append('qualityFilter', currentState.qualityFilter);
+    fetchUrl.searchParams.append('sortColumn', currentState.sortColumn);
+    fetchUrl.searchParams.append('sortDirection', currentState.sortDirection);
 
-    lastFocusElement = clickedButton; // Store button for focus return on close
-
-    // Reset UI
-    if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
-    if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-    // Reset copy feedback specifically tied to this row if needed (though not strictly necessary here)
-
-    // Load saved settings
     try {
-        const savedVolume = localStorage.getItem(config.PLAYER_VOLUME_KEY);
-        const savedSpeed = localStorage.getItem(config.PLAYER_SPEED_KEY);
-        videoElement.volume = (savedVolume !== null) ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 1;
-        videoElement.muted = (videoElement.volume === 0);
-        videoElement.playbackRate = (savedSpeed !== null) ? parseFloat(savedSpeed) : 1;
-        if(volumeSlider) volumeSlider.value = videoElement.volume;
-        if(playbackSpeed) playbackSpeed.value = String(videoElement.playbackRate);
-        updateMuteButtonVisuals(); // Update mute button visuals
-    } catch(e) { console.warn("Could not load player settings from localStorage", e); }
-
-    // Audio codec warnings
-    const ddp51Regex = /\bDDP?([ ._-]?5\.1)?\b/i;
-    const advancedAudioRegex = /\b(DTS|ATMOS|TrueHD)\b/i;
-    const multiAudioHintRegex = /\b(Multi|Dual)[ ._-]?Audio\b/i;
-    let warningText = "";
-    if (filenameForAudioCheck) {
-        const lowerFilename = filenameForAudioCheck.toLowerCase();
-        if (ddp51Regex.test(lowerFilename)) warningText = "<strong>Audio Note:</strong> Dolby Digital Plus (DDP) audio might not be supported in this browser. Use 'Copy URL' or 'Open Externally' if sound issues occur.";
-        else if (advancedAudioRegex.test(lowerFilename)) warningText = "<strong>Audio Note:</strong> DTS/Atmos/TrueHD audio likely unsupported in browser. Use 'Copy URL' or 'Open Externally'.";
-        else if (multiAudioHintRegex.test(lowerFilename)) warningText = "<strong>Audio Note:</strong> May contain multiple audio tracks. Use selector below (if available) or external player.";
-    }
-    if (warningText && audioWarningDiv) { audioWarningDiv.innerHTML = warningText; audioWarningDiv.style.display = 'block'; }
-
-    // Setup and Play
-    if (videoTitleEl) videoTitleEl.innerText = title;
-    if (vlcText) vlcText.innerText = url;
-    if (vlcBox) vlcBox.style.display = 'block';
-    videoElement.src = url;
-    videoElement.load();
-    videoElement.play().catch(e => { console.log("Autoplay prevented:", e.message); });
-    videoPlayerWrapper.style.display = 'flex'; // Show player
-
-    // Scroll and focus
-    setTimeout(() => {
-        videoPlayerWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        closeBtn?.focus(); // Focus the close button initially
-    }, 150);
-}
-
-
-/**
- * Closes the player, resets state, moves it back, and manages focus.
- */
-function closePlayer() {
-    const videoPlayerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER);
-    const videoElement = getElement(selectors.VIDEO_ELEMENT);
-    const mainContainer = getElement(selectors.CONTAINER);
-
-    if (!videoPlayerWrapper || !videoElement) return;
-
-    const wasPlaying = videoPlayerWrapper.style.display === 'flex';
-
-    // Exit fullscreen if active
-    try {
-        const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
-        if (fsElement && (fsElement === videoElement || fsElement === videoPlayerWrapper)) {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        console.log("Fetching:", fetchUrl.toString());
+        const response = await fetch(fetchUrl);
+        if (!response.ok) {
+            let errorText = response.statusText || `HTTP ${response.status}`;
+            try { const errorData = await response.json(); if(errorData?.error) errorText = errorData.error; } catch(e){/* ignore */}
+            throw new Error(`Network error: ${errorText}`);
         }
-    } catch(err) { console.error("Error exiting fullscreen:", err); }
-    // The 'fullscreenchange' listener handles class removal
+        const result = await response.json();
+        if (result.error) {
+            throw new Error(`API Error: ${result.error}`);
+        }
 
-    // Stop video and clear source
-    videoElement.pause();
-    videoElement.removeAttribute('src');
-    videoElement.load();
+        // --- Data received successfully ---
+        // Preprocess data for display (client-side additions like badges, date format)
+        const processedPageData = result.data.map(preprocessMovieDataForDisplay);
 
-    // Reset UI elements associated with the player
-    videoPlayerWrapper.style.display = 'none';
-    getElement(selectors.VLC_BOX)?.style.display = 'none';
-    const audioWarningDiv = getElement(selectors.AUDIO_WARNING);
-    if(audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
-    const audioTrackSelect = getElement(selectors.AUDIO_TRACK_SELECT);
-    if(audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-    // Find and hide any visible copy feedback *within the player wrapper* if needed (less common)
-    getElement(selectors.VIDEO_TITLE).innerText = '';
+        // Render the received page data
+        renderTables(processedPageData, result.totalItems || 0, result.itemsPerPage || config.ITEMS_PER_PAGE);
+        populateQualityFilterIfNeeded(processedPageData); // Re-populate quality filter if needed based on results
 
-    // Move player wrapper back to main container if it's not already there
-    if (mainContainer && document.body.contains(mainContainer) && videoPlayerWrapper.parentElement !== mainContainer) {
-        mainContainer.appendChild(videoPlayerWrapper);
+
+    } catch (error) {
+        console.error('Error fetching or rendering data:', error);
+        displayLoadError(`Failed to load data: ${error.message}`);
+    } finally {
+        isLoading = false;
+        hideLoadingState(); // Hide skeletons/spinner
+        saveStateToLocalStorage(); // Save state after successful/failed fetch attempt
     }
-
-    // If the corresponding action row is still 'active', update its button
-    if (wasPlaying && activeActionRow && activeMainRow) {
-         const actionCellContent = activeActionRow.querySelector('td .action-row-content');
-         // Check if the player *was* inside this specific row when close was initiated
-         if (actionCellContent && videoPlayerWrapper.parentElement === actionCellContent) {
-             const viewButton = activeMainRow.querySelector('.view-button');
-             const buttonTextSpan = viewButton?.querySelector('.view-button-text');
-             const buttonIcon = viewButton?.querySelector('.icon use');
-             if (buttonTextSpan) buttonTextSpan.textContent = 'View';
-             if (buttonIcon) buttonIcon.setAttribute('xlink:href', '#icon-eye');
-             if (viewButton) viewButton.setAttribute('aria-expanded', 'false');
-             // Optionally remove active class from row if closing player implies closing the row action
-             // activeMainRow.classList.remove(cssClasses.MAIN_ROW_ACTIVE);
-             // activeActionRow.classList.remove(cssClasses.ACTION_ROW_VISIBLE);
-             // activeActionRow = null; activeMainRow = null;
-         }
-    }
-
-    // Return focus to the element that opened the player/action
-    lastFocusElement?.focus();
-    lastFocusElement = null; // Clear after use
 }
 
-function closePlayerIfNeeded() {
-    if (getElement(selectors.VIDEO_PLAYER_WRAPPER)?.style.display === 'flex') {
-         closePlayer();
+
+function handleSort(event) { /* ... (Updates state and calls fetchAndRenderData) ... */
+    const header = event.target.closest(`th.${cssClasses.SORTABLE}`); if (!header) return;
+    const sortKey = header.dataset.sortKey; if (!sortKey) return;
+    if (currentState.sortColumn === sortKey) { currentState.sortDirection = currentState.sortDirection === 'asc' ? 'desc' : 'asc'; }
+    else { currentState.sortColumn = sortKey; currentState.sortDirection = ['filename', 'quality'].includes(sortKey) ? 'asc' : 'desc'; }
+    currentState.currentPage = 1;
+    fetchAndRenderData(); // Fetch new sorted data
+}
+
+function updateSortIndicators() { /* ... (same as before) ... */
+    const movieTableHead = getElement(selectors.MOVIE_THEAD); if (!movieTableHead) return;
+    movieTableHead.querySelectorAll(`th.${cssClasses.SORTABLE}`).forEach(th => { th.classList.remove(cssClasses.SORT_ASC, cssClasses.SORT_DESC); if (th.dataset.sortKey === currentState.sortColumn) { const dClass = currentState.sortDirection === 'asc' ? cssClasses.SORT_ASC : cssClasses.SORT_DESC; th.classList.add(dClass); th.setAttribute('aria-sort', currentState.sortDirection === 'asc' ? 'ascending' : 'descending'); } else { th.setAttribute('aria-sort', 'none'); } });
+}
+
+function updateFilterIndicator() { /* ... (same as before) ... */
+    const qualityFilter = getElement(selectors.QUALITY_FILTER); if (!qualityFilter) return; qualityFilter.classList.toggle(cssClasses.FILTER_ACTIVE, !!currentState.qualityFilter);
+}
+
+
+function changePage(newPage) { /* ... (Updates state and calls fetchAndRenderData) ... */
+    // Basic validation (server handles actual page limits)
+    if (newPage >= 1 && newPage !== currentState.currentPage) {
+        currentState.currentPage = newPage;
+        fetchAndRenderData(); // Fetch the new page
+
+        // Scroll to top of table (optional)
+        const tableElement = getElement('#movieTable');
+        if (tableElement) { const headerElement = tableElement.querySelector('thead'); const headerHeight = headerElement ? headerElement.offsetHeight : 0; const scrollOffset = 20; const elementPosition = tableElement.getBoundingClientRect().top + window.pageYOffset; const offsetPosition = Math.max(0, elementPosition - headerHeight - scrollOffset); window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); }
     }
+}
+
+function toggleActions(clickedElement, targetRowId, mainRowId) { /* ... (same as before) ... */
+    const targetRow = document.getElementById(targetRowId); const mainRow = document.getElementById(mainRowId); const videoPlayerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER); if (!targetRow || !mainRow || !clickedElement) return; const buttonElement = mainRow.querySelector('.view-button'); const buttonTextSpan = buttonElement?.querySelector('.view-button-text'); const buttonIcon = buttonElement?.querySelector('.icon use'); const isOpening = !targetRow.classList.contains(cssClasses.ACTION_ROW_VISIBLE); lastFocusElement = clickedElement; if (isOpening && videoPlayerWrapper?.style.display === 'flex' && activeActionRow !== targetRow) { closePlayer(); } if (activeActionRow && activeActionRow !== targetRow) { activeActionRow.classList.remove(cssClasses.ACTION_ROW_VISIBLE); activeActionRow.style.maxHeight = '0'; if(activeMainRow) activeMainRow.classList.remove(cssClasses.MAIN_ROW_ACTIVE); const otherButton = activeMainRow?.querySelector('.view-button'); const otherButtonText = otherButton?.querySelector('.view-button-text'); const otherButtonIcon = otherButton?.querySelector('.icon use'); if (otherButtonText) otherButtonText.textContent = 'View'; if (otherButtonIcon) otherButtonIcon.setAttribute('xlink:href', '#icon-eye'); if (otherButton) otherButton.setAttribute('aria-expanded', 'false'); const actionCellContent = activeActionRow?.querySelector('td .action-row-content'); if (actionCellContent && videoPlayerWrapper && videoPlayerWrapper.parentElement === actionCellContent) { closePlayer(); } } if (isOpening) { targetRow.classList.add(cssClasses.ACTION_ROW_VISIBLE); mainRow.classList.add(cssClasses.MAIN_ROW_ACTIVE); if (buttonTextSpan) buttonTextSpan.textContent = 'Hide'; if (buttonIcon) buttonIcon.setAttribute('xlink:href', '#icon-eye-off'); if (buttonElement) buttonElement.setAttribute('aria-expanded', 'true'); activeActionRow = targetRow; activeMainRow = mainRow; const actionCellContent = targetRow.querySelector('td .action-row-content'); if (actionCellContent && videoPlayerWrapper && videoPlayerWrapper.parentElement !== actionCellContent) { if(getElement(selectors.VIDEO_ELEMENT)?.hasAttribute('src')) closePlayer(); actionCellContent.appendChild(videoPlayerWrapper); } setTimeout(() => { mainRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); targetRow.querySelector('.action-buttons-container button, .action-buttons-container a')?.focus(); }, 500); } else { targetRow.classList.remove(cssClasses.ACTION_ROW_VISIBLE); mainRow.classList.remove(cssClasses.MAIN_ROW_ACTIVE); if (buttonTextSpan) buttonTextSpan.textContent = 'View'; if (buttonIcon) buttonIcon.setAttribute('xlink:href', '#icon-eye'); if (buttonElement) buttonElement.setAttribute('aria-expanded', 'false'); const actionCellContent = targetRow.querySelector('td .action-row-content'); if (actionCellContent && videoPlayerWrapper && videoPlayerWrapper.parentElement === actionCellContent) { closePlayer(); } activeActionRow = null; activeMainRow = null; lastFocusElement?.focus(); }
+}
+
+
+function streamVideo(clickedButton, title, url, filenameForAudioCheck) { /* ... (same as before) ... */
+    const videoPlayerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER); const videoElement = getElement(selectors.VIDEO_ELEMENT); const audioWarningDiv = getElement(selectors.AUDIO_WARNING); const audioTrackSelect = getElement(selectors.AUDIO_TRACK_SELECT); const videoTitleEl = getElement(selectors.VIDEO_TITLE); const vlcBox = getElement(selectors.VLC_BOX); const vlcText = getElement(selectors.VLC_TEXT); const volumeSlider = getElement(selectors.VOLUME_SLIDER); const playbackSpeed = getElement(selectors.PLAYBACK_SPEED); const closeBtn = videoPlayerWrapper?.querySelector(selectors.CLOSE_BUTTON); if (!videoPlayerWrapper || !videoElement || !activeActionRow) { console.error("Cannot stream: Player/video element or active action row missing."); return; } const actionCellContent = activeActionRow.querySelector('td .action-row-content'); if (!actionCellContent || videoPlayerWrapper.parentElement !== actionCellContent) { console.error("Player wrapper not in expected cell."); return; } lastFocusElement = clickedButton; if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; } if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; } try { const savedVolume = localStorage.getItem(config.PLAYER_VOLUME_KEY); const savedSpeed = localStorage.getItem(config.PLAYER_SPEED_KEY); videoElement.volume = (savedVolume !== null) ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 1; videoElement.muted = (videoElement.volume === 0); videoElement.playbackRate = (savedSpeed !== null) ? parseFloat(savedSpeed) : 1; if(volumeSlider) volumeSlider.value = videoElement.volume; if(playbackSpeed) playbackSpeed.value = String(videoElement.playbackRate); updateMuteButtonVisuals(); } catch(e) { console.warn("LS Error (Load Settings):", e); } const ddp51Regex = /\bDDP?([ ._-]?5\.1)?\b/i; const advancedAudioRegex = /\b(DTS|ATMOS|TrueHD)\b/i; const multiAudioHintRegex = /\b(Multi|Dual)[ ._-]?Audio\b/i; let warningText = ""; if (filenameForAudioCheck) { const lowerFilename = filenameForAudioCheck.toLowerCase(); if (ddp51Regex.test(lowerFilename)) warningText = "<strong>Audio Note:</strong> DDP audio might not work in browser. Use 'Copy URL' or 'Open Externally'."; else if (advancedAudioRegex.test(lowerFilename)) warningText = "<strong>Audio Note:</strong> DTS/Atmos/TrueHD likely unsupported. Use 'Copy URL' or 'Open Externally'."; else if (multiAudioHintRegex.test(lowerFilename)) warningText = "<strong>Audio Note:</strong> Multi-audio file. Use selector below or external player."; } if (warningText && audioWarningDiv) { audioWarningDiv.innerHTML = warningText; audioWarningDiv.style.display = 'block'; } if (videoTitleEl) videoTitleEl.innerText = title; if (vlcText) vlcText.innerText = url; if (vlcBox) vlcBox.style.display = 'block'; videoElement.src = url; videoElement.load(); videoElement.play().catch(e => { console.log("Autoplay prevented:", e.message); }); videoPlayerWrapper.style.display = 'flex'; setTimeout(() => { videoPlayerWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); closeBtn?.focus(); }, 150);
+}
+
+
+function closePlayer() { /* ... (same as before) ... */
+    const videoPlayerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER); const videoElement = getElement(selectors.VIDEO_ELEMENT); const mainContainer = getElement(selectors.CONTAINER); if (!videoPlayerWrapper || !videoElement) return; const wasPlaying = videoPlayerWrapper.style.display === 'flex'; try { const fsElement = document.fullscreenElement || document.webkitFullscreenElement; if (fsElement && (fsElement === videoElement || fsElement === videoPlayerWrapper)) { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } } catch(err) { console.error("Fullscreen exit error:", err); } videoElement.pause(); videoElement.removeAttribute('src'); videoElement.load(); videoPlayerWrapper.style.display = 'none'; getElement(selectors.VLC_BOX)?.style.display = 'none'; const audioWarningDiv = getElement(selectors.AUDIO_WARNING); if(audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; } const audioTrackSelect = getElement(selectors.AUDIO_TRACK_SELECT); if(audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; } getElement(selectors.VIDEO_TITLE).innerText = ''; if (mainContainer && document.body.contains(mainContainer) && videoPlayerWrapper.parentElement !== mainContainer) { mainContainer.appendChild(videoPlayerWrapper); } if (wasPlaying && activeActionRow && activeMainRow) { const actionCellContent = activeActionRow.querySelector('td .action-row-content'); if (actionCellContent && videoPlayerWrapper.parentElement === actionCellContent) { const viewButton = activeMainRow.querySelector('.view-button'); const buttonTextSpan = viewButton?.querySelector('.view-button-text'); const buttonIcon = viewButton?.querySelector('.icon use'); if (buttonTextSpan) buttonTextSpan.textContent = 'View'; if (buttonIcon) buttonIcon.setAttribute('xlink:href', '#icon-eye'); if (viewButton) viewButton.setAttribute('aria-expanded', 'false'); } } lastFocusElement?.focus(); lastFocusElement = null;
+}
+
+function closePlayerIfNeeded() { /* ... (same as before) ... */
+    if (getElement(selectors.VIDEO_PLAYER_WRAPPER)?.style.display === 'flex') { closePlayer(); }
 }
 
 // --- Player Control Functions ---
-function seekVideo(seconds) { const v = getElement(selectors.VIDEO_ELEMENT); if(v) v.currentTime += seconds; }
-function toggleMute() { const v = getElement(selectors.VIDEO_ELEMENT); if(v) v.muted = !v.muted; /* volumechange listener handles visuals */ }
-function setVolume(value) {
-    const v = getElement(selectors.VIDEO_ELEMENT);
-    if (v) {
-        const newVolume = parseFloat(value);
-        v.volume = newVolume;
-        v.muted = (newVolume === 0); // Mute if slider at 0
-    }
-}
-function setPlaybackSpeed(value) { const v = getElement(selectors.VIDEO_ELEMENT); if(v) v.playbackRate = parseFloat(value); }
-function toggleFullscreen() {
-    const playerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER);
-    if (!playerWrapper) return;
-    const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
-
-    try {
-        if (!fsElement) {
-            if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen();
-            else if (playerWrapper.webkitRequestFullscreen) playerWrapper.webkitRequestFullscreen();
-        } else {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        }
-    } catch (err) {
-        console.error("Fullscreen API error:", err);
-        alert("Could not toggle fullscreen mode.");
-    }
-}
-// Update mute button icon and text based on video state
-function updateMuteButtonVisuals() {
-    const videoElement = getElement(selectors.VIDEO_ELEMENT);
-    const muteButton = getElement(selectors.MUTE_BUTTON);
-    if (!videoElement || !muteButton) return;
-
-    const volOnIcon = muteButton.querySelector('.icon-vol-on');
-    const volOffIcon = muteButton.querySelector('.icon-vol-off');
-    const muteText = muteButton.querySelector('.mute-text');
-    const isMuted = videoElement.muted || videoElement.volume === 0;
-
-    if (isMuted) {
-        volOnIcon.style.display = 'none';
-        volOffIcon.style.display = 'inline-block';
-        muteText.textContent = 'Unmute';
-        muteButton.setAttribute('aria-pressed', 'true');
-        muteButton.setAttribute('aria-label', 'Unmute video');
-    } else {
-        volOnIcon.style.display = 'inline-block';
-        volOffIcon.style.display = 'none';
-        muteText.textContent = 'Mute';
-        muteButton.setAttribute('aria-pressed', 'false');
-        muteButton.setAttribute('aria-label', 'Mute video');
-    }
-
-    // Dim/disable volume slider when muted
-    const volumeSlider = getElement(selectors.VOLUME_SLIDER);
-    if (volumeSlider) {
-         volumeSlider.style.opacity = isMuted ? '0.5' : '1';
-         volumeSlider.disabled = isMuted;
-         // Set sensible volume if unmuting from 0 via button
-         if (!isMuted && videoElement.volume === 0) {
-              const defaultUnmuteVolume = 0.5;
-              videoElement.volume = defaultUnmuteVolume; // This will trigger 'volumechange' event
-         }
-    }
-}
-
-// --- Fullscreen Change Handler ---
-function handleFullscreenChange() {
-    const playerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER);
-    const fsButton = getElement(selectors.FULLSCREEN_BUTTON);
-    if (!playerWrapper || !fsButton) return;
-
-    const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    playerWrapper.classList.toggle(cssClasses.PLAYER_FULLSCREEN, isFullscreen);
-
-    const fsEnterIcon = fsButton.querySelector('.icon-fs-enter');
-    const fsExitIcon = fsButton.querySelector('.icon-fs-exit');
-    const fsText = fsButton.querySelector('.fs-text');
-
-    if (isFullscreen) {
-        fsEnterIcon.style.display = 'none';
-        fsExitIcon.style.display = 'inline-block';
-        fsText.textContent = 'Exit FS';
-        fsButton.setAttribute('aria-label', 'Exit fullscreen');
-    } else {
-        fsEnterIcon.style.display = 'inline-block';
-        fsExitIcon.style.display = 'none';
-        fsText.textContent = 'Fullscreen';
-        fsButton.setAttribute('aria-label', 'Enter fullscreen');
-    }
-    console.log("Fullscreen state changed. Is fullscreen:", isFullscreen);
-}
+function seekVideo(seconds) { /* ... */ const v = getElement(selectors.VIDEO_ELEMENT); if(v) v.currentTime += seconds; }
+function toggleMute() { /* ... */ const v = getElement(selectors.VIDEO_ELEMENT); if(v) v.muted = !v.muted; }
+function setVolume(value) { /* ... */ const v = getElement(selectors.VIDEO_ELEMENT); if (v) { const newVolume = parseFloat(value); v.volume = newVolume; v.muted = (newVolume === 0); } }
+function setPlaybackSpeed(value) { /* ... */ const v = getElement(selectors.VIDEO_ELEMENT); if(v) v.playbackRate = parseFloat(value); }
+function toggleFullscreen() { /* ... */ const playerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER); if (!playerWrapper) return; const fsElement = document.fullscreenElement || document.webkitFullscreenElement; try { if (!fsElement) { if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen(); else if (playerWrapper.webkitRequestFullscreen) playerWrapper.webkitRequestFullscreen(); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } } catch (err) { console.error("Fullscreen API error:", err); alert("Could not toggle fullscreen mode."); } }
+function updateMuteButtonVisuals() { /* ... (same as before) ... */ const videoElement = getElement(selectors.VIDEO_ELEMENT); const muteButton = getElement(selectors.MUTE_BUTTON); if (!videoElement || !muteButton) return; const volOnIcon = muteButton.querySelector('.icon-vol-on'); const volOffIcon = muteButton.querySelector('.icon-vol-off'); const muteText = muteButton.querySelector('.mute-text'); const isMuted = videoElement.muted || videoElement.volume === 0; if (isMuted) { volOnIcon.style.display = 'none'; volOffIcon.style.display = 'inline-block'; muteText.textContent = 'Unmute'; muteButton.setAttribute('aria-pressed', 'true'); muteButton.setAttribute('aria-label', 'Unmute video'); } else { volOnIcon.style.display = 'inline-block'; volOffIcon.style.display = 'none'; muteText.textContent = 'Mute'; muteButton.setAttribute('aria-pressed', 'false'); muteButton.setAttribute('aria-label', 'Mute video'); } const volumeSlider = getElement(selectors.VOLUME_SLIDER); if (volumeSlider) { volumeSlider.style.opacity = isMuted ? '0.5' : '1'; volumeSlider.disabled = isMuted; if (!isMuted && videoElement.volume === 0) { const defaultUnmuteVolume = 0.5; videoElement.volume = defaultUnmuteVolume; } } }
+function handleFullscreenChange() { /* ... (same as before) ... */ const playerWrapper = getElement(selectors.VIDEO_PLAYER_WRAPPER); const fsButton = getElement(selectors.FULLSCREEN_BUTTON); if (!playerWrapper || !fsButton) return; const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement); playerWrapper.classList.toggle(cssClasses.PLAYER_FULLSCREEN, isFullscreen); const fsEnterIcon = fsButton.querySelector('.icon-fs-enter'); const fsExitIcon = fsButton.querySelector('.icon-fs-exit'); const fsText = fsButton.querySelector('.fs-text'); if (isFullscreen) { fsEnterIcon.style.display = 'none'; fsExitIcon.style.display = 'inline-block'; fsText.textContent = 'Exit FS'; fsButton.setAttribute('aria-label', 'Exit fullscreen'); } else { fsEnterIcon.style.display = 'inline-block'; fsExitIcon.style.display = 'none'; fsText.textContent = 'Fullscreen'; fsButton.setAttribute('aria-label', 'Enter fullscreen'); } console.log("Fullscreen state changed:", isFullscreen); }
 
  // --- Event Listeners for Player State ---
- function setupPlayerListeners() {
-     const videoElement = getElement(selectors.VIDEO_ELEMENT);
-     if (!videoElement) return;
-
-     videoElement.addEventListener('volumechange', () => {
-         const volumeSlider = getElement(selectors.VOLUME_SLIDER);
-         if (volumeSlider && parseFloat(volumeSlider.value) !== videoElement.volume) {
-              volumeSlider.value = videoElement.volume;
-         }
-         updateMuteButtonVisuals(); // Update icon/text/aria
-         try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); }
-         catch (e) { console.warn("LS Error (Volume):", e); }
-     });
-     videoElement.addEventListener('ratechange', () => {
-        const playbackSpeed = getElement(selectors.PLAYBACK_SPEED);
-        if(playbackSpeed) playbackSpeed.value = String(videoElement.playbackRate);
-         try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); }
-         catch (e) { console.warn("LS Error (Speed):", e); }
-     });
-     videoElement.addEventListener('loadedmetadata', populateAudioTrackSelector);
-     videoElement.addEventListener('error', handleVideoError); // Added error handler listener
-
-     document.addEventListener('fullscreenchange', handleFullscreenChange);
-     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
- }
+ function setupPlayerListeners() { /* ... (same as before) ... */ const videoElement = getElement(selectors.VIDEO_ELEMENT); if (!videoElement) return; videoElement.addEventListener('volumechange', () => { const volumeSlider = getElement(selectors.VOLUME_SLIDER); if (volumeSlider && parseFloat(volumeSlider.value) !== videoElement.volume) { volumeSlider.value = videoElement.volume; } updateMuteButtonVisuals(); try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); } catch (e) { console.warn("LS Error (Volume):", e); } }); videoElement.addEventListener('ratechange', () => { const playbackSpeed = getElement(selectors.PLAYBACK_SPEED); if(playbackSpeed) playbackSpeed.value = String(videoElement.playbackRate); try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); } catch (e) { console.warn("LS Error (Speed):", e); } }); videoElement.addEventListener('loadedmetadata', populateAudioTrackSelector); videoElement.addEventListener('error', handleVideoError); document.addEventListener('fullscreenchange', handleFullscreenChange); document.addEventListener('webkitfullscreenchange', handleFullscreenChange); }
 
  // --- Audio Track Selection Logic ---
- function populateAudioTrackSelector() { /* ... (remains mostly the same, uses constants) ... */
-      const videoElement = getElement(selectors.VIDEO_ELEMENT);
-      const audioTrackSelect = getElement(selectors.AUDIO_TRACK_SELECT);
-      if (!videoElement || typeof videoElement.audioTracks === 'undefined' || !audioTrackSelect) {
-          if(audioTrackSelect) audioTrackSelect.style.display = 'none'; return;
-      }
-      const tracks = videoElement.audioTracks;
-      audioTrackSelect.innerHTML = '';
-      if (tracks.length <= 1) { audioTrackSelect.style.display = 'none'; return; }
-
-      let hasEnabledTrack = false;
-      for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) hasEnabledTrack = true; }
-      if (!hasEnabledTrack && tracks.length > 0) { try { tracks[0].enabled = true; } catch(e){/* ignore */} }
-
-      for (let i = 0; i < tracks.length; i++) {
-          const track = tracks[i]; const option = document.createElement('option');
-          option.value = track.id || i; let label = track.label || `Track ${i + 1}`;
-          if (track.language) { try { const langName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]); label += ` (${langName || track.language})`; } catch (e) { label += ` (${track.language})`; } }
-          option.textContent = label; option.selected = track.enabled; option.disabled = track.readyState === 'ended';
-          audioTrackSelect.appendChild(option);
-      }
-      audioTrackSelect.style.display = 'inline-block';
-       try { tracks.addEventListener('change', populateAudioTrackSelector); } catch(e) {/* ignore */}
-  }
- function changeAudioTrack(selectElement) { /* ... (remains the same, uses constants) ... */
-      const videoElement = getElement(selectors.VIDEO_ELEMENT);
-      if (!videoElement || !videoElement.audioTracks) return;
-      const selectedTrackValue = selectElement.value; const tracks = videoElement.audioTracks;
-      for (let i = 0; i < tracks.length; i++) {
-           const track = tracks[i]; const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue;
-           if (track.enabled !== isSelectedTrack) { try { track.enabled = isSelectedTrack; } catch (e) { console.error("Error changing audio track:", i, e); } }
-      }
-  }
+ function populateAudioTrackSelector() { /* ... (same as before) ... */ const videoElement = getElement(selectors.VIDEO_ELEMENT); const audioTrackSelect = getElement(selectors.AUDIO_TRACK_SELECT); if (!videoElement || typeof videoElement.audioTracks === 'undefined' || !audioTrackSelect) { if(audioTrackSelect) audioTrackSelect.style.display = 'none'; return; } const tracks = videoElement.audioTracks; audioTrackSelect.innerHTML = ''; if (tracks.length <= 1) { audioTrackSelect.style.display = 'none'; return; } let hasEnabledTrack = false; for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) hasEnabledTrack = true; } if (!hasEnabledTrack && tracks.length > 0) { try { tracks[0].enabled = true; } catch(e){/* ignore */} } for (let i = 0; i < tracks.length; i++) { const track = tracks[i]; const option = document.createElement('option'); option.value = track.id || i; let label = track.label || `Track ${i + 1}`; if (track.language) { try { const langName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]); label += ` (${langName || track.language})`; } catch (e) { label += ` (${track.language})`; } } option.textContent = label; option.selected = track.enabled; option.disabled = track.readyState === 'ended'; audioTrackSelect.appendChild(option); } audioTrackSelect.style.display = 'inline-block'; try { tracks.addEventListener('change', populateAudioTrackSelector); } catch(e) {/* ignore */} }
+ function changeAudioTrack(selectElement) { /* ... (same as before) ... */ const videoElement = getElement(selectors.VIDEO_ELEMENT); if (!videoElement || !videoElement.audioTracks) return; const selectedTrackValue = selectElement.value; const tracks = videoElement.audioTracks; for (let i = 0; i < tracks.length; i++) { const track = tracks[i]; const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue; if (track.enabled !== isSelectedTrack) { try { track.enabled = isSelectedTrack; } catch (e) { console.error("Error changing audio track:", i, e); } } } }
 
 // --- External Player / Copy Functionality ---
-function openWithIntent(url) { /* ... (remains the same, uses constants) ... */
-    if (!url) return;
-    const mime = getMimeTypeFromUrl(url);
-    const videoTitleEl = getElement(selectors.VIDEO_TITLE);
-    const videoTitleEncoded = encodeURIComponent(videoTitleEl?.innerText || document.title || 'Video');
-    const genericIntentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${videoTitleEncoded};end`;
-    console.log("Attempting generic VIEW intent:", genericIntentUri);
-    window.location.href = genericIntentUri;
-}
-
-function copyVLCLink(buttonElement, url) { /* ... (uses querySelector on parent for feedback span) ... */
-    if (!url || !buttonElement) return;
-    // Find the specific copy feedback span within the same action row content
-    const actionRowContent = buttonElement.closest('.action-row-content');
-    const feedbackSpan = actionRowContent?.querySelector('.copy-feedback'); // More specific query
-
-    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
-        navigator.clipboard.writeText(url)
-           .then(() => { if (feedbackSpan) showCopyFeedback(feedbackSpan); })
-           .catch(err => {
-                console.error("Async clipboard write failed:", err);
-                alert("Could not copy URL automatically. Please copy manually from the box below.");
-                highlightVlcText(); // Highlight text in the box
-           });
-    } else {
-        console.warn("Using fallback clipboard method.");
-        fallbackCopyTextToClipboard(url, feedbackSpan);
-    }
-}
-
-function fallbackCopyTextToClipboard(text, feedbackSpan) { /* ... (remains the same, uses constants) ... */
-    const textArea = document.createElement("textarea");
-    textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.opacity = "0";
-    document.body.appendChild(textArea); let successful = false;
-    try { textArea.select(); successful = document.execCommand('copy'); if (successful && feedbackSpan) showCopyFeedback(feedbackSpan); else if (!successful) throw new Error('execCommand failed'); }
-    catch (err) { console.error('Fallback copy failed:', err); alert("Automatic copy failed. Please select and copy manually from the box below."); highlightVlcText(); }
-    finally { document.body.removeChild(textArea); }
-}
-
-function showCopyFeedback(spanElement) { /* ... (remains the same, uses constants) ... */
-    if (!spanElement) return; clearTimeout(copyTimeout);
-    spanElement.classList.add(cssClasses.COPY_FEEDBACK_SHOW);
-    copyTimeout = setTimeout(() => { spanElement.classList.remove(cssClasses.COPY_FEEDBACK_SHOW); }, 2000);
-}
-
-function highlightVlcText() { /* ... (remains the same, uses constants) ... */
-     const vlcText = getElement(selectors.VLC_TEXT);
-     const vlcBox = getElement(selectors.VLC_BOX);
-     if (vlcText && vlcBox?.style.display === 'block') {
-         try { const range = document.createRange(); range.selectNodeContents(vlcText); const selection = window.getSelection(); if (selection) { selection.removeAllRanges(); selection.addRange(range); } }
-         catch (selectErr) { console.warn("Could not highlight VLC text:", selectErr); }
-     }
-}
+function openWithIntent(url) { /* ... (same as before) ... */ if (!url) return; const mime = getMimeTypeFromUrl(url); const videoTitleEl = getElement(selectors.VIDEO_TITLE); const videoTitleEncoded = encodeURIComponent(videoTitleEl?.innerText || document.title || 'Video'); const genericIntentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${videoTitleEncoded};end`; console.log("VIEW intent:", genericIntentUri); window.location.href = genericIntentUri; }
+function copyVLCLink(buttonElement, url) { /* ... (same as before) ... */ if (!url || !buttonElement) return; const actionRowContent = buttonElement.closest('.action-row-content'); const feedbackSpan = actionRowContent?.querySelector(selectors.COPY_FEEDBACK); if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) { navigator.clipboard.writeText(url).then(() => { if (feedbackSpan) showCopyFeedback(feedbackSpan); }).catch(err => { console.error("Clipboard write failed:", err); alert("Could not copy URL. Please copy manually."); highlightVlcText(); }); } else { console.warn("Using fallback clipboard."); fallbackCopyTextToClipboard(url, feedbackSpan); } }
+function fallbackCopyTextToClipboard(text, feedbackSpan) { /* ... (same as before) ... */ const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.opacity = "0"; document.body.appendChild(textArea); let successful = false; try { textArea.select(); successful = document.execCommand('copy'); if (successful && feedbackSpan) showCopyFeedback(feedbackSpan); else if (!successful) throw new Error('execCommand failed'); } catch (err) { console.error('Fallback copy failed:', err); alert("Copy failed. Select manually."); highlightVlcText(); } finally { document.body.removeChild(textArea); } }
+function showCopyFeedback(spanElement) { /* ... (same as before) ... */ if (!spanElement) return; clearTimeout(copyTimeout); spanElement.classList.add(cssClasses.COPY_FEEDBACK_SHOW); copyTimeout = setTimeout(() => { spanElement.classList.remove(cssClasses.COPY_FEEDBACK_SHOW); }, 2000); }
+function highlightVlcText() { /* ... (same as before) ... */ const vlcText = getElement(selectors.VLC_TEXT); const vlcBox = getElement(selectors.VLC_BOX); if (vlcText && vlcBox?.style.display === 'block') { try { const range = document.createRange(); range.selectNodeContents(vlcText); const selection = window.getSelection(); if (selection) { selection.removeAllRanges(); selection.addRange(range); } } catch (selectErr) { console.warn("Highlight failed:", selectErr); } } }
 
 
 // --- State Persistence ---
-function saveStateToLocalStorage() { /* ... (Added try-catch) ... */
-    try {
-        const stateToSave = { /* ... state properties ... */
-            searchTerm: currentState.searchTerm, qualityFilter: currentState.qualityFilter,
-            sortColumn: currentState.sortColumn, sortDirection: currentState.sortDirection,
-            currentPage: currentState.currentPage };
-        localStorage.setItem(config.LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
-    } catch (e) { console.error("LS Save Error:", e); }
-}
-function loadStateFromLocalStorage() { /* ... (Added try-catch, uses constants) ... */
-    try {
-        const savedState = localStorage.getItem(config.LOCAL_STORAGE_KEY);
-        if (savedState) {
-            const parsedState = JSON.parse(savedState);
-            currentState.searchTerm = typeof parsedState.searchTerm === 'string' ? parsedState.searchTerm : '';
-            currentState.qualityFilter = typeof parsedState.qualityFilter === 'string' ? parsedState.qualityFilter : '';
-            currentState.sortColumn = typeof parsedState.sortColumn === 'string' ? parsedState.sortColumn : 'lastUpdated';
-            currentState.sortDirection = (typeof parsedState.sortDirection === 'string' && ['asc', 'desc'].includes(parsedState.sortDirection)) ? parsedState.sortDirection : 'desc';
-            currentState.currentPage = (typeof parsedState.currentPage === 'number' && parsedState.currentPage > 0) ? Math.floor(parsedState.currentPage) : 1;
-            const searchInput = getElement(selectors.SEARCH_INPUT);
-            if(searchInput) searchInput.value = currentState.searchTerm;
-        }
-    } catch (e) { console.error("LS Load Error:", e); try { localStorage.removeItem(config.LOCAL_STORAGE_KEY); } catch(removeErr) {} }
-}
+function saveStateToLocalStorage() { /* ... (same as before) ... */ try { const stateToSave = { searchTerm: currentState.searchTerm, qualityFilter: currentState.qualityFilter, sortColumn: currentState.sortColumn, sortDirection: currentState.sortDirection, currentPage: currentState.currentPage }; localStorage.setItem(config.LOCAL_STORAGE_KEY, JSON.stringify(stateToSave)); } catch (e) { console.error("LS Save Error:", e); } }
+function loadStateFromLocalStorage() { /* ... (same as before) ... */ try { const savedState = localStorage.getItem(config.LOCAL_STORAGE_KEY); if (savedState) { const parsedState = JSON.parse(savedState); currentState.searchTerm = typeof parsedState.searchTerm === 'string' ? parsedState.searchTerm : ''; currentState.qualityFilter = typeof parsedState.qualityFilter === 'string' ? parsedState.qualityFilter : ''; currentState.sortColumn = typeof parsedState.sortColumn === 'string' ? parsedState.sortColumn : 'lastUpdated'; currentState.sortDirection = (typeof parsedState.sortDirection === 'string' && ['asc', 'desc'].includes(parsedState.sortDirection)) ? parsedState.sortDirection : 'desc'; currentState.currentPage = (typeof parsedState.currentPage === 'number' && parsedState.currentPage > 0) ? Math.floor(parsedState.currentPage) : 1; const searchInput = getElement(selectors.SEARCH_INPUT); if(searchInput) searchInput.value = currentState.searchTerm; } } catch (e) { console.error("LS Load Error:", e); try { localStorage.removeItem(config.LOCAL_STORAGE_KEY); } catch(removeErr) {} } }
 
 // --- Initial Data Loading and Setup ---
-async function loadInitialData() {
-    const updatesTbody = getElement(selectors.UPDATES_TBODY);
-    const movieTbody = getElement(selectors.MOVIE_TBODY);
-    const paginationControls = getElement(selectors.PAGINATION_CONTROLS);
+function loadInitialData() {
+    loadStateFromLocalStorage(); // Load state first
+    // Quality filter needs population *after* first fetch usually,
+    // but we can set the initial value from localStorage now.
+    const qualityFilterSelect = getElement(selectors.QUALITY_FILTER);
+    if(qualityFilterSelect) {
+        qualityFilterSelect.value = currentState.qualityFilter; // Set dropdown value
+        updateFilterIndicator(); // Style dropdown based on loaded state
+    }
+    fetchAndRenderData(); // Fetch initial data based on loaded state
+}
 
-    // Show skeleton loaders (already in HTML, just ensure they are visible)
-    // Hide pagination initially
-    if(paginationControls) paginationControls.style.display = 'none';
+/**
+ * Populates quality filter dropdown. Only needs to run once or if qualities change.
+ * For simplicity with server-side filtering, we might populate this based on the
+ * first page load, or maintain a static list if qualities are predictable.
+ * This version just adds options found in the current page data.
+ * A better approach might be a separate API endpoint to get all unique qualities.
+ */
+ function populateQualityFilterIfNeeded(pageData) {
+    const qualityFilterSelect = getElement(selectors.QUALITY_FILTER);
+    if (!qualityFilterSelect) return;
 
-    uniqueQualities.clear();
-    loadStateFromLocalStorage();
-
-    try {
-        console.log("Fetching data from:", config.GSheetWebAppURL);
-        const response = await fetch(config.GSheetWebAppURL);
-        console.log("Fetch response status:", response.status);
-        if (!response.ok) { /* ... error handling ... */
-             let errorText = response.statusText || `HTTP status ${response.status}`;
-             try { const errorData = await response.json(); if(errorData?.error) errorText = errorData.error; } catch(e) { /* Ignore */ }
-             throw new Error(`Network error: ${errorText}`);
+    // Add qualities from the current page data to the global set
+    pageData.forEach(movie => {
+        if (movie.displayQuality && movie.displayQuality !== 'N/A') {
+            uniqueQualities.add(movie.displayQuality);
         }
-        const result = await response.json();
+    });
 
-        if (result.error) throw new Error(`API Error: ${result.error}`);
-        if (!Array.isArray(result.data)) throw new Error("Invalid data format (expected 'data' array).");
+    // If the dropdown has only the "All Qualities" option, populate it now
+    if (qualityFilterSelect.options.length <= 1 && uniqueQualities.size > 0) {
+        console.log("Populating quality filter dropdown.");
+        const sortedQualities = [...uniqueQualities].sort((a, b) => { /* ... sorting logic ... */
+             const resRegex = /^(4K|\d{3,4})P$/i; const sourceRegex = /^(WEBDL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVD|DVDScr|HDCAM|HC|TC|TS|CAM)$/i; const getScore = (q) => { q = String(q || '').toUpperCase(); if (q === '4K' || q === '2160P') return 10; if (q === '1080P') return 9; if (q === '720P') return 8; if (q === '480P') return 7; if (sourceRegex.test(q)) return 6; if (['HDR', 'DOLBY VISION', 'DV', 'HEVC', 'X265'].includes(q)) return 5; return 0; }; const scoreA = getScore(a); const scoreB = getScore(b); if (scoreA !== scoreB) return scoreB - scoreA; return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' });
+        });
 
-        allMovieData = result.data
-                        .filter(movie => movie && (movie.id || movie.filename || movie.url))
-                        .map(preprocessMovieData);
+        sortedQualities.forEach(quality => {
+            const option = document.createElement('option');
+            option.value = quality; option.textContent = quality;
+            qualityFilterSelect.appendChild(option);
+        });
 
-        console.log(`Processed ${allMovieData.length} items.`);
-        populateQualityFilter(); // Populate filter dropdown
-
-        const qualityFilterSelect = getElement(selectors.QUALITY_FILTER);
-        if(qualityFilterSelect && uniqueQualities.has(currentState.qualityFilter)) {
+        // Re-apply saved state value if it exists in the newly populated list
+        if (currentState.qualityFilter && uniqueQualities.has(currentState.qualityFilter)) {
              qualityFilterSelect.value = currentState.qualityFilter;
         } else {
-             currentState.qualityFilter = ''; // Reset if saved quality not found
-             if (qualityFilterSelect) qualityFilterSelect.value = '';
+             // If saved quality is no longer valid (or wasn't set), default to "All"
+             currentState.qualityFilter = '';
+             qualityFilterSelect.value = '';
         }
-
-        applyUserActions(); // This will call renderTables which clears skeletons
-
-    } catch (error) {
-        console.error('FATAL: Failed to load/process data:', error);
-        displayLoadError(`Error loading movie data: ${error.message}. Please refresh.`);
+        updateFilterIndicator();
     }
 }
 
 
-function populateQualityFilter() { /* ... (remains mostly the same, uses constants) ... */
-    const qualityFilterSelect = getElement(selectors.QUALITY_FILTER);
-    if (!qualityFilterSelect) return;
-    const currentSelectedValue = currentState.qualityFilter;
-    qualityFilterSelect.innerHTML = '<option value="">All Qualities</option>';
-
-    const sortedQualities = [...uniqueQualities].sort((a, b) => { /* ... sorting logic ... */
-        const resRegex = /^(4K|\d{3,4})P$/i; const sourceRegex = /^(WEBDL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVD|DVDScr|HDCAM|HC|TC|TS|CAM)$/i;
-        const getScore = (q) => { q = String(q || '').toUpperCase(); if (q === '4K' || q === '2160P') return 10; if (q === '1080P') return 9; if (q === '720P') return 8; if (q === '480P') return 7; if (sourceRegex.test(q)) return 6; if (['HDR', 'DOLBY VISION', 'DV', 'HEVC', 'X265'].includes(q)) return 5; return 0; };
-        const scoreA = getScore(a); const scoreB = getScore(b); if (scoreA !== scoreB) return scoreB - scoreA;
-        return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' });
-    });
-
-    sortedQualities.forEach(quality => {
-        if (quality) { const option = document.createElement('option'); option.value = quality; option.textContent = quality; qualityFilterSelect.appendChild(option); }
-    });
-
-    if (currentSelectedValue && sortedQualities.includes(currentSelectedValue)) { qualityFilterSelect.value = currentSelectedValue; }
-    updateFilterIndicator();
+function displayLoadError(message) { /* ... (same as before) ... */
+    const errorMsgHTML = `<tr><td colspan="6" class="error-message">${sanitize(message)}</td></tr>`; const updatesTbody = getElement(selectors.UPDATES_TBODY); const movieTbody = getElement(selectors.MOVIE_TBODY); if (updatesTbody) updatesTbody.innerHTML = ''; /* Clear updates */ if (movieTbody) movieTbody.innerHTML = errorMsgHTML; getElement(selectors.PAGINATION_CONTROLS)?.style.display = 'none'; getElement(selectors.UPDATES_SECTION)?.style.display = 'none'; /* Hide updates on error */ hideLoadingState();
 }
 
-function displayLoadError(message) { /* ... (Clears skeleton loaders, uses constants) ... */
-    const errorMsgHTML = `<tr><td colspan="6" class="error-message">${sanitize(message)}</td></tr>`;
-    const updatesTbody = getElement(selectors.UPDATES_TBODY);
+function showLoadingState() {
+    // Show skeleton rows in the main table body
     const movieTbody = getElement(selectors.MOVIE_TBODY);
-    if (updatesTbody) updatesTbody.innerHTML = errorMsgHTML;
-    if (movieTbody) movieTbody.innerHTML = errorMsgHTML;
-    getElement(selectors.PAGINATION_CONTROLS)?.style.display = 'none';
-    getElement(selectors.UPDATES_SECTION)?.style.display = 'block'; // Ensure updates section is visible even on error
+    if(movieTbody) {
+         // Basic skeleton structure (can be refined)
+         let skeletonHTML = '';
+         for(let i=0; i<5; i++) { // Show a few skeleton rows
+             skeletonHTML += `<tr class="skeleton-row"> <td class="col-id"><div class="skeleton-line short"></div></td> <td class="col-filename"><div class="skeleton-line long"></div></td> <td class="col-size"><div class="skeleton-line short"></div></td> <td class="col-quality"><div class="skeleton-line short"></div></td> <td class="col-updated"><div class="skeleton-line medium"></div></td> <td class="col-view"><div class="skeleton-button"></div></td> </tr>`;
+         }
+         movieTbody.innerHTML = skeletonHTML;
+    }
+     // Optionally add a spinner or loading indicator elsewhere if desired
 }
+
+function hideLoadingState() {
+     // Skeletons are removed when renderTables replaces innerHTML
+     // No explicit action needed here if renderTables clears the tbody
+}
+
 
 // --- Debounce & Search Trigger ---
-function debounce(func, wait) { /* ... (debounce function remains the same) ... */
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => { clearTimeout(timeout); func(...args); };
-        clearTimeout(timeout); timeout = setTimeout(later, wait);
-    };
-}
+function debounce(func, wait) { /* ... (same as before) ... */ let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
 
-function triggerSearch() {
+function triggerSearch() { /* ... (Updates state and calls fetchAndRenderData) ... */
     const searchInput = getElement(selectors.SEARCH_INPUT);
     if (!searchInput) return;
     currentState.searchTerm = searchInput.value;
     currentState.currentPage = 1;
-    closePlayerIfNeeded();
-    applyUserActions();
+    fetchAndRenderData(); // Fetch new search results
 }
 const debouncedSearchHandler = debounce(triggerSearch, config.SEARCH_DEBOUNCE_MS);
 
 // --- Check Table Scroll ---
-function checkTableScroll() {
-    const updatesContainer = getElement(selectors.UPDATES_TABLE_CONTAINER);
-    const moviesContainer = getElement(selectors.MOVIE_TABLE_CONTAINER);
-
-    [updatesContainer, moviesContainer].forEach(container => {
-        if (container) {
-            const isScrollable = container.scrollWidth > container.clientWidth;
-            container.classList.toggle(cssClasses.TABLE_SCROLLABLE, isScrollable);
-        }
-    });
-}
+function checkTableScroll() { /* ... (same as before) ... */ const updatesContainer = getElement(selectors.UPDATES_TABLE_CONTAINER); const moviesContainer = getElement(selectors.MOVIE_TABLE_CONTAINER); [updatesContainer, moviesContainer].forEach(container => { if (container) { const isScrollable = container.scrollWidth > container.clientWidth; container.classList.toggle(cssClasses.TABLE_SCROLLABLE, isScrollable); } }); }
 
 
 // --- Global Event Listeners Setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    loadInitialData(); // Fetch data and perform initial render
-    setupPlayerListeners(); // Setup listeners for video player events
+    loadInitialData(); // Fetch initial data based on loaded state
+    setupPlayerListeners(); // Setup listeners for video player
 
     // Search Input Listener
     const searchInput = getElement(selectors.SEARCH_INPUT);
@@ -2410,8 +1772,7 @@ document.addEventListener('DOMContentLoaded', () => {
         qualityFilter.addEventListener('change', () => {
             currentState.qualityFilter = qualityFilter.value;
             currentState.currentPage = 1;
-            closePlayerIfNeeded();
-            applyUserActions();
+            fetchAndRenderData(); // Fetch new filtered data
         });
     }
 
@@ -2421,7 +1782,7 @@ document.addEventListener('DOMContentLoaded', () => {
         movieTableHead.addEventListener('click', handleSort);
     }
 
-    // Check table scroll on resize and load
+    // Check table scroll on resize
     window.addEventListener('resize', checkTableScroll);
 });
 
