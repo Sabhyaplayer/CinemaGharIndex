@@ -146,7 +146,7 @@ body {
 
 .filter-search-area {
     display: flex;
-    gap: 10px; /* Reduced gap to bring search button closer */
+    gap: 15px; /* Adjusted gap slightly */
     margin: 10px 0 25px 0;
     align-items: center;
     flex-wrap: wrap;
@@ -154,17 +154,15 @@ body {
 
 .search-group {
     display: flex;
-    flex-grow: 1; /* Allow search input and button group to take space */
-    gap: 0; /* No gap between input and button */
+    flex-grow: 1; /* Allow search input group to take space */
     min-width: 250px; /* Minimum width for the search group */
 }
 
 #cinemaghar-container #searchInput {
     flex-grow: 1; /* Input takes available space within the group */
     padding: 12px 15px;
-    border-radius: var(--border-radius-md) 0 0 var(--border-radius-md); /* Adjust radius for button */
-    border: 1px solid var(--border-color);
-    border-right: none; /* Remove right border as button is adjacent */
+    border-radius: var(--border-radius-md); /* Rounded corners on all sides */
+    border: 1px solid var(--border-color); /* Standard border */
     font-size: 16px;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -178,29 +176,7 @@ body {
     position: relative; /* Needed for z-index */
 }
 
-#cinemaghar-container #searchButton {
-    height: 44px;
-    padding: 0 18px; /* Adjust padding */
-    font-size: 14px;
-    font-weight: 500;
-    background-color: var(--primary-color);
-    color: white;
-    border: 1px solid var(--primary-color);
-    border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; /* Match input corners */
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    flex-shrink: 0; /* Prevent button from shrinking */
-    line-height: 1.4; /* Ensure text vertical alignment */
-    white-space: nowrap;
-}
-#cinemaghar-container #searchButton:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
-}
-#cinemaghar-container #searchButton:active {
-    background-color: #004a9e; /* Darker shade on click */
-    border-color: #004a9e;
-}
+/* Removed #searchButton styles */
 
 .filter-group {
     display: flex;
@@ -843,14 +819,9 @@ body {
       font-size: 15px;
       padding: 11px 13px;
       height: 40px; /* Adjust height */
-      border-radius: var(--border-radius-md) 0 0 var(--border-radius-md); /* Adjust radius for button */
+      border-radius: var(--border-radius-md); /* Keep rounded corners */
   }
-   #cinemaghar-container #searchButton {
-      height: 40px; /* Match input height */
-      padding: 0 15px;
-      font-size: 13px;
-      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; /* Adjust radius */
-   }
+   /* Removed #searchButton mobile styles */
 
   .filter-group {
       justify-content: space-between;
@@ -1051,7 +1022,7 @@ body {
   <div class="filter-search-area">
       <div class="search-group">
           <input type="search" id="searchInput" placeholder="Search movies by name or ID..." />
-          <button id="searchButton">Search</button>
+          <!-- Search Button Removed -->
       </div>
       <div class="filter-group">
           <label for="qualityFilterSelect">Quality:</label>
@@ -1160,8 +1131,8 @@ const config = {
     ITEMS_PER_PAGE: 50,
     LOCAL_STORAGE_KEY: 'cinemaGharState_v2',
     PLAYER_VOLUME_KEY: 'cinemaGharPlayerVolume',
-    PLAYER_SPEED_KEY: 'cinemaGharPlayerSpeed'
-    // FULLSCREEN_CONTROL_TIMEOUT_MS removed - no longer needed
+    PLAYER_SPEED_KEY: 'cinemaGharPlayerSpeed',
+    SEARCH_DEBOUNCE_MS: 300 // Delay for real-time search
 };
 
 let allMovieData = [];
@@ -1169,7 +1140,6 @@ let filteredAndSortedData = [];
 let uniqueQualities = new Set();
 let activeActionRow = null; // Reference to the currently open action row DOM element
 let copyTimeout; // Timeout ID for copy feedback
-// fullscreenControlsTimeout removed
 
 // --- State Management ---
 let currentState = {
@@ -1188,7 +1158,7 @@ const videoTitle = document.getElementById('videoTitle');
 const vlcBox = document.getElementById('vlcBox');
 const vlcText = document.getElementById('vlcText');
 const searchInput = document.getElementById('searchInput');
-const searchButton = document.getElementById('searchButton');
+// const searchButton = document.getElementById('searchButton'); // Removed
 const qualityFilterSelect = document.getElementById('qualityFilterSelect');
 const audioWarningDiv = document.getElementById('audioWarning');
 const updatesSection = document.getElementById('updatesSection');
@@ -1202,7 +1172,6 @@ const customControlsContainer = document.getElementById('customControlsContainer
 const audioTrackSelect = document.getElementById('audioTrackSelect');
 const copyFeedbackSpan = document.getElementById('copyFeedback');
 const paginationControlsContainer = document.getElementById('paginationControls');
-// playerCloseButton reference remains useful for non-fullscreen closePlayer() calls
 const playerCloseButton = document.querySelector('.video-container .close-btn');
 
 
@@ -1566,17 +1535,14 @@ function createMovieRowsHTML(movie, index, context) {
     // Add buttons for other link types if they exist
     if (movie.telegramLink) actionButtonsHTML += `<a class="button telegram-button" href="${sanitize(movie.telegramLink)}" target="_blank" rel="noopener noreferrer">Telegram File</a>`;
 
-    // START CHANGE: Conditional GDFLIX button text
+    // Conditional GDFLIX button text
     if (movie.gdflixLink) {
-        // Determine the button text based on the URL content
         let gdflixButtonText = "GDFLIX"; // Default text
         if (movie.gdflixLink.includes('/pack/')) { // Check if link contains '/pack/'
             gdflixButtonText = "GDFLIX (pack)"; // Change text if found
         }
-        // Construct the button HTML using the determined text
         actionButtonsHTML += `<a class="button gdflix-button" href="${sanitize(movie.gdflixLink)}" target="_blank" rel="noopener noreferrer">${gdflixButtonText}</a>`;
     }
-    // END CHANGE
 
     if (movie.hubcloudLink) actionButtonsHTML += `<a class="button hubcloud-button" href="${sanitize(movie.hubcloudLink)}" target="_blank" rel="noopener noreferrer">HubCloud</a>`;
     if (movie.filepressLink) actionButtonsHTML += `<a class="button filepress-button" href="${sanitize(movie.filepressLink)}" target="_blank" rel="noopener noreferrer">Filepress</a>`;
@@ -2193,108 +2159,83 @@ function toggleFullscreen() {
 }
 
 // --- Fullscreen Change Handler ---
-// This function is called automatically by the browser when fullscreen state changes.
 function handleFullscreenChange() {
-    // Check if *any* element is fullscreen, or specifically if our container/video is
     const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
     if (!videoContainer) return;
-    // Toggle a class on the video container based on the fullscreen state.
-    // CSS rules associated with '.is-fullscreen' will handle hiding/showing controls.
     videoContainer.classList.toggle('is-fullscreen', isFullscreen);
     console.log("Fullscreen state changed. Is fullscreen:", isFullscreen);
 }
 
  // --- Event Listeners for Player State ---
  if(videoElement) {
-     // Update volume slider and save volume when changed internally or externally
      videoElement.addEventListener('volumechange', () => {
          if (volumeSlider && parseFloat(volumeSlider.value) !== videoElement.volume) {
-              volumeSlider.value = videoElement.volume; // Sync slider if volume changed programmatically
+              volumeSlider.value = videoElement.volume;
          }
-         updateMuteButton(); // Update mute button state
-         try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); } // Save volume
+         updateMuteButton();
+         try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); }
          catch (e) { console.warn("Could not save volume to localStorage", e); }
      });
-     // Save playback speed when changed
      videoElement.addEventListener('ratechange', () => {
-        if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate); // Sync dropdown
-         try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); } // Save speed
+        if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate);
+         try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); }
          catch (e) { console.warn("Could not save playback speed to localStorage", e); }
      });
-     // Populate audio tracks when video metadata is loaded
      videoElement.addEventListener('loadedmetadata', populateAudioTrackSelector);
  }
- // Listen for browser fullscreen change events (standard and prefixed)
  document.addEventListener('fullscreenchange', handleFullscreenChange);
  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
 
  // --- Audio Track Selection Logic ---
  function populateAudioTrackSelector() {
-      // Ensure necessary elements and browser support exist
       if (!videoElement || typeof videoElement.audioTracks === 'undefined' || !audioTrackSelect) {
-          if(audioTrackSelect) audioTrackSelect.style.display = 'none'; // Hide select if not applicable
+          if(audioTrackSelect) audioTrackSelect.style.display = 'none';
           return;
       }
       const tracks = videoElement.audioTracks;
-      audioTrackSelect.innerHTML = ''; // Clear previous options
-
-      // Hide the selector if there's only one audio track (or none)
+      audioTrackSelect.innerHTML = '';
       if (tracks.length <= 1) {
           audioTrackSelect.style.display = 'none';
           return;
       }
-
-      let hasEnabledTrack = false; // Check if any track is enabled by default
+      let hasEnabledTrack = false;
       for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) hasEnabledTrack = true; }
-
-      // If no track is enabled, attempt to enable the first one (browser default might vary)
       if (!hasEnabledTrack && tracks.length > 0) {
           try { tracks[0].enabled = true; } catch(e) { console.warn("Could not auto-enable first audio track:", e); }
       }
-
-      // Create <option> elements for each audio track
       for (let i = 0; i < tracks.length; i++) {
           const track = tracks[i];
           const option = document.createElement('option');
-          option.value = track.id || i; // Use track ID if available, otherwise index as value
-          // Create a user-friendly label
-          let label = track.label || `Track ${i + 1}`; // Use track label or generate default
-          if (track.language) { // Add language information if available
+          option.value = track.id || i;
+          let label = track.label || `Track ${i + 1}`;
+          if (track.language) {
               try {
-                  // Attempt to get the full language name (e.g., "English" from "en")
                   const langName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]);
-                  label += ` (${langName || track.language})`; // Use name or fallback to code
-              } catch (e) { label += ` (${track.language})`; } // Fallback for older browsers
+                  label += ` (${langName || track.language})`;
+              } catch (e) { label += ` (${track.language})`; }
           }
           option.textContent = label;
-          option.selected = track.enabled; // Mark the currently selected/enabled track
-          // Disable option if track failed to load (readyState isn't always reliable)
+          option.selected = track.enabled;
           option.disabled = track.readyState === 'ended';
           audioTrackSelect.appendChild(option);
       }
-      audioTrackSelect.style.display = 'inline-block'; // Show the populated dropdown
-
-       // Listen for changes in the AudioTrackList (e.g., if tracks load later)
-       // Note: Support for this specific event listener might vary across browsers.
+      audioTrackSelect.style.display = 'inline-block';
        try { tracks.addEventListener('change', populateAudioTrackSelector); }
        catch(e) { console.warn("Browser might not support 'change' listener on AudioTrackList", e)}
   }
 
  function changeAudioTrack(selectElement) {
       if (!videoElement || !videoElement.audioTracks) return;
-      const selectedTrackValue = selectElement.value; // Value from the <option> (ID or index)
+      const selectedTrackValue = selectElement.value;
       const tracks = videoElement.audioTracks;
       let trackChanged = false;
-      // Iterate through all tracks: enable the selected one, disable others.
       for (let i = 0; i < tracks.length; i++) {
            const track = tracks[i];
-           // Determine if this track is the one selected in the dropdown
            const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue;
-           // Only change the 'enabled' status if it's different from the desired state
            if (track.enabled !== isSelectedTrack) {
                 try {
-                    track.enabled = isSelectedTrack; // Enable or disable the track
+                    track.enabled = isSelectedTrack;
                     if (isSelectedTrack) console.log("Enabled audio track:", track.label || track.id || i);
                     trackChanged = true;
                 }
@@ -2308,58 +2249,38 @@ function handleFullscreenChange() {
 // --- External Player / Copy Functionality ---
 
 /**
- * Attempts to open the video URL using a generic Android VIEW Intent,
- * prompting the user with the "Open with" chooser.
+ * Attempts to open the video URL using a generic Android VIEW Intent.
  * @param {string} url - The video URL.
  */
 function openWithIntent(url) {
     if (!url) return;
-    const mime = getMimeTypeFromUrl(url); // Get the MIME type (e.g., video/mp4, video/x-matroska)
-    // Try to get a somewhat meaningful title for the player
+    const mime = getMimeTypeFromUrl(url);
     const videoTitleEncoded = encodeURIComponent(videoTitle?.innerText || document.title || 'Video');
-
-    // Construct the GENERIC Intent URI:
-    // - action=android.intent.action.VIEW: Standard action to view data.
-    // - type=<mime>: Specifies the data type so Android knows which apps can handle it.
-    // - S.title=<title>: Passes the title as an extra String (optional, but nice).
-    // - NO 'package=' parameter: This is crucial for showing the chooser.
-    // - 'end': Standard intent URI terminator.
     const genericIntentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${videoTitleEncoded};end`;
-
     console.log("Attempting generic VIEW intent:", genericIntentUri);
-
-    // Directly navigate the main window to the intent URI.
-    // On Android, the system intercepts this navigation attempt and resolves the intent.
-    // If multiple apps can handle the action+type, the "Open with" chooser is displayed.
-    // If only one app can handle it, that app opens directly.
-    // If no app can handle it, Android typically shows a "No app found..." message.
     window.location.href = genericIntentUri;
 }
 
 
 /**
  * Copies the provided URL to the clipboard. Shows feedback on success/failure.
- * Uses modern Clipboard API if available, otherwise falls back to older execCommand.
  * @param {HTMLElement} buttonElement - The button that was clicked (to find the feedback span).
  * @param {string} url - The URL to copy.
  */
 function copyVLCLink(buttonElement, url) {
     if (!url) return;
-    // Find the feedback span specific to the action row where the button was clicked
     const currentActionRow = buttonElement.closest('.action-row');
     const feedbackSpan = currentActionRow?.querySelector('.copy-feedback');
 
-    // Use modern Clipboard API if available (preferred, more secure)
     if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
         navigator.clipboard.writeText(url).then(() => {
-            if (feedbackSpan) showCopyFeedback(feedbackSpan); // Show feedback in the correct row
+            if (feedbackSpan) showCopyFeedback(feedbackSpan);
         }).catch(err => {
             console.error("Async clipboard write failed:", err);
             alert("Could not copy URL automatically. Please copy manually.");
-            highlightVlcText(); // Highlight text for manual copy on failure
+            highlightVlcText();
         });
     } else {
-        // Fallback for older browsers or non-secure contexts
         console.warn("Using fallback clipboard method (navigator.clipboard unavailable or insecure context).");
         fallbackCopyTextToClipboard(url, feedbackSpan);
     }
@@ -2371,29 +2292,25 @@ function copyVLCLink(buttonElement, url) {
  * @param {HTMLElement|null} feedbackSpan - The feedback element to show success message.
  */
 function fallbackCopyTextToClipboard(text, feedbackSpan) {
-    // Create a temporary textarea element
     const textArea = document.createElement("textarea");
-    textArea.value = text; // Set its value to the text to copy
-
-    // Make the textarea invisible and offscreen
+    textArea.value = text;
     textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px";
     textArea.style.opacity = "0";
-    textArea.setAttribute("readonly", ""); // Prevent editing
-
-    document.body.appendChild(textArea); // Add to DOM
+    textArea.setAttribute("readonly", "");
+    document.body.appendChild(textArea);
     let successful = false;
     try {
-        textArea.select(); // Select the text inside
-        textArea.setSelectionRange(0, textArea.value.length); // Ensure full selection on mobile
-        successful = document.execCommand('copy'); // Execute the copy command
-        if (successful && feedbackSpan) showCopyFeedback(feedbackSpan); // Show feedback on success
+        textArea.select();
+        textArea.setSelectionRange(0, textArea.value.length);
+        successful = document.execCommand('copy');
+        if (successful && feedbackSpan) showCopyFeedback(feedbackSpan);
         else if (!successful) throw new Error('document.execCommand("copy") returned false');
     } catch (err) {
         console.error('Fallback copy method failed:', err);
         alert("Automatic copy failed. Please select and copy the URL manually from the box below.");
-        highlightVlcText(); // Highlight text for manual copy on failure
+        highlightVlcText();
     } finally {
-        document.body.removeChild(textArea); // Always remove the temporary textarea
+        document.body.removeChild(textArea);
     }
 }
 
@@ -2403,27 +2320,24 @@ function fallbackCopyTextToClipboard(text, feedbackSpan) {
  */
 function showCopyFeedback(spanElement) {
     if (!spanElement) return;
-    clearTimeout(copyTimeout); // Clear any existing timer for this specific element
-    spanElement.classList.add('show'); // Add class to make it visible (CSS handles animation)
-    // Set a timer to remove the class after 2 seconds
+    clearTimeout(copyTimeout);
+    spanElement.classList.add('show');
     copyTimeout = setTimeout(() => {
         spanElement.classList.remove('show');
     }, 2000);
 }
 
 /**
- * Highlights the text within the VLC/External Player URL code block for easy manual copying.
+ * Highlights the text within the VLC/External Player URL code block.
  */
 function highlightVlcText() {
-     // Check if the code element exists and its container is visible
      if (vlcText && vlcBox?.style.display === 'block') {
          try {
-             // Create a range and select the contents of the code element
              const range = document.createRange(); range.selectNodeContents(vlcText);
-             const selection = window.getSelection(); // Get the current selection object
+             const selection = window.getSelection();
              if (selection) {
-                 selection.removeAllRanges(); // Clear any previous selection
-                 selection.addRange(range); // Apply the new range
+                 selection.removeAllRanges();
+                 selection.addRange(range);
              }
          } catch (selectErr) {
              console.warn("Could not highlight VLC text for manual copy:", selectErr);
@@ -2452,78 +2366,64 @@ function loadStateFromLocalStorage() {
         const savedState = localStorage.getItem(config.LOCAL_STORAGE_KEY);
         if (savedState) {
             const parsedState = JSON.parse(savedState);
-            // Restore state, providing defaults if properties are missing or invalid
             currentState.searchTerm = typeof parsedState.searchTerm === 'string' ? parsedState.searchTerm : '';
             currentState.qualityFilter = typeof parsedState.qualityFilter === 'string' ? parsedState.qualityFilter : '';
             currentState.sortColumn = typeof parsedState.sortColumn === 'string' ? parsedState.sortColumn : 'lastUpdated';
             currentState.sortDirection = (typeof parsedState.sortDirection === 'string' && ['asc', 'desc'].includes(parsedState.sortDirection)) ? parsedState.sortDirection : 'desc';
             currentState.currentPage = (typeof parsedState.currentPage === 'number' && parsedState.currentPage > 0) ? Math.floor(parsedState.currentPage) : 1;
-
-            // Update UI elements to reflect loaded state
             if(searchInput) searchInput.value = currentState.searchTerm;
-            // Note: Quality filter select value is set *after* data loads and populates the dropdown options.
         }
     } catch (e) {
         console.error("Failed to load state from localStorage:", e);
-        localStorage.removeItem(config.LOCAL_STORAGE_KEY); // Clear potentially corrupted state
+        localStorage.removeItem(config.LOCAL_STORAGE_KEY);
     }
 }
 
 // --- Initial Data Loading and Setup ---
 async function loadInitialData() {
     const loadingHTML = '<tr><td colspan="6" class="status-message">Loading... <div class="spinner" style="margin: 10px auto;"></div></td></tr>';
-    // Show loading indicators in both tables
     if(updatesTableBody) updatesTableBody.innerHTML = loadingHTML;
     if(movieTableBody) movieTableBody.innerHTML = loadingHTML;
-    if(paginationControlsContainer) paginationControlsContainer.style.display = 'none'; // Hide pagination
+    if(paginationControlsContainer) paginationControlsContainer.style.display = 'none';
 
-    uniqueQualities.clear(); // Reset the set of unique qualities
-    loadStateFromLocalStorage(); // Load saved filters/sort/page *before* fetching data
+    uniqueQualities.clear();
+    loadStateFromLocalStorage();
 
     try {
         console.log("Fetching data from:", config.GSheetWebAppURL);
         const response = await fetch(config.GSheetWebAppURL);
         console.log("Fetch response status:", response.status);
-        if (!response.ok) { // Check for network errors (4xx, 5xx)
+        if (!response.ok) {
              let errorText = response.statusText || `HTTP status ${response.status}`;
-             try { // Attempt to parse potential JSON error from the API
+             try {
                 const errorData = await response.json();
                 if(errorData?.error) errorText = errorData.error;
-             } catch(e) { /* Ignore if response is not JSON */ }
+             } catch(e) { /* Ignore */ }
              throw new Error(`Network error: ${errorText}`);
         }
         const result = await response.json();
 
-        // Check for application-level errors returned by the Google Apps Script
         if (result.error) throw new Error(`API Error: ${result.error}`);
-        // Ensure the data received is in the expected array format
         if (!Array.isArray(result.data)) throw new Error("Invalid data format received from API (expected 'data' array).");
 
-        // Process the valid data
         allMovieData = result.data
-                        .filter(movie => movie && (movie.id || movie.filename || movie.url)) // Basic sanity check
-                        .map(preprocessMovieData); // Apply preprocessing to each item
+                        .filter(movie => movie && (movie.id || movie.filename || movie.url))
+                        .map(preprocessMovieData);
 
         console.log(`Successfully processed ${allMovieData.length} movie items.`);
+        populateQualityFilter();
 
-        // Populate UI elements that depend on the loaded data
-        populateQualityFilter(); // Create quality dropdown options based on processed data
-
-        // Restore selected quality filter *after* options are populated
         if(qualityFilterSelect && uniqueQualities.has(currentState.qualityFilter)) {
-             qualityFilterSelect.value = currentState.qualityFilter; // Set dropdown to saved value
+             qualityFilterSelect.value = currentState.qualityFilter;
         } else {
-             // If saved quality no longer exists in the data, reset the filter
              currentState.qualityFilter = '';
              if (qualityFilterSelect) qualityFilterSelect.value = '';
         }
 
-        // Apply initial filters/sort (which also renders tables and pagination)
         applyUserActions();
 
     } catch (error) {
         console.error('FATAL: Failed to load or process initial data:', error);
-        // Display a user-friendly error message in the tables
         displayLoadError(`Error loading movie data: ${error.message}. Please try refreshing the page.`);
     }
 }
@@ -2533,50 +2433,40 @@ async function loadInitialData() {
  */
 function populateQualityFilter() {
     if (!qualityFilterSelect) return;
-    const currentSelectedValue = currentState.qualityFilter; // Store current selection
-    qualityFilterSelect.innerHTML = '<option value="">All Qualities</option>'; // Reset dropdown
+    const currentSelectedValue = currentState.qualityFilter;
+    qualityFilterSelect.innerHTML = '<option value="">All Qualities</option>';
 
-    // Sort qualities for better user experience (e.g., 4K > 1080p > Source > Other)
     const sortedQualities = [...uniqueQualities].sort((a, b) => {
-        // Prioritize resolution, then source type, then alphabetically
         const resRegex = /^(4K|\d{3,4})P$/i;
         const sourceRegex = /^(WEBDL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVD|DVDScr|HDCAM|HC|TC|TS|CAM)$/i;
-
         const getScore = (q) => {
-            q = String(q || '').toUpperCase(); // Handle potential null/undefined
+            q = String(q || '').toUpperCase();
             if (q === '4K' || q === '2160P') return 10;
             if (q === '1080P') return 9;
             if (q === '720P') return 8;
             if (q === '480P') return 7;
             if (sourceRegex.test(q)) return 6;
-            // Give slightly lower score to tech terms if they end up here
             if (['HDR', 'DOLBY VISION', 'DV', 'HEVC', 'X265'].includes(q)) return 5;
-            return 0; // Lowest score for others
+            return 0;
         };
-
         const scoreA = getScore(a);
         const scoreB = getScore(b);
-
-        if (scoreA !== scoreB) return scoreB - scoreA; // Sort by score descending
-
-        // If scores are equal, sort alphabetically (case-insensitive)
+        if (scoreA !== scoreB) return scoreB - scoreA;
         return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' });
     });
 
-    // Add sorted qualities as <option> elements
     sortedQualities.forEach(quality => {
-        if (quality) { // Ensure quality is not empty/null
+        if (quality) {
             const option = document.createElement('option');
             option.value = quality; option.textContent = quality;
             qualityFilterSelect.appendChild(option);
         }
     });
 
-    // Restore previous selection if it still exists in the populated list
     if (currentSelectedValue && sortedQualities.includes(currentSelectedValue)) {
          qualityFilterSelect.value = currentSelectedValue;
     }
-    updateFilterIndicator(); // Visually mark if a filter is active
+    updateFilterIndicator();
 }
 
 /**
@@ -2585,16 +2475,32 @@ function populateQualityFilter() {
  */
 function displayLoadError(message) {
     const errorMsgHTML = `<tr><td colspan="6" class="error-message">${sanitize(message)}</td></tr>`;
-    // Display error in both table bodies
     if (updatesTableBody) updatesTableBody.innerHTML = errorMsgHTML;
     if (movieTableBody) movieTableBody.innerHTML = errorMsgHTML;
-    // Hide pagination controls on load error
     if (paginationControlsContainer) paginationControlsContainer.style.display = 'none';
-    // Ensure the "Updates" section header remains visible even on error
     if (updatesSection) updatesSection.style.display = 'block';
 }
 
+/**
+ * Debounce function to limit the rate at which a function is called.
+ * @param {Function} func The function to debounce.
+ * @param {number} wait The debounce delay in milliseconds.
+ * @returns {Function} The debounced function.
+ */
+ function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // --- Trigger Search Function ---
+// This is called by the debounced handler or directly when clearing the search
 function triggerSearch() {
     if (!searchInput) return;
     currentState.searchTerm = searchInput.value; // Update state with current input value
@@ -2603,45 +2509,41 @@ function triggerSearch() {
     applyUserActions(); // Apply the search filter and re-render
 }
 
+// Create a debounced version of the triggerSearch function
+const debouncedSearchHandler = debounce(triggerSearch, config.SEARCH_DEBOUNCE_MS);
+
 // --- Global Event Listeners Setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Load initial data when the DOM is fully parsed
     loadInitialData();
 
-    // --- Search Event Listeners ---
-    if (searchButton) searchButton.addEventListener('click', triggerSearch); // Search on button click
+    // --- Search Event Listeners (Real-time with Debounce) ---
     if (searchInput) {
-        // Search on pressing Enter key in the input field
-        searchInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Prevent form submission if it were in a form
-                triggerSearch();
-            }
-        });
-        // Search when the input's clear button ('x') is clicked (for type="search")
+        // Trigger search after a short delay when user types
+        searchInput.addEventListener('input', debouncedSearchHandler);
+
+        // Trigger search *immediately* when the input's clear button ('x') is clicked
         searchInput.addEventListener('search', () => {
-             // Needs a slight delay as 'search' event fires before value is cleared
-            setTimeout(() => { if (searchInput.value === '') triggerSearch(); }, 0);
+            // The 'search' event fires when the user clicks the 'x'
+            // We need a minimal timeout because the event fires *before* the value is actually cleared
+            setTimeout(() => {
+                if (searchInput.value === '') {
+                    triggerSearch(); // Call directly, bypass debounce
+                }
+            }, 0);
         });
-         // Optional: Search immediately when input is cleared manually (if desired)
-         searchInput.addEventListener('input', () => {
-             if (searchInput.value === '' && currentState.searchTerm !== '') { // Trigger only if clearing a previous term
-                 triggerSearch();
-             }
-         });
     }
 
     // --- Filter Event Listener ---
     if (qualityFilterSelect) {
         qualityFilterSelect.addEventListener('change', () => {
-            currentState.qualityFilter = qualityFilterSelect.value; // Update state
-            currentState.currentPage = 1; // Reset to page 1
-            closePlayerIfNeeded(); // Close player
-            applyUserActions(); // Apply filter and re-render
+            currentState.qualityFilter = qualityFilterSelect.value;
+            currentState.currentPage = 1;
+            closePlayerIfNeeded();
+            applyUserActions();
         });
     }
 
-    // --- Sort Event Listener (using event delegation on the table head) ---
+    // --- Sort Event Listener (using event delegation) ---
     if (movieTableHead) {
         movieTableHead.addEventListener('click', handleSort);
     }
