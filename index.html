@@ -1126,7 +1126,7 @@ body {
 
 const config = {
     // !!! IMPORTANT: PASTE YOUR NEW GOOGLE APPS SCRIPT WEB APP URL BELOW !!!
-    GSheetWebAppURL: "https://script.google.com/macros/s/AKfycbxfTm1sXQfGS8hUG8BY4SLuBzeTFybOdiBNxyGJiHyYYoXpX9KgcYP311X-6ZfHgHN6lQ/exec",
+    GSheetWebAppURL: "https://script.google.com/macros/library/d/1U72u97-mflTQmXF5svUvCKeONWd7REbeYMp6S9Ydt50CYxLA9wwIlhTe/5",
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     HDR_LOGO_URL: "https://as1.ftcdn.net/v2/jpg/05/32/83/72/1000_F_532837228_v8CGZRU0jy39uCtqFRnJz6xDntrGuLLx.webp",
@@ -2508,7 +2508,7 @@ async function loadInitialData() {
 
     try {
         // Ensure the URL has been replaced by the user
-        if (!config.GSheetWebAppURL || config.GSheetWebAppURL === "https://script.google.com/macros/s/AKfycbxfTm1sXQfGS8hUG8BY4SLuBzeTFybOdiBNxyGJiHyYYoXpX9KgcYP311X-6ZfHgHN6lQ/exec") {
+        if (!config.GSheetWebAppURL || config.GSheetWebAppURL === "https://script.google.com/macros/library/d/1U72u97-mflTQmXF5svUvCKeONWd7REbeYMp6S9Ydt50CYxLA9wwIlhTe/5") {
             throw new Error("Google Sheet Web App URL is missing. Please paste your deployed script URL into the 'config' object in the JavaScript code.");
         }
 
