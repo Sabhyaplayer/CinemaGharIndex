@@ -2508,7 +2508,7 @@ async function loadInitialData() {
 
     try {
         // Ensure the URL has been replaced by the user
-        if (!config.GSheetWebAppURL || config.GSheetWebAppURL === "!!! PASTE YOUR NEW WEB APP URL HERE !!!") {
+        if (!config.GSheetWebAppURL || config.GSheetWebAppURL === "https://script.google.com/macros/s/AKfycbxfTm1sXQfGS8hUG8BY4SLuBzeTFybOdiBNxyGJiHyYYoXpX9KgcYP311X-6ZfHgHN6lQ/exec") {
             throw new Error("Google Sheet Web App URL is missing. Please paste your deployed script URL into the 'config' object in the JavaScript code.");
         }
 
