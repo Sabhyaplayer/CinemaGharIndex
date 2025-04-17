@@ -146,7 +146,7 @@ body {
 
 .filter-search-area {
     display: flex;
-    gap: 10px; /* Reduced gap to bring search button closer */
+    gap: 15px; /* Adjusted gap */
     margin: 10px 0 25px 0;
     align-items: center;
     flex-wrap: wrap;
@@ -154,17 +154,15 @@ body {
 
 .search-group {
     display: flex;
-    flex-grow: 1; /* Allow search input and button group to take space */
-    gap: 0; /* No gap between input and button */
+    flex-grow: 1; /* Allow search input to take available space */
     min-width: 250px; /* Minimum width for the search group */
 }
 
 #cinemaghar-container #searchInput {
-    flex-grow: 1; /* Input takes available space within the group */
+    flex-grow: 1; /* Input takes available space */
     padding: 12px 15px;
-    border-radius: var(--border-radius-md) 0 0 var(--border-radius-md); /* Adjust radius for button */
-    border: 1px solid var(--border-color);
-    border-right: none; /* Remove right border as button is adjacent */
+    border-radius: var(--border-radius-md); /* Full radius now */
+    border: 1px solid var(--border-color); /* Standard border */
     font-size: 16px;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -178,29 +176,7 @@ body {
     position: relative; /* Needed for z-index */
 }
 
-#cinemaghar-container #searchButton {
-    height: 44px;
-    padding: 0 18px; /* Adjust padding */
-    font-size: 14px;
-    font-weight: 500;
-    background-color: var(--primary-color);
-    color: white;
-    border: 1px solid var(--primary-color);
-    border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; /* Match input corners */
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    flex-shrink: 0; /* Prevent button from shrinking */
-    line-height: 1.4; /* Ensure text vertical alignment */
-    white-space: nowrap;
-}
-#cinemaghar-container #searchButton:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
-}
-#cinemaghar-container #searchButton:active {
-    background-color: #004a9e; /* Darker shade on click */
-    border-color: #004a9e;
-}
+/* REMOVED searchButton styles */
 
 .filter-group {
     display: flex;
@@ -843,14 +819,9 @@ body {
       font-size: 15px;
       padding: 11px 13px;
       height: 40px; /* Adjust height */
-      border-radius: var(--border-radius-md) 0 0 var(--border-radius-md); /* Adjust radius for button */
+      border-radius: var(--border-radius-md); /* Full radius */
   }
-   #cinemaghar-container #searchButton {
-      height: 40px; /* Match input height */
-      padding: 0 15px;
-      font-size: 13px;
-      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; /* Adjust radius */
-   }
+   /* REMOVED searchButton mobile styles */
 
   .filter-group {
       justify-content: space-between;
@@ -1051,7 +1022,7 @@ body {
   <div class="filter-search-area">
       <div class="search-group">
           <input type="search" id="searchInput" placeholder="Search movies by name or ID..." />
-          <button id="searchButton">Search</button>
+          <!-- Search Button Removed -->
       </div>
       <div class="filter-group">
           <label for="qualityFilterSelect">Quality:</label>
@@ -1160,8 +1131,8 @@ const config = {
     ITEMS_PER_PAGE: 50,
     LOCAL_STORAGE_KEY: 'cinemaGharState_v2',
     PLAYER_VOLUME_KEY: 'cinemaGharPlayerVolume',
-    PLAYER_SPEED_KEY: 'cinemaGharPlayerSpeed'
-    // FULLSCREEN_CONTROL_TIMEOUT_MS removed - no longer needed
+    PLAYER_SPEED_KEY: 'cinemaGharPlayerSpeed',
+    SEARCH_DEBOUNCE_DELAY: 350 // Delay in ms for real-time search
 };
 
 let allMovieData = [];
@@ -1169,7 +1140,7 @@ let filteredAndSortedData = [];
 let uniqueQualities = new Set();
 let activeActionRow = null; // Reference to the currently open action row DOM element
 let copyTimeout; // Timeout ID for copy feedback
-// fullscreenControlsTimeout removed
+let searchDebounceTimeout; // Timeout ID for debouncing search input
 
 // --- State Management ---
 let currentState = {
@@ -1188,7 +1159,7 @@ const videoTitle = document.getElementById('videoTitle');
 const vlcBox = document.getElementById('vlcBox');
 const vlcText = document.getElementById('vlcText');
 const searchInput = document.getElementById('searchInput');
-const searchButton = document.getElementById('searchButton');
+// Search button reference removed
 const qualityFilterSelect = document.getElementById('qualityFilterSelect');
 const audioWarningDiv = document.getElementById('audioWarning');
 const updatesSection = document.getElementById('updatesSection');
@@ -1202,7 +1173,6 @@ const customControlsContainer = document.getElementById('customControlsContainer
 const audioTrackSelect = document.getElementById('audioTrackSelect');
 const copyFeedbackSpan = document.getElementById('copyFeedback');
 const paginationControlsContainer = document.getElementById('paginationControls');
-// playerCloseButton reference remains useful for non-fullscreen closePlayer() calls
 const playerCloseButton = document.querySelector('.video-container .close-btn');
 
 
@@ -1566,7 +1536,7 @@ function createMovieRowsHTML(movie, index, context) {
     // Add buttons for other link types if they exist
     if (movie.telegramLink) actionButtonsHTML += `<a class="button telegram-button" href="${sanitize(movie.telegramLink)}" target="_blank" rel="noopener noreferrer">Telegram File</a>`;
 
-    // START CHANGE: Conditional GDFLIX button text
+    // Conditional GDFLIX button text
     if (movie.gdflixLink) {
         // Determine the button text based on the URL content
         let gdflixButtonText = "GDFLIX"; // Default text
@@ -1576,7 +1546,6 @@ function createMovieRowsHTML(movie, index, context) {
         // Construct the button HTML using the determined text
         actionButtonsHTML += `<a class="button gdflix-button" href="${sanitize(movie.gdflixLink)}" target="_blank" rel="noopener noreferrer">${gdflixButtonText}</a>`;
     }
-    // END CHANGE
 
     if (movie.hubcloudLink) actionButtonsHTML += `<a class="button hubcloud-button" href="${sanitize(movie.hubcloudLink)}" target="_blank" rel="noopener noreferrer">HubCloud</a>`;
     if (movie.filepressLink) actionButtonsHTML += `<a class="button filepress-button" href="${sanitize(movie.filepressLink)}" target="_blank" rel="noopener noreferrer">Filepress</a>`;
@@ -2594,13 +2563,22 @@ function displayLoadError(message) {
     if (updatesSection) updatesSection.style.display = 'block';
 }
 
-// --- Trigger Search Function ---
+/**
+ * Called when search criteria changes (typing, clearing).
+ * Reads the current search input value and triggers the filtering/rendering process.
+ */
 function triggerSearch() {
     if (!searchInput) return;
-    currentState.searchTerm = searchInput.value; // Update state with current input value
-    currentState.currentPage = 1; // Reset to page 1 for new search results
-    closePlayerIfNeeded(); // Close player if open
-    applyUserActions(); // Apply the search filter and re-render
+    // Get the latest value from the input
+    const newSearchTerm = searchInput.value;
+
+    // Only proceed if the search term has actually changed
+    if (newSearchTerm !== currentState.searchTerm) {
+        currentState.searchTerm = newSearchTerm; // Update state with current input value
+        currentState.currentPage = 1; // Reset to page 1 for new search results
+        closePlayerIfNeeded(); // Close player if open
+        applyUserActions(); // Apply the search filter and re-render
+    }
 }
 
 // --- Global Event Listeners Setup ---
@@ -2608,27 +2586,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load initial data when the DOM is fully parsed
     loadInitialData();
 
-    // --- Search Event Listeners ---
-    if (searchButton) searchButton.addEventListener('click', triggerSearch); // Search on button click
+    // --- Real-time Search Event Listeners (Debounced) ---
     if (searchInput) {
-        // Search on pressing Enter key in the input field
+        // Trigger search on input, but debounced
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchDebounceTimeout); // Clear previous timer
+            searchDebounceTimeout = setTimeout(() => {
+                triggerSearch(); // Call search after the delay
+            }, config.SEARCH_DEBOUNCE_DELAY);
+        });
+
+        // Keep Enter key listener (optional but good UX) - trigger search immediately
         searchInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Prevent form submission if it were in a form
-                triggerSearch();
-            }
-        });
-        // Search when the input's clear button ('x') is clicked (for type="search")
-        searchInput.addEventListener('search', () => {
-             // Needs a slight delay as 'search' event fires before value is cleared
-            setTimeout(() => { if (searchInput.value === '') triggerSearch(); }, 0);
-        });
-         // Optional: Search immediately when input is cleared manually (if desired)
-         searchInput.addEventListener('input', () => {
-             if (searchInput.value === '' && currentState.searchTerm !== '') { // Trigger only if clearing a previous term
-                 triggerSearch();
+             if (event.key === 'Enter') {
+                 event.preventDefault(); // Prevent default form submit behavior
+                 clearTimeout(searchDebounceTimeout); // Clear any pending debounce timer
+                 triggerSearch(); // Trigger immediately on Enter
              }
          });
+
+        // Keep 'search' event listener (for clear button 'x') - trigger immediately
+        searchInput.addEventListener('search', () => {
+            clearTimeout(searchDebounceTimeout); // Clear any pending debounce timer
+             // Needs a slight delay as 'search' event fires *before* the value is fully cleared
+            setTimeout(() => { if (searchInput.value === '') triggerSearch(); }, 0);
+        });
     }
 
     // --- Filter Event Listener ---
