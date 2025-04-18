@@ -831,8 +831,27 @@ body {
 
 
 /* --- Copy Feedback --- */
-#cinemaghar-container .copy-feedback { display: inline-block; margin-left: 10px; font-size: 13px; color: var(--success-color); font-weight: 600; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; vertical-align: middle; transform: translateY(5px); }
-#cinemaghar-container .copy-feedback.show { opacity: 1; transform: translateY(0); }
+/* Applies to feedback spans next to buttons AND inside VLC box */
+#cinemaghar-container .copy-feedback {
+    display: inline-block; /* Changed from none to inline-block */
+    margin-left: 10px;
+    font-size: 13px;
+    color: var(--success-color);
+    font-weight: 600;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    vertical-align: middle;
+    transform: translateY(5px); /* Initial state for animation */
+    pointer-events: none; /* Don't block clicks */
+}
+#cinemaghar-container .copy-feedback.show {
+    opacity: 1;
+    transform: translateY(0); /* Final state for animation */
+}
+/* Specific styling for the share fallback message if needed */
+#cinemaghar-container #shareFallbackFeedback {
+     color: var(--text-muted); /* Make it less prominent */
+}
 
 /* --- Video Player Container --- */
 #cinemaghar-container .video-container { margin: 20px auto 0 auto; background: #f0f2f5; padding: 50px 20px 20px 20px; border-radius: var(--border-radius-sm); /* Match box theme */ box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; box-sizing: border-box; width: 100%; max-width: 850px; text-align: center; display: flex; flex-direction: column; }
@@ -1399,6 +1418,7 @@ body {
       <div class="vlc-copy-box" id="vlcBox" style="display:none;">
           <strong>External Player URL:</strong>
           <code id="vlcText"></code>
+          <!-- Feedback span INSIDE vlcBox is for player-internal copy actions if any -->
           <span class="copy-feedback" id="copyFeedback">Copied!</span>
           <span class="copy-feedback" id="shareFallbackFeedback" style="color: var(--text-muted);">Link copied!</span>
       </div>
@@ -1454,8 +1474,8 @@ let updatesPreviewShownCount = 0;
 let uniqueQualities = new Set();
 let activeTableActionRow = null; // Reference to the currently open action TR in search results
 let activePreviewActionRow = null; // Reference to the currently open action DIV in updates preview
-let copyTimeout;
-let shareFallbackTimeout; // Separate timeout for share fallback copy
+let copyTimeout; // Timeout ID for general copy feedback (e.g., inside player vlc box)
+let shareFallbackTimeout; // Separate timeout for share fallback copy feedback
 let suggestionDebounceTimeout;
 let searchTimeout;
 let isDirectShareLoad = false; // Flag for direct share link loading
@@ -1502,8 +1522,8 @@ const volumeSlider = document.getElementById('volumeSlider');
 const playbackSpeedSelect = document.getElementById('playbackSpeedSelect');
 const customControlsContainer = document.getElementById('customControlsContainer');
 const audioTrackSelect = document.getElementById('audioTrackSelect');
-const copyFeedbackSpan = document.getElementById('copyFeedback');
-const shareFallbackFeedbackSpan = document.getElementById('shareFallbackFeedback');
+const copyFeedbackSpan = document.getElementById('copyFeedback'); // Feedback INSIDE vlcBox
+const shareFallbackFeedbackSpan = document.getElementById('shareFallbackFeedback'); // Feedback INSIDE vlcBox
 const playerCloseButton = document.querySelector('.video-container .close-btn');
 
 // Tab Navigation and Content Area
@@ -1549,9 +1569,7 @@ function extractQualityFromFilename(filename) { if (!filename) return null; cons
 function normalizeTextForSearch(text) { if (!text) return ""; return String(text) .toLowerCase() .replace(/[.\-_\(\)\[\]]/g, '') .replace(/\s+/g, ' ') .trim(); }
 function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-// --- START: MODIFIED copyToClipboard ---
-// Removed the Web Notification part, relying on the inline feedback span instead.
-async function copyToClipboard(text, feedbackSpan, timeoutVar) {
+async function copyToClipboard(text, feedbackSpan, timeoutVarRef) {
     console.log("Attempting to copy:", text); // DEBUG
     let success = false;
     if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
@@ -1587,26 +1605,16 @@ async function copyToClipboard(text, feedbackSpan, timeoutVar) {
 
     if (success) {
         console.log("Copy successful!"); // DEBUG
-        // Show original inline feedback span (e.g., "Copied!")
+        // Show inline feedback span if provided
         if (feedbackSpan) {
-            showCopyFeedback(feedbackSpan, timeoutVar);
+            showCopyFeedback(feedbackSpan, timeoutVarRef); // Pass the correct timeout variable reference
         }
-
-        // --- Removed Web Notification Block ---
-        // The logic to check Notification API and show browser notification
-        // was previously here, but has been removed as per the request.
-        // The inline feedback shown by showCopyFeedback is now the primary
-        // indicator to the user that the copy was successful.
-        console.log("Web notification logic removed."); // DEBUG
-
     } else {
         console.error("Copy FAILED."); // DEBUG
         alert("Copy failed. Please try again or copy manually. Check console for errors (F12).");
     }
     return success;
 }
-// --- END: MODIFIED copyToClipboard ---
-
 
 // --- Data Preprocessing ---
 function preprocessMovieData(movie) {
@@ -1657,7 +1665,9 @@ function createActionContentHTML(movie) {
     if (movie.url) {
         actionButtonsHTML += `<button class="button play-button" data-action="play" data-title="${escapedStreamTitle}" data-url="${escapedUrl}" data-filename="${escapedFilename}">Play here</button>`;
         actionButtonsHTML += `<a class="button download-button" href="${sanitize(movie.url)}" download="${displayFilename}" target="_blank" rel="noopener noreferrer">Direct Download</a>`;
-        actionButtonsHTML += `<button class="button vlc-button" data-action="copy-vlc" data-url="${escapedUrl}">Copy URL (for VLC/MX)</button>`;
+        // --- MODIFICATION START: Added feedback span next to VLC button ---
+        actionButtonsHTML += `<button class="button vlc-button" data-action="copy-vlc" data-url="${escapedUrl}">Copy URL (for VLC/MX)</button><span class="copy-feedback" style="display: none;">Copied!</span>`;
+        // --- MODIFICATION END ---
         if (navigator.userAgent.toLowerCase().includes("android")) {
             actionButtonsHTML += `<button class="button intent-button" data-action="open-intent" data-url="${escapedUrl}">Open Externally (Android)</button>`;
         }
@@ -1673,7 +1683,8 @@ function createActionContentHTML(movie) {
 
     // Add Share Button if ID exists
     if (movie.id) {
-         actionButtonsHTML += `<button class="button share-button" data-action="share" data-id="${escapedId}" data-title="${escapedStreamTitle}" data-filename="${escapedFilename}">Share Post</button>`;
+         // Add feedback span for share fallback copy as well
+         actionButtonsHTML += `<button class="button share-button" data-action="share" data-id="${escapedId}" data-title="${escapedStreamTitle}" data-filename="${escapedFilename}">Share Post</button><span class="copy-feedback" id="shareFallbackFeedback-${escapedId}" style="display: none; color: var(--text-muted);">Link copied!</span>`;
     }
 
     if (!actionButtonsHTML) {
@@ -2512,6 +2523,11 @@ async function handleShareClick(buttonElement) {
     const shareUrl = `${window.location.origin}${window.location.pathname}?shareId=${encodeURIComponent(itemId)}`;
     const shareText = `Check out: ${itemTitle}\n${itemFilename ? `(${itemFilename})\n` : ''}`;
 
+    // --- MODIFICATION START: Find correct fallback feedback span ---
+    const fallbackFeedbackSpanId = `shareFallbackFeedback-${itemId}`;
+    const fallbackFeedbackSpan = document.getElementById(fallbackFeedbackSpanId) || buttonElement.nextElementSibling; // Try ID first, then adjacent span
+    // --- MODIFICATION END ---
+
     if (navigator.share) {
         try {
             await navigator.share({
@@ -2524,13 +2540,29 @@ async function handleShareClick(buttonElement) {
             console.error('Error sharing:', error);
             // Optional: Provide feedback if the user cancelled vs. other errors
             if (error.name !== 'AbortError') {
-                alert(`Share failed: ${error.message}`);
+                // --- MODIFICATION: Use the specific fallback span for error message too ---
+                // alert(`Share failed: ${error.message}`); // Old alert
+                if (fallbackFeedbackSpan) {
+                    fallbackFeedbackSpan.textContent = 'Share failed!';
+                    fallbackFeedbackSpan.style.color = 'var(--error-color)'; // Make it red
+                    showCopyFeedback(fallbackFeedbackSpan, shareFallbackTimeout); // Show the feedback span
+                    // Reset after timeout
+                    setTimeout(() => {
+                         if(fallbackFeedbackSpan) {
+                            fallbackFeedbackSpan.textContent = 'Link copied!'; // Reset text
+                            fallbackFeedbackSpan.style.color = 'var(--text-muted)'; // Reset color
+                         }
+                    }, 2800); // Slightly longer than showCopyFeedback timeout
+                } else {
+                    alert(`Share failed: ${error.message}`); // Fallback alert if span not found
+                }
             }
         }
     } else {
         console.log('Web Share API not supported, falling back to copy.');
         // Fallback: Copy the share URL to clipboard
-        await copyToClipboard(shareUrl, shareFallbackFeedbackSpan, shareFallbackTimeout);
+        // --- MODIFICATION: Pass the correct fallback feedback span ---
+        await copyToClipboard(shareUrl, fallbackFeedbackSpan, shareFallbackTimeout);
     }
 }
 
@@ -2594,7 +2626,7 @@ function streamVideo(title, url, filenameForAudioCheck) {
         if (vlcBox) vlcBox.style.display = 'none';
         if (audioWarningDiv) audioWarningDiv.style.display = 'none';
         if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-        clearCopyFeedback(); // Clear both types of feedback
+        clearCopyFeedback(); // Clear feedback spans inside vlcBox
 
         currentActionContainer.appendChild(videoContainer); // Append to the correct container
     }
@@ -2602,7 +2634,7 @@ function streamVideo(title, url, filenameForAudioCheck) {
     // Reset warnings/options for the new video
     if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
     if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-    clearCopyFeedback(); // Clear both types of feedback
+    clearCopyFeedback(); // Clear feedback spans inside vlcBox again just in case
 
     // Restore saved settings or defaults
     const savedVolume = localStorage.getItem(config.PLAYER_VOLUME_KEY);
@@ -2637,7 +2669,7 @@ function streamVideo(title, url, filenameForAudioCheck) {
     // Set titles and URLs
     if (videoTitle) videoTitle.innerText = title;
     if (vlcText) vlcText.innerText = url;
-    if (vlcBox) vlcBox.style.display = 'block';
+    if (vlcBox) vlcBox.style.display = 'block'; // Show the VLC box containing the URL and its feedback spans
 
     // Load and play
     videoElement.src = url;
@@ -2675,7 +2707,7 @@ function closePlayer() {
     if (vlcBox) vlcBox.style.display = 'none';
     if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
     if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-    clearCopyFeedback(); // Clear both
+    clearCopyFeedback(); // Clear feedback spans inside vlcBox
     if (videoTitle) videoTitle.innerText = '';
 
     if (videoContainer.classList.contains('is-fullscreen')) {
@@ -2758,57 +2790,112 @@ function copyVLCLink(buttonElement, url) {
         return;
     }
 
-    // Find the specific feedback span related to this button's context
-    const currentContext = buttonElement.closest('.action-row td, .preview-action-row, #shared-item-content');
-    if (!currentContext) {
-        console.error("copyVLCLink: Could not find context (action row/shared content).");
-        alert("Internal error: Could not find context for feedback.");
+    // Find the feedback span directly next to the button
+    const feedbackSpan = buttonElement.nextElementSibling; // Get the next sibling element
+
+    // Check if the next sibling is actually the feedback span we added
+    if (!feedbackSpan || !feedbackSpan.classList.contains('copy-feedback')) {
+        console.warn("copyVLCLink: Could not find feedback span immediately after the button:", buttonElement);
+        // Attempt copy anyway, but without the visual feedback span
+        copyToClipboard(url, null, copyTimeout); // Pass null for feedback span
         return;
     }
-    const currentVlcBox = currentContext.querySelector('#vlcBox');
-    const feedbackSpan = currentVlcBox?.querySelector('#copyFeedback');
 
-    if (!feedbackSpan) {
-        console.warn("copyVLCLink: Feedback span (#copyFeedback) not found within context:", currentContext);
-        // Attempt copy anyway, but without the visual feedback span
-    }
+    // Ensure feedback span is styled to be visible before adding 'show' class for transition
+    feedbackSpan.style.display = 'inline-block';
 
-    // Call the updated copyToClipboard function (which no longer shows web notifications)
+    // Call the copyToClipboard function, passing the adjacent feedback span
+    // Use the global 'copyTimeout' variable reference specifically for this type of copy action.
     copyToClipboard(url, feedbackSpan, copyTimeout).then(success => {
         if (!success) {
-            // If copy failed after both methods, try highlighting the text as a last resort
-            highlightVlcText();
+            // If copy failed after both methods, try highlighting the text inside the vlcBox as a last resort
+             highlightVlcText();
         }
+        // The showCopyFeedback function (called by copyToClipboard) will handle hiding the span later.
+    }).catch(err => {
+         console.error("Error during copyVLCLink process:", err);
+         alert("Copy failed. Please try again.");
+         // Hide feedback span immediately on error
+         feedbackSpan.style.display = 'none';
+         feedbackSpan.classList.remove('show');
     });
 }
 // --- END: MODIFIED copyVLCLink ---
 
+// Shows the feedback span and sets a timeout to hide it.
+// Uses the correct global timeout variable based on the span's ID.
 function showCopyFeedback(spanElement, timeoutVarRef) {
     if (!spanElement) return;
-    clearTimeout(timeoutVarRef); // Clear previous timeout for this specific feedback
+
+    // Determine which global timeout variable to clear based on the feedback element
+    // (This assumes the span passed will either be the one next to the VLC button,
+    // the one with id="copyFeedback", or the one with id="shareFallbackFeedback-*")
+    let timeoutToClear;
+    if (spanElement.id === 'copyFeedback') {
+        timeoutToClear = copyTimeout;
+        timeoutVarRef = 'copyTimeout'; // Pass name of global var to update
+    } else if (spanElement.id && spanElement.id.startsWith('shareFallbackFeedback')) {
+         timeoutToClear = shareFallbackTimeout;
+         timeoutVarRef = 'shareFallbackTimeout'; // Pass name of global var to update
+    } else {
+        // Assume it's the span next to the VLC button, use copyTimeout
+        timeoutToClear = copyTimeout;
+        timeoutVarRef = 'copyTimeout';
+    }
+
+    clearTimeout(timeoutToClear); // Clear previous timeout for this specific feedback type
+
+    spanElement.style.display = 'inline-block'; // Ensure visible if previously none
     spanElement.classList.add('show');
-    // Use a local variable for the timeout ID, don't rely on a single global
+
     const currentTimeoutId = setTimeout(() => {
         spanElement.classList.remove('show');
-    }, 2500);
-    // Store the ID if you need to clear it externally (e.g., copyTimeout or shareFallbackTimeout)
-    if (spanElement.id === 'copyFeedback') {
+        // Optionally hide completely after transition (adjust delay)
+        setTimeout(() => {
+            if (!spanElement.classList.contains('show')) { // Check if re-triggered
+                 spanElement.style.display = 'none';
+            }
+        }, 300); // Should match CSS transition duration
+    }, 2500); // Duration the message is visible
+
+    // Update the correct global timeout variable
+    if (timeoutVarRef === 'copyTimeout') {
         copyTimeout = currentTimeoutId;
-    } else if (spanElement.id === 'shareFallbackFeedback') {
+    } else if (timeoutVarRef === 'shareFallbackTimeout') {
         shareFallbackTimeout = currentTimeoutId;
     }
 }
+
+// Clears timeouts and hides BOTH types of feedback spans
 function clearCopyFeedback() {
     clearTimeout(copyTimeout);
     clearTimeout(shareFallbackTimeout);
-    if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show');
-    if (shareFallbackFeedbackSpan) shareFallbackFeedbackSpan.classList.remove('show');
+
+    // Hide the span inside vlcBox (if it exists)
+    if (copyFeedbackSpan) {
+        copyFeedbackSpan.classList.remove('show');
+        copyFeedbackSpan.style.display = 'none';
+    }
+    // Hide the share fallback span inside vlcBox (if it exists)
+    if (shareFallbackFeedbackSpan) {
+        shareFallbackFeedbackSpan.classList.remove('show');
+        shareFallbackFeedbackSpan.style.display = 'none';
+    }
+
+    // Also hide any feedback spans that might be visible next to buttons
+    document.querySelectorAll('.action-buttons-container .copy-feedback').forEach(span => {
+         if(span.id !== 'copyFeedback' && span.id !== 'shareFallbackFeedback') { // Avoid redundancy
+            span.classList.remove('show');
+            span.style.display = 'none';
+         }
+    });
 }
+
 function highlightVlcText() {
     // Find the VLC box within the currently visible context (action row or shared view)
     const activeContext = activeTableActionRow || activePreviewActionRow || (currentViewMode === 'shared' ? sharedItemContent : null);
     if (!activeContext) return;
-    const currentVlcText = activeContext.querySelector('#vlcBox code');
+    const currentVlcText = activeContext.querySelector('#vlcBox code'); // Target the <code> element
     if (currentVlcText && currentVlcText.closest('#vlcBox')?.style.display !== 'none') {
         try {
             const range = document.createRange(); range.selectNodeContents(currentVlcText);
