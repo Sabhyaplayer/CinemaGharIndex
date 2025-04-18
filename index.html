@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <style type="text/css">
 /* <![CDATA[ */
 :root {
@@ -33,6 +32,10 @@
     --pagination-disabled-bg: #ffffff;
     --pagination-disabled-border: #dee2e6;
     --filter-active-border: #adb5bd;
+    --tab-inactive-bg: #f1f3f5;
+    --tab-active-bg: var(--container-bg);
+    --tab-active-border: var(--primary-color);
+    --tab-hover-bg: #e9ecef;
 
     --border-radius-sm: 0.25rem;
     --border-radius-md: 0.5rem;
@@ -76,14 +79,14 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 25px; /* Adjusted margin */
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
     flex-wrap: wrap;
     background-color: var(--header-bg);
     padding: 15px;
     border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-    margin: -15px -15px 25px -15px;
+    margin: -15px -15px 25px -15px; /* Keep negative margin to align with container edges */
 }
 #cinemaghar-container header img {
     height: 60px;
@@ -136,18 +139,20 @@ body {
     font-size: 22px;
     color: var(--primary-color);
     font-weight: 600;
-    margin-top: 35px;
+    margin-top: 0; /* Removed top margin as it's inside tab panel now */
     margin-bottom: 18px;
     padding-bottom: 8px;
     border-bottom: 2px solid var(--primary-color);
 }
 
+/* --- Global Filter/Search Area --- */
 .filter-search-area {
     display: flex;
     gap: 15px;
-    margin: 10px 0 25px 0;
+    margin: 0 0 25px 0; /* Adjusted margins */
     align-items: center;
     flex-wrap: wrap;
+    padding: 0; /* Removed padding if needed */
 }
 
 .search-group {
@@ -156,7 +161,7 @@ body {
     min-width: 250px;
 }
 
-#cinemaghar-container #searchInput {
+#cinemaghar-container #mainSearchInput { /* Use ID for the single search input */
     flex-grow: 1;
     padding: 12px 15px;
     border-radius: var(--border-radius-md);
@@ -167,7 +172,7 @@ body {
     height: 44px;
     outline: none;
 }
-#cinemaghar-container #searchInput:focus {
+#cinemaghar-container #mainSearchInput:focus { /* Use ID */
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     z-index: 1;
@@ -188,7 +193,7 @@ body {
     white-space: nowrap;
 }
 
-#cinemaghar-container #qualityFilterSelect {
+#cinemaghar-container #mainQualityFilterSelect { /* Use ID for the single quality filter */
     padding: 10px 12px;
     border-radius: var(--border-radius-md);
     border: 1px solid var(--border-color);
@@ -208,16 +213,64 @@ body {
     background-size: 16px 12px;
     padding-right: 35px;
 }
-#cinemaghar-container #qualityFilterSelect:focus {
+#cinemaghar-container #mainQualityFilterSelect:focus { /* Use ID */
     border-color: var(--primary-color);
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
-#cinemaghar-container #qualityFilterSelect.filter-active {
+#cinemaghar-container #mainQualityFilterSelect.filter-active { /* Use ID */
     border-color: var(--filter-active-border);
     background-color: #eef;
     font-weight: 500;
 }
+
+/* --- Search Results Container (NEW) --- */
+#searchResultsContainer {
+    margin-top: 25px; /* Space below filter area */
+}
+
+/* --- Tab Navigation --- */
+.tab-navigation {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap; /* Allow tabs to wrap on small screens */
+}
+.tab-button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: var(--tab-inactive-bg);
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s ease-in-out;
+    margin-bottom: -1px; /* Overlap border-bottom */
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+    white-space: nowrap;
+}
+.tab-button:hover {
+    background-color: var(--tab-hover-bg);
+    color: var(--text-color);
+}
+.tab-button.active {
+    background-color: var(--tab-active-bg);
+    color: var(--primary-color);
+    border-color: var(--border-color);
+    border-bottom-color: var(--tab-active-border);
+    font-weight: 600;
+}
+
+/* --- Tab Content --- */
+.tab-content > div {
+    display: none; /* Hide all panels by default */
+    padding-top: 10px;
+}
+.tab-content > div.active {
+    display: block; /* Show active panel */
+}
+
 
 #cinemaghar-container .table-container {
     overflow-x: auto;
@@ -227,6 +280,7 @@ body {
     margin-bottom: 10px;
     border: 1px solid var(--border-color);
 }
+/* Shared Table Styles (Apply to all tables including search results) */
 #cinemaghar-container table {
     width: 100%;
     border-collapse: collapse;
@@ -261,7 +315,11 @@ body {
     cursor: pointer;
     user-select: none;
 }
-#cinemaghar-container th.sortable:hover {
+/* Sorting Styles specific to tables with sorting */
+#allFilesTable th.sortable:hover,
+#moviesTable th.sortable:hover,
+#seriesTable th.sortable:hover,
+#searchResultsTable th.sortable:hover { /* Added search results table */
     background-color: #dde2e6;
 }
 #cinemaghar-container th .sort-indicator {
@@ -285,7 +343,8 @@ body {
 }
 #cinemaghar-container th:not(.sortable) .sort-indicator { display: none; }
 #cinemaghar-container th:not(.sortable) { cursor: default; }
-/* Column widths */
+
+/* Column widths (Apply to all tables including search results) */
 #cinemaghar-container th.col-id, #cinemaghar-container td.col-id { width: 6%; }
 #cinemaghar-container th.col-filename, #cinemaghar-container td.col-filename { width: 45%; }
 #cinemaghar-container th.col-size, #cinemaghar-container td.col-size { width: 12%; }
@@ -447,9 +506,9 @@ body {
 #cinemaghar-container .download-button { background-color: var(--primary-color); }
 #cinemaghar-container .telegram-button { background-color: #0088cc; }
 #cinemaghar-container .gdflix-button { background-color: #E50914; }
-#cinemaghar-container .hubcloud-button { background-color: #1E90FF; } /* Added */
-#cinemaghar-container .filepress-button { background-color: #6c757d; } /* Added */
-#cinemaghar-container .gdtot-button { background-color: #ffc107; color: #333 !important; } /* Added */
+#cinemaghar-container .hubcloud-button { background-color: #1E90FF; }
+#cinemaghar-container .filepress-button { background-color: #6c757d; }
+#cinemaghar-container .gdtot-button { background-color: #ffc107; color: #333 !important; }
 
 
 /* Copy Feedback */
@@ -467,9 +526,9 @@ body {
     opacity: 1;
 }
 
-/* Video Player Container */
+/* Video Player Container - Initially Hidden */
 #cinemaghar-container .video-container {
-    display: none;
+    /* display: none;  Set by JS now, but initial CSS makes it explicit */
     margin: 20px auto 0 auto;
     background: #f1f3f5;
     padding: 50px 20px 20px 20px;
@@ -480,7 +539,7 @@ body {
     width: 100%;
     max-width: 850px;
     text-align: center;
-    display: flex;
+    /* display: flex; /* Set by JS when shown */
     flex-direction: column;
 }
 #cinemaghar-container .close-btn {
@@ -502,7 +561,7 @@ body {
     background-color: #c82333;
 }
 #cinemaghar-container #audioWarning {
-    display: none;
+    display: none; /* Managed by JS */
     background-color: var(--warning-bg);
     color: var(--warning-text);
     border: 1px solid var(--warning-border);
@@ -561,7 +620,7 @@ body {
     font-family: inherit;
     cursor: pointer;
     max-width: 150px;
-    display: none;
+    display: none; /* Managed by JS */
     transition: border-color 0.2s ease;
     height: 30px;
     line-height: 1;
@@ -603,6 +662,7 @@ body {
     text-align: left;
     border: 1px solid var(--border-color);
     flex-shrink: 0;
+    display: none; /* Managed by JS */
 }
 #cinemaghar-container .vlc-copy-box strong {
     color: var(--text-color);
@@ -797,15 +857,17 @@ body {
    }
   #cinemaghar-container .header-buttons .button svg { height: 1em; width: 1em; margin-right: 5px;}
 
+  /* Global Filter/Search Area on mobile */
   .filter-search-area {
       flex-direction: column;
       align-items: stretch;
       gap: 12px;
+      margin: 0 0 20px 0; /* Adjusted margins */
   }
   .search-group {
       min-width: unset;
   }
-  #cinemaghar-container #searchInput {
+  #cinemaghar-container #mainSearchInput { /* Use ID */
       min-width: unset;
       width: 100%;
       font-size: 15px;
@@ -819,7 +881,7 @@ body {
       gap: 10px;
   }
   .filter-group label { font-size: 13px; margin-right: 5px;}
-  #cinemaghar-container #qualityFilterSelect {
+  #cinemaghar-container #mainQualityFilterSelect { /* Use ID */
       font-size: 14px;
       padding: 9px 10px;
       min-width: unset;
@@ -830,6 +892,12 @@ body {
       background-position: right 8px center;
   }
 
+  /* Search Results container mobile adjustments */
+  #searchResultsContainer { margin-top: 20px; }
+
+  .tab-navigation { margin-bottom: 15px; }
+  .tab-button { padding: 8px 12px; font-size: 14px; } /* Reduced padding slightly */
+
   #cinemaghar-container .table-container {
       border: none;
       box-shadow: none;
@@ -838,6 +906,7 @@ body {
       margin-right: -10px;
       overflow-x: visible;
    }
+   /* Apply table adjustments to ALL tables, including search results */
    #cinemaghar-container table {
         min-width: unset;
         border: 1px solid var(--border-color);
@@ -868,7 +937,7 @@ body {
       vertical-align: middle;
   }
 
-  /* Hide columns on mobile */
+  /* Hide columns on mobile (Applies to ALL tables now) */
   #cinemaghar-container thead tr th.col-size,
   #cinemaghar-container thead tr th.col-updated,
   #cinemaghar-container tbody tr:not(.action-row) td.col-size,
@@ -876,7 +945,7 @@ body {
        display: none;
   }
 
-   /* Adjust visible column widths */
+   /* Adjust visible column widths (Applies to ALL tables now) */
    #cinemaghar-container th.col-id, #cinemaghar-container td.col-id { width: 12%; text-align: center; }
    #cinemaghar-container th.col-filename, #cinemaghar-container td.col-filename { width: 48%; font-weight: 500; }
    #cinemaghar-container th.col-quality, #cinemaghar-container td.col-quality { width: 20%; text-align: center; font-weight: 500;}
@@ -980,9 +1049,7 @@ body {
 </style>
 </head>
 <body>
-
 <div id="cinemaghar-container">
-
   <header>
     <img src="https://i.ibb.co/s1Kn4MT/c68903b0d838.jpg" alt="CinemaGhar Logo" />
     <div class="header-title-signature">
@@ -1005,67 +1072,157 @@ body {
     </div>
   </header>
 
+  <!-- Global Filter/Search Area -->
   <div class="filter-search-area">
       <div class="search-group">
-          <input type="search" id="searchInput" placeholder="Search movies by name or ID..." />
-          <!-- Search Button Removed -->
+          <input type="search" id="mainSearchInput" placeholder="Search all files by name or ID..." />
       </div>
       <div class="filter-group">
-          <label for="qualityFilterSelect">Quality:</label>
-          <select id="qualityFilterSelect">
+          <label for="mainQualityFilterSelect">Quality:</label>
+          <select id="mainQualityFilterSelect">
               <option value="">All Qualities</option>
               <!-- Options populated by JS -->
           </select>
       </div>
   </div>
 
-  <div id="updatesSection">
-    <h2>Updates (Last 24 Hours)</h2>
-    <div class="table-container">
-      <table id="updatesTable">
-        <thead>
-            <tr>
-                <th class="col-id">#</th>
-                <th class="col-filename">Filename</th>
-                <th class="col-size">Size</th>
-                <th class="col-quality">Quality</th>
-                <th class="col-updated">Updated</th>
-                <th class="col-view">View</th>
-             </tr>
-         </thead>
-        <tbody id="updatesTableBody">
-            <!-- Content generated by JS -->
-        </tbody>
-      </table>
-    </div>
+  <!-- Search Results Container (NEW) - Initially Hidden -->
+  <div id="searchResultsContainer" style="display: none;">
+      <h2>Search Results</h2>
+      <div class="table-container">
+          <table id="searchResultsTable">
+              <thead>
+                  <tr>
+                      <th class="sortable col-id" data-sort-key="id">#<span class="sort-indicator"></span></th>
+                      <th class="sortable col-filename" data-sort-key="filename">Filename<span class="sort-indicator"></span></th>
+                      <th class="sortable col-size" data-sort-key="size">Size<span class="sort-indicator"></span></th>
+                      <th class="sortable col-quality" data-sort-key="quality">Quality<span class="sort-indicator"></span></th>
+                      <th class="sortable col-updated" data-sort-key="lastUpdated">Updated<span class="sort-indicator"></span></th>
+                      <th class="col-view">View</th>
+                  </tr>
+              </thead>
+              <tbody id="searchResultsTableBody">
+                 <!-- Content generated by JS -->
+              </tbody>
+          </table>
+      </div>
+      <div class="pagination-container" id="searchResultsPaginationControls" style="display: none;">
+          <!-- Content generated by JS -->
+      </div>
   </div>
 
-  <h2>Recently Listed</h2>
-  <div class="table-container">
-    <table id="movieTable">
-      <thead>
-          <tr>
-              <th class="sortable col-id" data-sort-key="id">#<span class="sort-indicator"></span></th>
-              <th class="sortable col-filename" data-sort-key="filename">Filename<span class="sort-indicator"></span></th>
-              <th class="sortable col-size" data-sort-key="size">Size<span class="sort-indicator"></span></th>
-              <th class="sortable col-quality" data-sort-key="quality">Quality<span class="sort-indicator"></span></th>
-              <th class="sortable col-updated" data-sort-key="lastUpdated">Updated<span class="sort-indicator"></span></th>
-              <th class="col-view">View</th>
-          </tr>
-      </thead>
-      <tbody id="movieTableBody">
-         <!-- Content generated by JS -->
-      </tbody>
-    </table>
+  <!-- Tab Navigation (Will be hidden during search) -->
+  <div class="tab-navigation">
+      <button class="tab-button active" id="updatesTabButton" onclick="switchTab('updates')">Updates (24h)</button>
+      <button class="tab-button" id="allFilesTabButton" onclick="switchTab('allFiles')">All Files</button>
+      <button class="tab-button" id="moviesTabButton" onclick="switchTab('movies')">Movies</button>
+      <button class="tab-button" id="seriesTabButton" onclick="switchTab('series')">Series</button>
   </div>
 
-  <div class="pagination-container" id="paginationControls" style="display: none;">
-      <!-- Content generated by JS -->
-  </div>
+  <!-- Tab Content Area (Will be hidden during search) -->
+  <div class="tab-content">
+      <!-- Updates Panel -->
+      <div id="updatesTabPanel" class="active">
+          <h2>Updates (Last 24 Hours)</h2>
+          <div class="table-container">
+              <table id="updatesTable">
+                  <thead>
+                      <tr>
+                          <th class="col-id">#</th>
+                          <th class="col-filename">Filename</th>
+                          <th class="col-size">Size</th>
+                          <th class="col-quality">Quality</th>
+                          <th class="col-updated">Updated</th>
+                          <th class="col-view">View</th>
+                       </tr>
+                   </thead>
+                  <tbody id="updatesTableBody">
+                      <!-- Content generated by JS -->
+                  </tbody>
+              </table>
+          </div>
+          <!-- No Pagination for Updates -->
+      </div>
 
-  <!-- Video Player Container - Moved here from within action row for structural sanity -->
-  <!-- It will be appended to the correct action row cell dynamically -->
-  <div class="video-container" id="videoContainer">
+      <!-- All Files Panel -->
+      <div id="allFilesTabPanel">
+          <h2>All Files</h2>
+          <div class="table-container">
+              <table id="allFilesTable">
+                  <thead>
+                      <tr>
+                          <th class="sortable col-id" data-sort-key="id">#<span class="sort-indicator"></span></th>
+                          <th class="sortable col-filename" data-sort-key="filename">Filename<span class="sort-indicator"></span></th>
+                          <th class="sortable col-size" data-sort-key="size">Size<span class="sort-indicator"></span></th>
+                          <th class="sortable col-quality" data-sort-key="quality">Quality<span class="sort-indicator"></span></th>
+                          <th class="sortable col-updated" data-sort-key="lastUpdated">Updated<span class="sort-indicator"></span></th>
+                          <th class="col-view">View</th>
+                      </tr>
+                  </thead>
+                  <tbody id="allFilesTableBody">
+                     <!-- Content generated by JS -->
+                  </tbody>
+              </table>
+          </div>
+          <div class="pagination-container" id="allFilesPaginationControls" style="display: none;">
+              <!-- Content generated by JS -->
+          </div>
+      </div>
+
+       <!-- Movies Panel -->
+      <div id="moviesTabPanel">
+          <h2>Movies</h2>
+          <div class="table-container">
+              <table id="moviesTable">
+                  <thead>
+                      <tr>
+                          <th class="sortable col-id" data-sort-key="id">#<span class="sort-indicator"></span></th>
+                          <th class="sortable col-filename" data-sort-key="filename">Filename<span class="sort-indicator"></span></th>
+                          <th class="sortable col-size" data-sort-key="size">Size<span class="sort-indicator"></span></th>
+                          <th class="sortable col-quality" data-sort-key="quality">Quality<span class="sort-indicator"></span></th>
+                          <th class="sortable col-updated" data-sort-key="lastUpdated">Updated<span class="sort-indicator"></span></th>
+                          <th class="col-view">View</th>
+                      </tr>
+                  </thead>
+                  <tbody id="moviesTableBody">
+                     <!-- Content generated by JS -->
+                  </tbody>
+              </table>
+          </div>
+          <div class="pagination-container" id="moviesPaginationControls" style="display: none;">
+              <!-- Content generated by JS -->
+          </div>
+      </div>
+
+       <!-- Series Panel -->
+      <div id="seriesTabPanel">
+          <h2>Series</h2>
+          <div class="table-container">
+              <table id="seriesTable">
+                   <thead>
+                      <tr>
+                          <th class="sortable col-id" data-sort-key="id">#<span class="sort-indicator"></span></th>
+                          <th class="sortable col-filename" data-sort-key="filename">Filename<span class="sort-indicator"></span></th>
+                          <th class="sortable col-size" data-sort-key="size">Size<span class="sort-indicator"></span></th>
+                          <th class="sortable col-quality" data-sort-key="quality">Quality<span class="sort-indicator"></span></th>
+                          <th class="sortable col-updated" data-sort-key="lastUpdated">Updated<span class="sort-indicator"></span></th>
+                          <th class="col-view">View</th>
+                      </tr>
+                  </thead>
+                  <tbody id="seriesTableBody">
+                     <!-- Content generated by JS -->
+                  </tbody>
+              </table>
+          </div>
+          <div class="pagination-container" id="seriesPaginationControls" style="display: none;">
+              <!-- Content generated by JS -->
+          </div>
+      </div>
+
+  </div> <!-- End .tab-content -->
+
+  <!-- Video Player Container - Moved here, outside tabs/search results, initially hidden -->
+  <div class="video-container" id="videoContainer" style="display: none;">
       <button class="close-btn" onclick="closePlayer()">✖ Close</button>
       <div id="audioWarning" style="display: none;"></div>
       <div id="videoTitle"></div>
@@ -1076,14 +1233,11 @@ body {
           <button class="button" onclick="seekVideo(-10)">« 10s</button>
           <button class="button" onclick="seekVideo(10)">10s »</button>
           <button class="button" id="muteButton" onclick="toggleMute()">Mute</button>
-
           <div class="player-control-group">
-            <label for="volumeSlider">Vol:</label>
-            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)" onchange="setVolume(this.value)">
+              <label for="volumeSlider">Vol:</label>
+              <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)" onchange="setVolume(this.value)">
           </div>
-
-          <select id="audioTrackSelect" onchange="changeAudioTrack(this)" title="Select Audio Track"></select>
-
+          <select id="audioTrackSelect" onchange="changeAudioTrack(this)" title="Select Audio Track" style="display: none;"></select>
           <div class="player-control-group">
              <label for="playbackSpeedSelect">Speed:</label>
              <select id="playbackSpeedSelect" onchange="setPlaybackSpeed(this.value)">
@@ -1095,7 +1249,6 @@ body {
                 <option value="2">2x</option>
              </select>
           </div>
-
           <button class="button" onclick="toggleFullscreen()">Fullscreen</button>
       </div>
       <div class="vlc-copy-box" id="vlcBox" style="display:none;">
@@ -1104,24 +1257,20 @@ body {
           <span class="copy-feedback" id="copyFeedback">Copied!</span>
       </div>
   </div>
-
 </div> <!-- End #cinemaghar-container -->
 
 <script type="text/javascript">
 // <![CDATA[
 
 const config = {
-    // !!! IMPORTANT: Paste your **NEW** Google Apps Script Web App URL here !!!
     GSheetWebAppURL: "https://script.google.com/macros/s/AKfycbzcV_vEcrlZYVYnw-RFQOsHtzfdIIEwh4Vfp2tPp2wR1I8by2TDTGyQZH9i2Gy-0WMoAw/exec",
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
     HDR_LOGO_URL: "https://as1.ftcdn.net/v2/jpg/05/32/83/72/1000_F_532837228_v8CGZRU0jy39uCtqFRnJz6xDntrGuLLx.webp",
     FOURK_LOGO_URL: "https://i.pinimg.com/736x/85/c4/b0/85c4b0a2fb8612825d0cd2f53460925f.jpg",
     ITEMS_PER_PAGE: 50,
-    LOCAL_STORAGE_KEY: 'cinemaGharState_v2',
+    LOCAL_STORAGE_KEY: 'cinemaGharState_v5', // Incremented version
     PLAYER_VOLUME_KEY: 'cinemaGharPlayerVolume',
     PLAYER_SPEED_KEY: 'cinemaGharPlayerSpeed',
-    SEARCH_DEBOUNCE_DELAY: 350 // Delay in ms for real-time search
+    SEARCH_DEBOUNCE_DELAY: 350
 };
 
 let allMovieData = [];
@@ -1130,6 +1279,8 @@ let uniqueQualities = new Set();
 let activeActionRow = null;
 let copyTimeout;
 let searchDebounceTimeout;
+let currentActiveTab = 'updates'; // Default starting tab
+let isSearchActive = false; // Flag to track search mode
 
 // --- State Management ---
 let currentState = {
@@ -1137,7 +1288,11 @@ let currentState = {
     qualityFilter: '',
     sortColumn: 'lastUpdated',
     sortDirection: 'desc',
-    currentPage: 1
+    currentPage: 1, // Current page for the *active view* (tab or search)
+    savedPageAll: 1,
+    savedPageMovies: 1,
+    savedPageSeries: 1,
+    savedTabBeforeSearch: 'updates' // Remember which tab was active before searching
 };
 
 // --- DOM Element References ---
@@ -1147,544 +1302,156 @@ const videoElement = document.getElementById('html5VideoPlayer');
 const videoTitle = document.getElementById('videoTitle');
 const vlcBox = document.getElementById('vlcBox');
 const vlcText = document.getElementById('vlcText');
-const searchInput = document.getElementById('searchInput');
-const qualityFilterSelect = document.getElementById('qualityFilterSelect');
 const audioWarningDiv = document.getElementById('audioWarning');
-const updatesSection = document.getElementById('updatesSection');
-const updatesTableBody = document.getElementById('updatesTableBody');
-const movieTableBody = document.getElementById('movieTableBody');
-const movieTableHead = document.querySelector('#movieTable thead');
 const muteButton = document.getElementById('muteButton');
 const volumeSlider = document.getElementById('volumeSlider');
 const playbackSpeedSelect = document.getElementById('playbackSpeedSelect');
 const customControlsContainer = document.getElementById('customControlsContainer');
 const audioTrackSelect = document.getElementById('audioTrackSelect');
 const copyFeedbackSpan = document.getElementById('copyFeedback');
-const paginationControlsContainer = document.getElementById('paginationControls');
 const playerCloseButton = document.querySelector('.video-container .close-btn');
 
+const searchInput = document.getElementById('mainSearchInput');
+const qualityFilterSelect = document.getElementById('mainQualityFilterSelect');
 
-// --- Utility Functions ---
+// NEW: Search Results Area
+const searchResultsContainer = document.getElementById('searchResultsContainer');
+const searchResultsTableBody = document.getElementById('searchResultsTableBody');
+const searchResultsTableHead = document.querySelector('#searchResultsTable thead'); // For sorting
+const searchResultsPaginationControls = document.getElementById('searchResultsPaginationControls');
 
-/**
- * Sanitizes a string to prevent XSS by converting it to text content.
- * @param {any} str - The input value to sanitize.
- * @returns {string} The sanitized string.
- */
-const sanitize = (str) => {
-    if (str === null || typeof str === 'undefined') return "";
-    const temp = document.createElement('div');
-    temp.textContent = String(str);
-    return temp.innerHTML;
+// Tab Navigation and Content Area
+const tabNavigation = document.querySelector('.tab-navigation');
+const tabContent = document.querySelector('.tab-content');
+
+// Tab Buttons
+const updatesTabButton = document.getElementById('updatesTabButton');
+const allFilesTabButton = document.getElementById('allFilesTabButton');
+const moviesTabButton = document.getElementById('moviesTabButton');
+const seriesTabButton = document.getElementById('seriesTabButton');
+
+// Tab Panels
+const updatesTabPanel = document.getElementById('updatesTabPanel');
+const allFilesTabPanel = document.getElementById('allFilesTabPanel');
+const moviesTabPanel = document.getElementById('moviesTabPanel');
+const seriesTabPanel = document.getElementById('seriesTabPanel');
+
+// Table Bodies (Tabs)
+const updatesTableBody = document.getElementById('updatesTableBody');
+const allFilesTableBody = document.getElementById('allFilesTableBody');
+const moviesTableBody = document.getElementById('moviesTableBody');
+const seriesTableBody = document.getElementById('seriesTableBody');
+
+// Table Headers (Tabs)
+const allFilesTableHead = document.querySelector('#allFilesTable thead');
+const moviesTableHead = document.querySelector('#moviesTable thead');
+const seriesTableHead = document.querySelector('#seriesTable thead');
+
+// Pagination Containers (Tabs)
+const allFilesPaginationControls = document.getElementById('allFilesPaginationControls');
+const moviesPaginationControls = document.getElementById('moviesPaginationControls');
+const seriesPaginationControls = document.getElementById('seriesPaginationControls');
+
+// Mappings for easier tab handling
+const tabMappings = {
+    updates: { button: updatesTabButton, panel: updatesTabPanel, pagination: null, savedPageKey: null },
+    allFiles: { button: allFilesTabButton, panel: allFilesTabPanel, pagination: allFilesPaginationControls, savedPageKey: 'savedPageAll' },
+    movies: { button: moviesTabButton, panel: moviesTabPanel, pagination: moviesPaginationControls, savedPageKey: 'savedPageMovies' },
+    series: { button: seriesTabButton, panel: seriesTabPanel, pagination: seriesPaginationControls, savedPageKey: 'savedPageSeries' }
 };
 
-/**
- * Formats ISO date strings into human-readable relative time or full date.
- */
-const TimeAgo = {
-  MINUTE: 60, HOUR: 3600, DAY: 86400, WEEK: 604800, MONTH: 2592000, YEAR: 31536000,
-  format: (isoString) => {
-    if (!isoString) return 'N/A';
-    try {
-      const date = new Date(isoString);
-      const seconds = Math.floor((new Date() - date) / 1000);
-      if (isNaN(seconds) || seconds < 0) {
-        return TimeAgo.formatFullDate(date);
-      }
-      if (seconds < 2) return "just now";
-      if (seconds < TimeAgo.MINUTE) return `${seconds} sec${seconds > 1 ? 's' : ''} ago`;
-      if (seconds < TimeAgo.HOUR) return `${Math.floor(seconds / TimeAgo.MINUTE)} min${Math.floor(seconds / TimeAgo.MINUTE) > 1 ? 's' : ''} ago`;
-      if (seconds < TimeAgo.DAY) return `${Math.floor(seconds / TimeAgo.HOUR)} hr${Math.floor(seconds / TimeAgo.HOUR) > 1 ? 's' : ''} ago`;
-      if (seconds < TimeAgo.DAY * 2) return "Yesterday";
-      if (seconds < TimeAgo.WEEK) return `${Math.floor(seconds / TimeAgo.DAY)} days ago`;
-      return TimeAgo.formatFullDate(date, true);
-    } catch (e) {
-      console.error("Date Format Error (TimeAgo):", isoString, e);
-      return 'Invalid Date';
-    }
-  },
-  formatFullDate: (date, short = false) => {
-      if (!(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date';
-      const optsDate = short
-        ? { year: '2-digit', month: 'numeric', day: 'numeric' }
-        : { year: 'numeric', month: 'short', day: 'numeric' };
-      const optsTime = { hour: 'numeric', minute: '2-digit', hour12: true };
-      try {
-        return `${date.toLocaleDateString(undefined, optsDate)}${short ? '' : ', ' + date.toLocaleTimeString(undefined, optsTime)}`;
-      } catch (e) {
-          console.error("toLocaleDateString/Time failed:", e);
-          return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-      }
-  }
-};
-
-/**
- * Extracts file size (e.g., "1.2 GB") from a string and returns structured data.
- * @param {string} inputString - The string to parse (can be filename or dedicated size field).
- * @returns {object} Object with value, unit, display string, and bytes.
- */
-function extractSizeData(inputString) {
-    if (!inputString) return { value: 0, unit: '', display: 'N/A', bytes: 0 };
-    // Regex to find size like (1.2 GB) or [200MB] or just "1.2GB"
-    const r = /(?<size>[\d.]+)\s?(?<unit>GB|MB)/i;
-    const m = String(inputString).match(r);
-    if (m?.groups?.size && m?.groups?.unit) {
-        const value = parseFloat(m.groups.size);
-        const unit = m.groups.unit.toUpperCase();
-        if (!isNaN(value)) {
-            const bytes = unit === 'GB' ? value * 1024 * 1024 * 1024 : value * 1024 * 1024;
-            return { value: value, unit: unit, display: `${value} ${unit}`, bytes: isNaN(bytes) ? 0 : bytes };
-        }
-    }
-    // If not found in standard format, return N/A
-    return { value: 0, unit: '', display: 'N/A', bytes: 0 };
-}
-
-/**
- * Attempts to determine the MIME type from a URL's file extension.
- * @param {string} url - The URL string.
- * @returns {string} The guessed MIME type or a generic 'video/*'.
- */
-function getMimeTypeFromUrl(url) {
-    if (!url) return 'video/*';
-    const m = url.match(/\.([a-zA-Z0-9]+)(?:[?#]|$)/);
-    if (!m) return 'video/*';
-    const ext = m[1].toLowerCase();
-    const mimeMap = {
-        'mkv': 'video/x-matroska', 'mp4': 'video/mp4', 'mov': 'video/quicktime',
-        'avi': 'video/x-msvideo', 'webm': 'video/webm', 'wmv': 'video/x-ms-wmv',
-        'flv': 'video/x-flv', 'ts': 'video/mp2t', 'm4v': 'video/x-m4v',
-        'ogv': 'video/ogg'
-    };
-    return mimeMap[ext] || 'video/*';
-}
-
-/**
- * Handles errors during HTML5 video playback.
- * @param {Event} event - The error event object.
- */
-function handleVideoError(event) {
-    console.error("HTML5 Video Error:", event, videoElement?.error);
-    let msg = "An unknown error occurred while trying to play the video.";
-    if (videoElement?.error) {
-        switch (videoElement.error.code) {
-            case MediaError.MEDIA_ERR_ABORTED: msg = 'Playback was aborted by the user or script.'; break;
-            case MediaError.MEDIA_ERR_NETWORK: msg = 'A network error caused the video download to fail part-way.'; break;
-            case MediaError.MEDIA_ERR_DECODE: msg = 'The video playback was aborted due to a corruption problem or because the video used features your browser did not support (e.g., unsupported codec).'; break;
-            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = 'The video could not be loaded, either because the server or network failed or because the format is not supported by your browser.'; break;
-            default: msg = `An unknown video error occurred (Code: ${videoElement.error.code}).`; break;
-        }
-    }
-    if (audioWarningDiv) {
-        audioWarningDiv.innerHTML = `<strong>Playback Error:</strong> ${sanitize(msg)} <br>Consider using 'Copy URL' with an external player like VLC or MX Player, or try the 'Open Externally' button if available (Android).`;
-        audioWarningDiv.style.display = 'block';
-    }
-}
-// Attach the error handler to the video element
-if (videoElement) { videoElement.addEventListener('error', handleVideoError); }
+// --- Utility Functions (sanitize, TimeAgo, extractSizeData, getMimeTypeFromUrl, handleVideoError, extractQualityFromFilename, normalizeTextForSearch) ---
+// ... (Keep these exactly the same as in your original code) ...
+const sanitize = (str) => { if (str === null || typeof str === 'undefined') return ""; const temp = document.createElement('div'); temp.textContent = String(str); return temp.innerHTML; };
+const TimeAgo = { MINUTE: 60, HOUR: 3600, DAY: 86400, WEEK: 604800, MONTH: 2592000, YEAR: 31536000, format: (isoString) => { if (!isoString) return 'N/A'; try { const date = new Date(isoString); const seconds = Math.floor((new Date() - date) / 1000); if (isNaN(seconds) || seconds < 0) { return TimeAgo.formatFullDate(date); } if (seconds < 2) return "just now"; if (seconds < TimeAgo.MINUTE) return `${seconds} sec${seconds > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.HOUR) return `${Math.floor(seconds / TimeAgo.MINUTE)} min${Math.floor(seconds / TimeAgo.MINUTE) > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.DAY) return `${Math.floor(seconds / TimeAgo.HOUR)} hr${Math.floor(seconds / TimeAgo.HOUR) > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.DAY * 2) return "Yesterday"; if (seconds < TimeAgo.WEEK) return `${Math.floor(seconds / TimeAgo.DAY)} days ago`; return TimeAgo.formatFullDate(date, true); } catch (e) { console.error("Date Format Error (TimeAgo):", isoString, e); return 'Invalid Date'; } }, formatFullDate: (date, short = false) => { if (!(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date'; const optsDate = short ? { year: '2-digit', month: 'numeric', day: 'numeric' } : { year: 'numeric', month: 'short', day: 'numeric' }; const optsTime = { hour: 'numeric', minute: '2-digit', hour12: true }; try { return `${date.toLocaleDateString(undefined, optsDate)}${short ? '' : ', ' + date.toLocaleTimeString(undefined, optsTime)}`; } catch (e) { console.error("toLocaleDateString/Time failed:", e); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; } } };
+function extractSizeData(inputString) { if (!inputString) return { value: 0, unit: '', display: 'N/A', bytes: 0 }; const r = /(?<size>[\d.]+)\s?(?<unit>GB|MB)/i; const m = String(inputString).match(r); if (m?.groups?.size && m?.groups?.unit) { const value = parseFloat(m.groups.size); const unit = m.groups.unit.toUpperCase(); if (!isNaN(value)) { const bytes = unit === 'GB' ? value * 1024 * 1024 * 1024 : value * 1024 * 1024; return { value: value, unit: unit, display: `${value} ${unit}`, bytes: isNaN(bytes) ? 0 : bytes }; } } return { value: 0, unit: '', display: 'N/A', bytes: 0 }; }
+function getMimeTypeFromUrl(url) { if (!url) return 'video/*'; const m = url.match(/\.([a-zA-Z0-9]+)(?:[?#]|$)/); if (!m) return 'video/*'; const ext = m[1].toLowerCase(); const mimeMap = { 'mkv': 'video/x-matroska', 'mp4': 'video/mp4', 'mov': 'video/quicktime', 'avi': 'video/x-msvideo', 'webm': 'video/webm', 'wmv': 'video/x-ms-wmv', 'flv': 'video/x-flv', 'ts': 'video/mp2t', 'm4v': 'video/x-m4v', 'ogv': 'video/ogg' }; return mimeMap[ext] || 'video/*'; }
+function handleVideoError(event) { console.error("HTML5 Video Error:", event, videoElement?.error); let msg = "An unknown error occurred while trying to play the video."; if (videoElement?.error) { switch (videoElement.error.code) { case MediaError.MEDIA_ERR_ABORTED: msg = 'Playback was aborted.'; break; case MediaError.MEDIA_ERR_NETWORK: msg = 'A network error caused the video download to fail.'; break; case MediaError.MEDIA_ERR_DECODE: msg = 'Video decoding error (unsupported codec or corrupt file?).'; break; case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = 'Video format not supported or server/network failed.'; break; default: msg = `An unknown video error occurred (Code: ${videoElement.error.code}).`; break; } } if (audioWarningDiv) { audioWarningDiv.innerHTML = `<strong>Playback Error:</strong> ${sanitize(msg)} <br>Consider using 'Copy URL' with an external player (VLC/MX) or 'Open Externally' (Android).`; audioWarningDiv.style.display = 'block'; } } if (videoElement) { videoElement.addEventListener('error', handleVideoError); }
+function extractQualityFromFilename(filename) { if (!filename) return null; const patterns = [ /(?:^|\.|\[|\(|\s|_|-)((?:4k|2160p|1080p|720p|480p))(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(WEB-?DL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVDrip|DVDScr|HDCAM|HC|TC|TS|CAM)(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i ]; let foundQuality = null; for (const regex of patterns) { const match = filename.match(regex); if (match && match[1]) { let quality = match[1].toUpperCase(); quality = quality.replace(/WEB-?DL/i, 'WEBDL'); quality = quality.replace(/BLURAY/i, 'BluRay'); quality = quality.replace(/DVDRIP/i, 'DVD'); quality = quality.replace(/DOLBY.?VISION/i, 'Dolby Vision'); if (quality === '2160P') quality = '4K'; if (patterns.indexOf(regex) < 2) return quality; if (patterns.indexOf(regex) === 2 && !foundQuality) foundQuality = quality; } } return foundQuality; }
+function normalizeTextForSearch(text) { if (!text) return ""; return String(text) .toLowerCase() .replace(/[.\-_\(\)\[\]]/g, '') .replace(/\s+/g, ' ') .trim(); }
 
 
-/**
- * Extracts a quality indicator (e.g., "1080p", "BluRay") from a filename.
- */
-function extractQualityFromFilename(filename) {
-    if (!filename) return null;
-    const patterns = [
-        /(?:^|\.|\[|\(|\s|_|-)((?:4k|2160p|1080p|720p|480p))(?=$|\.|\]|\)|\s|_|-)/i,
-        /(?:^|\.|\[|\(|\s|_-)(WEB-?DL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVDrip|DVDScr|HDCAM|HC|TC|TS|CAM)(?=$|\.|\]|\)|\s|_|-)/i,
-        /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i
-    ];
-    let foundQuality = null;
-    for (const regex of patterns) {
-        const match = filename.match(regex);
-        if (match && match[1]) {
-            let quality = match[1].toUpperCase();
-            quality = quality.replace(/WEB-?DL/i, 'WEBDL');
-            quality = quality.replace(/BLURAY/i, 'BluRay');
-            quality = quality.replace(/DVDRIP/i, 'DVD');
-            quality = quality.replace(/DOLBY.?VISION/i, 'Dolby Vision');
-            if (quality === '2160P') quality = '4K';
-
-            if (patterns.indexOf(regex) < 2) return quality;
-            if (patterns.indexOf(regex) === 2 && !foundQuality) foundQuality = quality;
-        }
-    }
-    return foundQuality;
-}
-
-/**
- * Normalizes text for searching (lowercase, removes specific punctuation, collapses whitespace).
- */
-function normalizeTextForSearch(text) {
-    if (!text) return "";
-    return String(text)
-        .toLowerCase()
-        .replace(/[.\-_\(\)\[\]]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-
+// --- Data Preprocessing ---
 /**
  * Preprocesses raw movie data fetched from the source.
- * Adds calculated fields like display filename, size, quality, timestamp, and search text.
- * Uses the keys provided by the backend API.
- * @param {object} movie - The raw movie object from the data source.
- * @returns {object} The processed movie object with added fields.
  */
 function preprocessMovieData(movie) {
-    const processed = {}; // Create a new object to avoid modifying the original
-
-    // Directly map keys from backend that don't need complex processing
-    processed.id = movie.id || null; // Use null if missing
-    processed.url = movie.url || null;
-    processed.telegramLink = movie.telegramLink || null;
-    processed.gdflixLink = movie.gdflixLink || null;
-    processed.hubcloudLink = movie.hubcloudLink || null;
-    processed.filepressLink = movie.filepressLink || null;
-    processed.gdtotLink = movie.gdtotLink || null;
-    processed.languages = movie.languages || null;
-
-    // 1. Determine Display Filename
-    processed.filenameSource = 'sheet';
-    processed.displayFilename = sanitize(movie.filename || ''); // Start with sheet value
-    if (!processed.displayFilename && movie.url) { // Fallback to URL derivation
-        try {
-            const urlObject = new URL(movie.url);
-            let potentialFilename = '';
-            const pathParam = urlObject.searchParams.get('path');
-            if (pathParam) {
-                const pathSegments = pathParam.split('/').filter(Boolean);
-                if (pathSegments.length > 0) potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]);
-            }
-            if (!potentialFilename && urlObject.pathname && urlObject.pathname !== '/') {
-                const pathSegments = urlObject.pathname.split('/').filter(Boolean);
-                if (pathSegments.length > 0 && pathSegments[pathSegments.length - 1].includes('.')) {
-                    potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]);
-                }
-            }
-            if (potentialFilename) {
-                processed.displayFilename = sanitize(potentialFilename);
-                processed.filenameSource = 'url';
-            }
-        } catch (e) { console.warn("URL parsing failed for filename extraction:", movie.url, e); }
-    }
-    if (!processed.displayFilename) { // Final fallback to placeholder
-        processed.displayFilename = `File (ID: ${sanitize(processed.id || 'N/A')})`;
-        processed.filenameSource = 'placeholder';
-    }
-     // Store original sheet filename if different from display one (for info row)
-     if (processed.displayFilename !== sanitize(movie.filename || '')) {
-        processed.originalFilename = movie.filename || null;
-     } else {
-        processed.originalFilename = null;
-     }
-
-    // 2. Determine Size
-    processed.sizeData = { display: 'N/A', bytes: 0 }; // Initialize
-    if (movie.size && String(movie.size).toLowerCase() !== 'n/a') {
-         const explicitSize = extractSizeData(String(movie.size)); // Try parsing sheet 'size' value directly
-         if (explicitSize && explicitSize.bytes > 0) processed.sizeData = explicitSize;
-    }
-    // If no valid size from sheet, try extracting from display filename
-    if (processed.sizeData.bytes === 0 && processed.filenameSource !== 'placeholder') {
-        const extractedSize = extractSizeData(processed.displayFilename);
-        if (extractedSize && extractedSize.bytes > 0) processed.sizeData = extractedSize;
-    }
-
-    // 3. Determine Quality
-    processed.displayQuality = sanitize(movie.quality || 'N/A'); // Start with sheet 'quality'
-    if ((!movie.quality || String(movie.quality).toLowerCase() === 'n/a') && processed.filenameSource !== 'placeholder') {
-        const extractedQuality = extractQualityFromFilename(processed.displayFilename);
-        if (extractedQuality) processed.displayQuality = sanitize(extractedQuality);
-    }
-    if (processed.displayQuality && processed.displayQuality !== 'N/A') {
-        uniqueQualities.add(processed.displayQuality); // Add valid quality to set
-    }
-
-    // 4. Parse Last Updated Timestamp (Backend sends ISO string)
-    processed.lastUpdated = movie.lastUpdated || null; // Store the ISO string
-    processed.lastUpdatedTimestamp = 0;
-    if (processed.lastUpdated) {
-        try {
-            const parsedDate = new Date(processed.lastUpdated);
-            if (!isNaN(parsedDate.getTime())) {
-                processed.lastUpdatedTimestamp = parsedDate.getTime();
-            } else {
-                 console.warn("Invalid date format received from backend for lastUpdated:", processed.lastUpdated);
-            }
-        } catch (e) { console.warn("Error parsing lastUpdated date from backend:", processed.lastUpdated, e); }
-    }
-
-    // 5. Parse Numeric ID
-    processed.numericId = Infinity;
-    if (processed.id) {
-        const parsedId = parseInt(String(processed.id).replace(/\D/g, ''), 10);
-        if (!isNaN(parsedId)) processed.numericId = parsedId;
-    }
-
-    // 6. Create Normalized Search Text
-    processed.searchText = normalizeTextForSearch(`${processed.id || ''} ${processed.displayFilename}`);
-
-    return processed; // Return the processed movie object
+    // ... (Keep this exactly the same as in your original code) ...
+     const processed = {};
+     processed.id = movie.id || null;
+     processed.url = movie.url || null;
+     processed.telegramLink = movie.telegramLink || null;
+     processed.gdflixLink = movie.gdflixLink || null;
+     processed.hubcloudLink = movie.hubcloudLink || null;
+     processed.filepressLink = movie.filepressLink || null;
+     processed.gdtotLink = movie.gdtotLink || null;
+     processed.languages = movie.languages || null;
+     processed.filenameSource = 'sheet';
+     processed.displayFilename = sanitize(movie.filename || '');
+     if (!processed.displayFilename && movie.url) { try { const urlObject = new URL(movie.url); let potentialFilename = ''; const pathParam = urlObject.searchParams.get('path'); if (pathParam) { const pathSegments = pathParam.split('/').filter(Boolean); if (pathSegments.length > 0) potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]); } if (!potentialFilename && urlObject.pathname && urlObject.pathname !== '/') { const pathSegments = urlObject.pathname.split('/').filter(Boolean); if (pathSegments.length > 0 && pathSegments[pathSegments.length - 1].includes('.')) { potentialFilename = decodeURIComponent(pathSegments[pathSegments.length - 1]); } } if (potentialFilename) { processed.displayFilename = sanitize(potentialFilename); processed.filenameSource = 'url'; } } catch (e) { console.warn("URL parsing failed for filename extraction:", movie.url, e); } } if (!processed.displayFilename) { processed.displayFilename = `File (ID: ${sanitize(processed.id || 'N/A')})`; processed.filenameSource = 'placeholder'; } if (processed.displayFilename !== sanitize(movie.filename || '')) { processed.originalFilename = movie.filename || null; } else { processed.originalFilename = null; }
+     processed.sizeData = { display: 'N/A', bytes: 0 }; if (movie.size && String(movie.size).toLowerCase() !== 'n/a') { const explicitSize = extractSizeData(String(movie.size)); if (explicitSize && explicitSize.bytes > 0) processed.sizeData = explicitSize; } if (processed.sizeData.bytes === 0 && processed.filenameSource !== 'placeholder') { const extractedSize = extractSizeData(processed.displayFilename); if (extractedSize && extractedSize.bytes > 0) processed.sizeData = extractedSize; }
+     processed.displayQuality = sanitize(movie.quality || 'N/A'); if ((!movie.quality || String(movie.quality).toLowerCase() === 'n/a') && processed.filenameSource !== 'placeholder') { const extractedQuality = extractQualityFromFilename(processed.displayFilename); if (extractedQuality) processed.displayQuality = sanitize(extractedQuality); } if (processed.displayQuality && processed.displayQuality !== 'N/A') { uniqueQualities.add(processed.displayQuality); }
+     processed.lastUpdated = movie.lastUpdated || null; processed.lastUpdatedTimestamp = 0; if (processed.lastUpdated) { try { const parsedDate = new Date(processed.lastUpdated); if (!isNaN(parsedDate.getTime())) { processed.lastUpdatedTimestamp = parsedDate.getTime(); } else { console.warn("Invalid date format for lastUpdated:", processed.lastUpdated); } } catch (e) { console.warn("Error parsing lastUpdated date:", processed.lastUpdated, e); } }
+     processed.numericId = Infinity; if (processed.id) { const parsedId = parseInt(String(processed.id).replace(/\D/g, ''), 10); if (!isNaN(parsedId)) processed.numericId = parsedId; }
+     processed.searchText = normalizeTextForSearch(`${processed.id || ''} ${processed.displayFilename}`);
+     const seriesRegex = /(?<![a-zA-Z])S(\d{1,3})(?:E\d{1,3}|[._\-\s])|\bSeason[._\-\s]?(\d{1,3})\b/i; processed.isSeries = seriesRegex.test(processed.displayFilename);
+     return processed;
 }
 
-
+// --- HTML Generation ---
 /**
- * Generates the HTML string for a single movie row and its corresponding action row.
- * @param {object} movie - The processed movie data object.
- * @param {number} index - The index of the movie (used for unique IDs).
- * @param {string} context - A prefix for IDs ('upd' for updates, 'rec' for recent).
- * @returns {string} The combined HTML string for the main and action rows.
+ * Generates HTML for a movie row and its action row.
+ * @param {object} movie - Processed movie data.
+ * @param {number} index - Overall index (for unique IDs).
+ * @param {string} context - View context ('upd', 'all', 'mov', 'ser', 'search').
  */
 function createMovieRowsHTML(movie, index, context) {
-    const uniqueIdPart = movie.id ? String(movie.id).replace(/[^a-zA-Z0-9-_]/g, '') : `gen-${index}`;
-    const actionRowId = `${context}-actions-${uniqueIdPart}`;
-
-    const displayFilename = movie.displayFilename;
-    const displaySize = movie.sizeData.display;
-    const displayQuality = movie.displayQuality;
-
-    const streamTitle = displayFilename
-        .split(/[\.\(\[]/)[0]
-        .replace(/[_ ]+/g, ' ').trim()
-        + (displayQuality !== 'N/A' ? ` (${displayQuality})` : '');
-
-    const formattedDateRelative = TimeAgo.format(movie.lastUpdated);
-    const formattedDateFull = movie.lastUpdatedTimestamp > 0 ? TimeAgo.formatFullDate(new Date(movie.lastUpdatedTimestamp)) : 'N/A';
-
-    let hdrLogoHtml = '';
-    let fourkLogoHtml = '';
-    const lowerFilename = displayFilename.toLowerCase();
-    if (displayQuality === '4K' || lowerFilename.includes('2160p') || lowerFilename.includes('.4k.')) {
-        fourkLogoHtml = `<img src="${config.FOURK_LOGO_URL}" alt="4K" class="quality-logo fourk-logo" title="4K Ultra HD" />`;
-    }
-    if (displayQuality.includes('HDR') || displayQuality.includes('DOLBY VISION') || displayQuality === 'DV' ||
-        lowerFilename.includes('hdr') || lowerFilename.includes('dolby.vision') || lowerFilename.includes('.dv.')) {
-        hdrLogoHtml = `<img src="${config.HDR_LOGO_URL}" alt="HDR/DV" class="quality-logo hdr-logo" title="HDR / Dolby Vision Content" />`;
-    }
-
-    const escapedStreamTitle = streamTitle.replace(/'/g, "\\'");
-    const escapedFilename = displayFilename.replace(/'/g, "\\'");
-
-    const colspanValue = 6;
-
-    // --- Main Data Row HTML ---
-    const mainRowHTML = `
-        <tr class="movie-data-row">
-            <td class="col-id">${sanitize(movie.id || 'N/A')}</td>
-            <td class="col-filename" title="Click to view details: ${displayFilename}" onclick="toggleActions(this, '${actionRowId}')">
-                ${displayFilename}${fourkLogoHtml}${hdrLogoHtml}
-            </td>
-            <td class="col-size">${displaySize}</td>
-            <td class="col-quality">${displayQuality}</td>
-            <td class="col-updated" title="${formattedDateFull}">${formattedDateRelative}</td>
-            <td class="col-view"><button class="button view-button" onclick="toggleActions(this, '${actionRowId}')">View</button></td>
-        </tr>
-    `;
-
-    // --- Action Buttons HTML (Conditional) ---
-    let actionButtonsHTML = '';
-    if (movie.url) {
-        actionButtonsHTML += `<button class="button play-button" onclick="streamVideo('${escapedStreamTitle}', '${sanitize(movie.url)}', '${escapedFilename}')">Play here</button>`;
-        actionButtonsHTML += `<a class="button download-button" href="${sanitize(movie.url)}" download="${displayFilename}" target="_blank" rel="noopener noreferrer">Direct Download</a>`;
-        actionButtonsHTML += `<button class="button vlc-button" onclick="copyVLCLink(this, '${sanitize(movie.url)}')">Copy URL (for VLC/MX)</button>`;
-        if (navigator.userAgent.toLowerCase().includes("android")) {
-             actionButtonsHTML += `<button class="button intent-button" onclick="openWithIntent('${sanitize(movie.url)}')">Open Externally (Android)</button>`;
-        }
-    }
-    if (movie.telegramLink) actionButtonsHTML += `<a class="button telegram-button" href="${sanitize(movie.telegramLink)}" target="_blank" rel="noopener noreferrer">Telegram File</a>`;
-
-    // Conditional GDFLIX button text
-    if (movie.gdflixLink) {
-        let gdflixButtonText = "GDFLIX";
-        if (movie.gdflixLink.includes('/pack/')) {
-            gdflixButtonText = "GDFLIX (pack)";
-        }
-        actionButtonsHTML += `<a class="button gdflix-button" href="${sanitize(movie.gdflixLink)}" target="_blank" rel="noopener noreferrer">${gdflixButtonText}</a>`;
-    }
-
-    // --- ADDED BUTTONS FOR NEW LINKS ---
-    if (movie.hubcloudLink) actionButtonsHTML += `<a class="button hubcloud-button" href="${sanitize(movie.hubcloudLink)}" target="_blank" rel="noopener noreferrer">HubCloud</a>`;
-    if (movie.filepressLink) actionButtonsHTML += `<a class="button filepress-button" href="${sanitize(movie.filepressLink)}" target="_blank" rel="noopener noreferrer">Filepress</a>`;
-    if (movie.gdtotLink) actionButtonsHTML += `<a class="button gdtot-button" href="${sanitize(movie.gdtotLink)}" target="_blank" rel="noopener noreferrer">GDToT</a>`;
-    // --- END OF ADDED BUTTONS ---
-
-    if (!actionButtonsHTML) {
-        actionButtonsHTML = '<span style="color: var(--text-muted); font-style: italic; text-align: center; width: 100%; display: block; padding: 10px 0;">No stream/download actions available</span>';
-    }
-
-    // --- Action Row HTML ---
-    const actionRowHTML = `
-        <tr id="${actionRowId}" class="action-row" style="display: none;">
-            <td colspan="${colspanValue}">
-                <div class="action-info">
-                    <span class="info-item"><strong>Filename:</strong> ${displayFilename}</span>
-                    <span class="info-item"><strong>Quality:</strong> ${displayQuality} ${fourkLogoHtml} ${hdrLogoHtml}</span>
-                    <span class="info-item"><strong>Size:</strong> ${displaySize}</span>
-                    <span class="info-item"><strong>Language:</strong> ${sanitize(movie.languages || 'N/A')}</span> <!-- Added Languages -->
-                    <span class="info-item"><strong>Updated:</strong> ${formattedDateFull} (${formattedDateRelative})</span>
-                    ${movie.originalFilename
-                       ? `<span class="info-item"><strong>Original Name:</strong> ${sanitize(movie.originalFilename)}</span>`
-                       : ''}
-                </div>
-                <div class="action-buttons-container">
-                   ${actionButtonsHTML}
-                </div>
-                <!-- Video player container will be moved into this TD dynamically -->
-            </td>
-        </tr>`;
-
+    // ... (Keep this exactly the same as in your original code, just add 'search' to context) ...
+     const uniqueIdPart = movie.id ? String(movie.id).replace(/[^a-zA-Z0-9-_]/g, '') : `gen-${index}`;
+     const actionRowId = `${context}-actions-${uniqueIdPart}-${index}`; // Unique ID per context
+     const displayFilename = movie.displayFilename; const displaySize = movie.sizeData.display; const displayQuality = movie.displayQuality;
+     const streamTitle = displayFilename .split(/[\.\(\[]/)[0] .replace(/[_ ]+/g, ' ').trim() + (displayQuality !== 'N/A' ? ` (${displayQuality})` : '');
+     const formattedDateRelative = TimeAgo.format(movie.lastUpdated); const formattedDateFull = movie.lastUpdatedTimestamp > 0 ? TimeAgo.formatFullDate(new Date(movie.lastUpdatedTimestamp)) : 'N/A';
+     let hdrLogoHtml = ''; let fourkLogoHtml = ''; const lowerFilename = displayFilename.toLowerCase(); if (displayQuality === '4K' || lowerFilename.includes('2160p') || lowerFilename.includes('.4k.')) { fourkLogoHtml = `<img src="${config.FOURK_LOGO_URL}" alt="4K" class="quality-logo fourk-logo" title="4K Ultra HD" />`; } if (displayQuality.includes('HDR') || displayQuality.includes('DOLBY VISION') || displayQuality === 'DV' || lowerFilename.includes('hdr') || lowerFilename.includes('dolby.vision') || lowerFilename.includes('.dv.')) { hdrLogoHtml = `<img src="${config.HDR_LOGO_URL}" alt="HDR/DV" class="quality-logo hdr-logo" title="HDR / Dolby Vision Content" />`; }
+     const escapedStreamTitle = streamTitle.replace(/'/g, "\\'"); const escapedFilename = displayFilename.replace(/'/g, "\\'"); const escapedUrl = movie.url ? movie.url.replace(/'/g, "\\'") : '';
+     const colspanValue = 6;
+     const mainRowHTML = ` <tr class="movie-data-row"> <td class="col-id">${sanitize(movie.id || 'N/A')}</td> <td class="col-filename" title="Click to view details: ${displayFilename}" onclick="toggleActions(this, '${actionRowId}')"> ${displayFilename}${fourkLogoHtml}${hdrLogoHtml} </td> <td class="col-size">${displaySize}</td> <td class="col-quality">${displayQuality}</td> <td class="col-updated" title="${formattedDateFull}">${formattedDateRelative}</td> <td class="col-view"><button class="button view-button" onclick="toggleActions(this, '${actionRowId}')">View</button></td> </tr> `;
+     let actionButtonsHTML = ''; if (movie.url) { actionButtonsHTML += `<button class="button play-button" onclick="streamVideo('${escapedStreamTitle}', '${escapedUrl}', '${escapedFilename}')">Play here</button>`; actionButtonsHTML += `<a class="button download-button" href="${sanitize(movie.url)}" download="${displayFilename}" target="_blank" rel="noopener noreferrer">Direct Download</a>`; actionButtonsHTML += `<button class="button vlc-button" onclick="copyVLCLink(this, '${escapedUrl}')">Copy URL (for VLC/MX)</button>`; if (navigator.userAgent.toLowerCase().includes("android")) { actionButtonsHTML += `<button class="button intent-button" onclick="openWithIntent('${escapedUrl}')">Open Externally (Android)</button>`; } } if (movie.telegramLink) actionButtonsHTML += `<a class="button telegram-button" href="${sanitize(movie.telegramLink)}" target="_blank" rel="noopener noreferrer">Telegram File</a>`; if (movie.gdflixLink) { let gdflixButtonText = "GDFLIX"; if (movie.gdflixLink.includes('/pack/')) gdflixButtonText = "GDFLIX (pack)"; actionButtonsHTML += `<a class="button gdflix-button" href="${sanitize(movie.gdflixLink)}" target="_blank" rel="noopener noreferrer">${gdflixButtonText}</a>`; } if (movie.hubcloudLink) actionButtonsHTML += `<a class="button hubcloud-button" href="${sanitize(movie.hubcloudLink)}" target="_blank" rel="noopener noreferrer">HubCloud</a>`; if (movie.filepressLink) actionButtonsHTML += `<a class="button filepress-button" href="${sanitize(movie.filepressLink)}" target="_blank" rel="noopener noreferrer">Filepress</a>`; if (movie.gdtotLink) actionButtonsHTML += `<a class="button gdtot-button" href="${sanitize(movie.gdtotLink)}" target="_blank" rel="noopener noreferrer">GDToT</a>`; if (!actionButtonsHTML) { actionButtonsHTML = '<span style="color: var(--text-muted); font-style: italic; text-align: center; width: 100%; display: block; padding: 10px 0;">No stream/download actions available</span>'; }
+     const actionRowHTML = ` <tr id="${actionRowId}" class="action-row" style="display: none;"> <td colspan="${colspanValue}"> <div class="action-info"> <span class="info-item"><strong>Filename:</strong> ${displayFilename}</span> <span class="info-item"><strong>Quality:</strong> ${displayQuality} ${fourkLogoHtml} ${hdrLogoHtml}</span> <span class="info-item"><strong>Size:</strong> ${displaySize}</span> <span class="info-item"><strong>Language:</strong> ${sanitize(movie.languages || 'N/A')}</span> <span class="info-item"><strong>Updated:</strong> ${formattedDateFull} (${formattedDateRelative})</span> ${movie.originalFilename ? `<span class="info-item"><strong>Original Name:</strong> ${sanitize(movie.originalFilename)}</span>` : ''} </div> <div class="action-buttons-container"> ${actionButtonsHTML} </div> </td> </tr>`;
     return mainRowHTML + actionRowHTML;
 }
 
-/**
- * Renders the Updates and Recent Movies tables based on the current state.
- */
-function renderTables() {
-    const now = Date.now();
-    const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
 
-    // --- Render Updates Table ---
-    let updatesHtml = '';
-    let updatesFound = false;
-    let updateIndex = 0;
-    const sortedOriginalDataForUpdates = [...allMovieData].sort((a, b) => b.lastUpdatedTimestamp - a.lastUpdatedTimestamp);
-    sortedOriginalDataForUpdates.forEach((movie) => {
-        // Check if updated recently AND has minimal required data (ID and some link/content)
-        if (movie.lastUpdatedTimestamp >= twentyFourHoursAgo &&
-            movie.id && (movie.url || movie.telegramLink || movie.gdflixLink || movie.hubcloudLink || movie.filepressLink || movie.gdtotLink || movie.filenameSource !== 'placeholder') ) {
-                updatesHtml += createMovieRowsHTML(movie, updateIndex, 'upd');
-                updatesFound = true;
-                updateIndex++;
-        }
-    });
-    if (updatesTableBody) updatesTableBody.innerHTML = updatesFound ? updatesHtml : '<tr><td colspan="6" class="status-message">No updates in the last 24 hours.</td></tr>';
-    if (updatesSection) updatesSection.style.display = currentState.searchTerm ? 'none' : 'block';
-
-    // --- Render Recent Movies Table (Paginated) ---
-    let movieHtml = '';
-    const totalItems = filteredAndSortedData.length;
-    const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
-
-    if (currentState.currentPage < 1) currentState.currentPage = 1;
-    if (currentState.currentPage > totalPages && totalPages > 0) currentState.currentPage = totalPages;
-    if (totalItems === 0) currentState.currentPage = 1;
-
-    const startIndex = (currentState.currentPage - 1) * config.ITEMS_PER_PAGE;
-    const endIndex = Math.min(startIndex + config.ITEMS_PER_PAGE, totalItems);
-    const pageData = filteredAndSortedData.slice(startIndex, endIndex);
-
-    if (totalItems === 0) {
-        if (movieTableBody) movieTableBody.innerHTML = `<tr><td colspan="6" class="status-message">${currentState.searchTerm || currentState.qualityFilter ? 'No movies found matching your criteria.' : 'Loading movies or no movies listed yet.'}</td></tr>`;
-        if (paginationControlsContainer) paginationControlsContainer.style.display = 'none';
-    } else {
-        pageData.forEach((movie, index) => movieHtml += createMovieRowsHTML(movie, startIndex + index, 'rec'));
-        if (movieTableBody) movieTableBody.innerHTML = movieHtml;
-        renderPaginationControls(totalItems, totalPages);
-        if (paginationControlsContainer) paginationControlsContainer.style.display = 'block';
-    }
-
-    updateSortIndicators();
-    updateFilterIndicator();
-
-    // --- Handle Active Action Row State ---
-    if (activeActionRow && activeActionRow.style.display !== 'none') {
-        const mainRow = activeActionRow.previousElementSibling;
-        const isMainRowVisible = (movieTableBody?.contains(mainRow) || updatesTableBody?.contains(mainRow));
-        if (!isMainRowVisible) {
-             closePlayer();
-             activeActionRow.style.display = 'none';
-             activeActionRow = null;
-        }
-    } else if (activeActionRow && activeActionRow.style.display === 'none') {
-         activeActionRow = null;
-         closePlayerIfNeeded();
-    }
-}
-
+// --- Rendering Logic ---
 
 /**
- * Renders the pagination controls based on total items and current page.
- */
-function renderPaginationControls(totalItems, totalPages) {
-    if (!paginationControlsContainer) return;
-    paginationControlsContainer.innerHTML = '';
-    if (totalPages <= 1) {
-        paginationControlsContainer.style.display = 'none';
-        return;
-    }
-
-    let paginationHTML = '';
-    const currentPage = currentState.currentPage;
-
-    // Previous Button
-    paginationHTML += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled title="Already on first page"' : 'title="Go to previous page"'}>« Prev</button>`;
-
-    // Page Number Buttons (with ellipsis logic)
-    const maxPagesToShow = 5;
-    const halfPages = Math.floor(maxPagesToShow / 2);
-
-    if (totalPages <= maxPagesToShow + 2) { // Show all
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`;
-        }
-    } else { // Show ellipsis
-        let startPage = Math.max(2, currentPage - halfPages);
-        let endPage = Math.min(totalPages - 1, currentPage + halfPages);
-
-        if (currentPage <= halfPages + 1) {
-            endPage = Math.min(totalPages - 1, maxPagesToShow);
-        }
-        if (currentPage >= totalPages - halfPages) {
-            startPage = Math.max(2, totalPages - maxPagesToShow + 1);
-        }
-
-        // First page
-        paginationHTML += (1 === currentPage) ? `<span class="current-page">1</span>` : `<button onclick="changePage(1)" title="Go to page 1">1</button>`;
-        if (startPage > 2) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
-
-        // Middle pages
-        for (let i = startPage; i <= endPage; i++) {
-            paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Go to page ${i}">${i}</button>`;
-        }
-
-        // Ellipsis before last page?
-        if (endPage < totalPages - 1) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
-        // Last page
-        paginationHTML += (totalPages === currentPage) ? `<span class="current-page">${totalPages}</span>` : `<button onclick="changePage(${totalPages})" title="Go to page ${totalPages}">${totalPages}</button>`;
-    }
-
-    // Next Button
-    paginationHTML += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled title="Already on last page"' : 'title="Go to next page"'}>Next »</button>`;
-
-    paginationControlsContainer.innerHTML = paginationHTML;
-    paginationControlsContainer.style.display = 'block';
-}
-
-/**
- * Applies current search, filter, and sort criteria to the data, then renders the table.
+ * Applies current search, filter, and sort criteria. Does NOT render.
+ * Updates the global `filteredAndSortedData`.
  */
 function applyUserActions() {
     const normalizedSearch = normalizeTextForSearch(currentState.searchTerm);
     const searchKeywords = normalizedSearch ? normalizedSearch.split(' ').filter(Boolean) : [];
 
+    // Filter the data
     filteredAndSortedData = allMovieData.filter(movie => {
         if (currentState.qualityFilter && movie.displayQuality !== currentState.qualityFilter) {
             return false;
         }
-        if (searchKeywords.length > 0 && !searchKeywords.every(keyword => movie.searchText.includes(keyword))) {
-            return false;
+        if (isSearchActive && searchKeywords.length > 0 && !searchKeywords.every(keyword => movie.searchText.includes(keyword))) {
+            return false; // Apply search filter only if search is active
         }
-        movie.isExactMatch = searchKeywords.length > 0 && movie.searchText.includes(normalizedSearch);
+        // Assign exact match status only during active search
+        movie.isExactMatch = isSearchActive && searchKeywords.length > 0 && movie.searchText.includes(normalizedSearch);
         return true;
     });
 
+    // Sort the filtered data
     const sortKey = currentState.sortColumn;
     const direction = currentState.sortDirection === 'asc' ? 1 : -1;
 
     filteredAndSortedData.sort((a, b) => {
-        if (searchKeywords.length > 0 && a.isExactMatch !== b.isExactMatch) {
+        // Prioritize exact matches if searching actively
+        if (isSearchActive && searchKeywords.length > 0 && a.isExactMatch !== b.isExactMatch) {
             return a.isExactMatch ? -1 : 1;
         }
 
@@ -1703,45 +1470,213 @@ function applyUserActions() {
         if (aIsLess) return -1 * direction;
         if (bIsLess) return 1 * direction;
 
-        // Secondary sort by ID desc for stability
-        if (b.numericId < a.numericId) return -1;
-        if (b.numericId > a.numericId) return 1;
-
+        if (sortKey !== 'id' && sortKey !== 'lastUpdated') {
+             if (b.lastUpdatedTimestamp !== a.lastUpdatedTimestamp) return b.lastUpdatedTimestamp - a.lastUpdatedTimestamp;
+             if (b.numericId !== a.numericId) return b.numericId - a.numericId;
+        }
         return 0;
     });
 
-    renderTables();
-    saveStateToLocalStorage();
+    // Don't reset pages here, let the calling function handle it
+    saveStateToLocalStorage(); // Persist filter/sort state
+}
+
+/**
+ * Renders the Search Results view.
+ */
+function renderSearchResults() {
+    if (!searchResultsContainer || !searchResultsTableBody || !searchResultsPaginationControls) return;
+
+    const totalItems = filteredAndSortedData.length;
+    const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
+
+    // Validate current page
+    if (currentState.currentPage < 1) currentState.currentPage = 1;
+    if (currentState.currentPage > totalPages && totalPages > 0) currentState.currentPage = totalPages;
+    if (totalItems === 0) currentState.currentPage = 1;
+
+    const startIndex = (currentState.currentPage - 1) * config.ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + config.ITEMS_PER_PAGE, totalItems);
+    const pageData = filteredAndSortedData.slice(startIndex, endIndex);
+
+    let tableHtml = '';
+    if (totalItems === 0) {
+        tableHtml = `<tr><td colspan="6" class="status-message">No files found matching your criteria.</td></tr>`;
+    } else {
+        pageData.forEach((movie, index) => {
+            tableHtml += createMovieRowsHTML(movie, startIndex + index, 'search'); // Use 'search' context
+        });
+    }
+    searchResultsTableBody.innerHTML = tableHtml;
+
+    renderPaginationControls(searchResultsPaginationControls, totalItems, currentState.currentPage);
+    updateSortIndicators(searchResultsTableHead); // Update sort arrows for search table
+    updateFilterIndicator();
 }
 
 
 /**
- * Handles clicks on sortable table headers.
+ * Renders the content for the currently active TAB.
  */
-function handleSort(event) {
-    const header = event.target.closest('th.sortable');
-    if (!header) return;
-    const sortKey = header.dataset.sortKey;
-    if (!sortKey) return;
+function renderActiveTabContent() {
+    if (isSearchActive) return; // Don't render tabs if search is active
 
-    if (currentState.sortColumn === sortKey) {
-        currentState.sortDirection = currentState.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentState.sortColumn = sortKey;
-        currentState.sortDirection = ['filename', 'quality'].includes(sortKey) ? 'asc' : 'desc';
+    // Ensure the correct tab is marked active visually
+    Object.keys(tabMappings).forEach(tabId => {
+        const mapping = tabMappings[tabId];
+        if (mapping?.button) mapping.button.classList.toggle('active', tabId === currentActiveTab);
+        if (mapping?.panel) mapping.panel.classList.toggle('active', tabId === currentActiveTab);
+        if (mapping?.pagination) mapping.pagination.style.display = (tabId === currentActiveTab && mapping.pagination.innerHTML.trim() !== '') ? 'block' : 'none';
+    });
+
+    // 1. Render Updates (Always uses full, time-sorted original data, rendered if 'updates' tab is active)
+    if (currentActiveTab === 'updates') {
+        let updatesHtml = '';
+        let updatesFound = false;
+        let updateIndex = 0;
+        const now = Date.now();
+        const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
+        // Sort a *copy* of the original data just for updates view
+        const sortedOriginalDataForUpdates = [...allMovieData].sort((a, b) => b.lastUpdatedTimestamp - a.lastUpdatedTimestamp);
+        sortedOriginalDataForUpdates.forEach((movie) => {
+            if (movie.lastUpdatedTimestamp >= twentyFourHoursAgo && movie.id && (movie.url || movie.telegramLink || movie.gdflixLink || movie.hubcloudLink || movie.filepressLink || movie.gdtotLink || movie.filenameSource !== 'placeholder') ) {
+                updatesHtml += createMovieRowsHTML(movie, updateIndex, 'upd');
+                updatesFound = true;
+                updateIndex++;
+            }
+        });
+        if (updatesTableBody) updatesTableBody.innerHTML = updatesFound ? updatesHtml : '<tr><td colspan="6" class="status-message">No updates in the last 24 hours.</td></tr>';
+        // Hide pagination for updates tab
+        if (tabMappings.updates.pagination) tabMappings.updates.pagination.style.display = 'none';
     }
 
-    currentState.currentPage = 1;
-    closePlayerIfNeeded();
-    applyUserActions();
+    // 2. Render Filterable/Sortable Tabs (All, Movies, Series)
+    // These use the `filteredAndSortedData` which respects quality filter and sort order
+    const allFilesData = filteredAndSortedData;
+    const moviesData = filteredAndSortedData.filter(movie => !movie.isSeries);
+    const seriesData = filteredAndSortedData.filter(movie => movie.isSeries);
+
+    // Render based on which tab is *actually* active
+    switch (currentActiveTab) {
+        case 'allFiles':
+            renderPaginatedTable(allFilesData, allFilesTableBody, 'all', currentState.savedPageAll);
+            renderPaginationControls(allFilesPaginationControls, allFilesData.length, currentState.savedPageAll);
+            updateSortIndicators(allFilesTableHead);
+            break;
+        case 'movies':
+             renderPaginatedTable(moviesData, moviesTableBody, 'mov', currentState.savedPageMovies);
+             renderPaginationControls(moviesPaginationControls, moviesData.length, currentState.savedPageMovies);
+             updateSortIndicators(moviesTableHead);
+            break;
+        case 'series':
+             renderPaginatedTable(seriesData, seriesTableBody, 'ser', currentState.savedPageSeries);
+             renderPaginationControls(seriesPaginationControls, seriesData.length, currentState.savedPageSeries);
+             updateSortIndicators(seriesTableHead);
+            break;
+        // Updates tab handled above
+    }
+
+    updateFilterIndicator(); // Update filter style
+    handleActiveActionRowState(); // Check if action row needs closing
+}
+
+
+/**
+ * Helper function to render a paginated table (for TABS).
+ * @param {Array} dataToRender - The (already filtered and sorted) data for this table.
+ * @param {HTMLElement} tableBodyElement - The tbody element to populate.
+ * @param {string} context - The context prefix for row IDs ('all', 'mov', 'ser').
+ * @param {number} currentPageForTable - The specific page number for this table.
+ */
+function renderPaginatedTable(dataToRender, tableBodyElement, context, currentPageForTable) {
+    if (!tableBodyElement) return;
+
+    const totalItems = dataToRender.length;
+    const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
+
+    // Validate current page for *this specific dataset*
+    if (currentPageForTable < 1) currentPageForTable = 1;
+    if (currentPageForTable > totalPages && totalPages > 0) currentPageForTable = totalPages;
+    if (totalItems === 0) currentPageForTable = 1;
+
+    const startIndex = (currentPageForTable - 1) * config.ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + config.ITEMS_PER_PAGE, totalItems);
+    const pageData = dataToRender.slice(startIndex, endIndex);
+
+    let tableHtml = '';
+    if (totalItems === 0) {
+        tableHtml = `<tr><td colspan="6" class="status-message">${currentState.qualityFilter ? 'No files found matching your criteria.' : 'No files in this category.'}</td></tr>`;
+    } else {
+        pageData.forEach((movie, index) => {
+            tableHtml += createMovieRowsHTML(movie, startIndex + index, context);
+        });
+    }
+    tableBodyElement.innerHTML = tableHtml;
 }
 
 /**
- * Updates the visual indicators (arrows) on table headers for sorting.
+ * Renders pagination controls for a given container.
+ * @param {HTMLElement} targetContainer - The pagination container element.
+ * @param {number} totalItems - Total items in the dataset for this pagination.
+ * @param {number} currentPage - The current active page number.
  */
-function updateSortIndicators() {
-    if (!movieTableHead) return;
-    movieTableHead.querySelectorAll('th.sortable').forEach(th => {
+function renderPaginationControls(targetContainer, totalItems, currentPage) {
+    if (!targetContainer) return;
+
+    const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
+
+    // Validate current page again
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+    if (totalItems === 0) currentPage = 1;
+
+    targetContainer.innerHTML = ''; // Clear existing controls
+    if (totalPages <= 1) {
+        targetContainer.style.display = 'none';
+        return;
+    }
+
+    let paginationHTML = '';
+    const maxPagesToShow = 5;
+    const halfPages = Math.floor(maxPagesToShow / 2);
+
+    // Previous Button
+    paginationHTML += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled title="First page"' : 'title="Previous page"'}>« Prev</button>`;
+
+    // Page Numbers
+    if (totalPages <= maxPagesToShow + 2) {
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Page ${i}">${i}</button>`;
+        }
+    } else {
+        let startPage = Math.max(2, currentPage - halfPages);
+        let endPage = Math.min(totalPages - 1, currentPage + halfPages);
+        if (currentPage <= halfPages + 1) endPage = Math.min(totalPages - 1, maxPagesToShow);
+        if (currentPage >= totalPages - halfPages) startPage = Math.max(2, totalPages - maxPagesToShow + 1);
+
+        paginationHTML += (1 === currentPage) ? `<span class="current-page">1</span>` : `<button onclick="changePage(1)" title="Page 1">1</button>`;
+        if (startPage > 2) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHTML += (i === currentPage) ? `<span class="current-page">${i}</span>` : `<button onclick="changePage(${i})" title="Page ${i}">${i}</button>`;
+        }
+        if (endPage < totalPages - 1) paginationHTML += `<span class="page-info" title="Skipped pages">...</span>`;
+        paginationHTML += (totalPages === currentPage) ? `<span class="current-page">${totalPages}</span>` : `<button onclick="changePage(${totalPages})" title="Page ${totalPages}">${totalPages}</button>`;
+    }
+
+    // Next Button
+    paginationHTML += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled title="Last page"' : 'title="Next page"'}>Next »</button>`;
+
+    targetContainer.innerHTML = paginationHTML;
+    targetContainer.style.display = 'block'; // Make sure it's visible
+}
+
+/**
+ * Updates the visual indicators (arrows) on sortable table headers for the ACTIVE view.
+ * @param {HTMLElement} tableHeadElement - The specific THEAD element to update.
+ */
+function updateSortIndicators(tableHeadElement) {
+    if (!tableHeadElement) return;
+    tableHeadElement.querySelectorAll('th.sortable').forEach(th => {
         th.classList.remove('sort-asc', 'sort-desc');
         if (th.dataset.sortKey === currentState.sortColumn) {
             th.classList.add(currentState.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
@@ -1753,497 +1688,332 @@ function updateSortIndicators() {
 }
 
 /**
- * Updates the visual style of the quality filter select element.
+ * Updates the visual style of the quality filter select elements.
  */
 function updateFilterIndicator() {
-    if (!qualityFilterSelect) return;
-    qualityFilterSelect.classList.toggle('filter-active', !!currentState.qualityFilter);
+    if(qualityFilterSelect) {
+        qualityFilterSelect.classList.toggle('filter-active', !!currentState.qualityFilter);
+    }
+}
+
+/** Checks if the currently open action row is still valid/visible */
+function handleActiveActionRowState() {
+    if (activeActionRow && activeActionRow.style.display !== 'none') {
+        const mainRow = activeActionRow.previousElementSibling;
+        const isMainRowVisible = document.body.contains(mainRow); // Check if row exists
+        let isParentVisible = false;
+
+        if (isMainRowVisible) {
+            const parentTable = mainRow.closest('table');
+            if (parentTable) {
+                if (isSearchActive && parentTable.id === 'searchResultsTable') {
+                    isParentVisible = true;
+                } else if (!isSearchActive) {
+                    const parentTabPanel = parentTable.closest('.tab-content > div');
+                    isParentVisible = parentTabPanel && parentTabPanel.classList.contains('active');
+                }
+            }
+        }
+
+        if (!isMainRowVisible || !isParentVisible) {
+             closePlayer(); // Close player first
+             activeActionRow.style.display = 'none'; // Then hide row
+             activeActionRow = null; // Clear reference
+        }
+    } else if (activeActionRow && activeActionRow.style.display === 'none') {
+         // Row was already hidden, just clear the reference if needed
+         activeActionRow = null;
+         // Don't necessarily close player here, let row logic handle it
+    }
 }
 
 
-/**
- * Changes the current page and re-renders the table.
- */
-function changePage(newPage) {
-    const totalItems = filteredAndSortedData.length;
-    const totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
+// --- Event Handlers ---
 
-    if (newPage >= 1 && newPage <= totalPages && newPage !== currentState.currentPage) {
-        currentState.currentPage = newPage;
+/**
+ * Handles search input changes.
+ */
+function triggerSearch() {
+    if (!searchInput) return;
+    const newSearchTerm = searchInput.value.trim();
+
+    if (newSearchTerm.length > 0 && !isSearchActive) {
+        // --- Entering Search Mode ---
+        isSearchActive = true;
+        currentState.searchTerm = newSearchTerm;
+        currentState.savedTabBeforeSearch = currentActiveTab; // Remember current tab
+        currentState.currentPage = 1; // Reset page for search results
         closePlayerIfNeeded();
-        renderTables();
-        saveStateToLocalStorage();
+        if (tabNavigation) tabNavigation.style.display = 'none';
+        if (tabContent) tabContent.style.display = 'none';
+        if (searchResultsContainer) searchResultsContainer.style.display = 'block';
+        applyUserActions(); // Filter and sort data
+        renderSearchResults(); // Render the results view
+        console.log("Entered Search Mode");
 
-        const tableElement = document.getElementById('movieTable') || document.getElementById('updatesTable');
-        if (tableElement) {
-            const headerElement = tableElement.querySelector('thead');
-            const headerHeight = headerElement ? headerElement.offsetHeight : 0;
-            const scrollOffset = 20;
-            const elementPosition = tableElement.getBoundingClientRect().top + window.pageYOffset;
-            const offsetPosition = elementPosition - headerHeight - scrollOffset;
+    } else if (newSearchTerm.length > 0 && isSearchActive) {
+        // --- Updating Search Term within Search Mode ---
+        if (newSearchTerm !== currentState.searchTerm) {
+            currentState.searchTerm = newSearchTerm;
+            currentState.currentPage = 1; // Reset page on term change
+            closePlayerIfNeeded();
+            applyUserActions();
+            renderSearchResults();
+             console.log("Updated Search Term");
+        }
+    } else if (newSearchTerm.length === 0 && isSearchActive) {
+        // --- Exiting Search Mode ---
+        isSearchActive = false;
+        currentState.searchTerm = '';
+        currentState.currentPage = 1; // Reset page state
+        closePlayerIfNeeded();
+        if (searchResultsContainer) searchResultsContainer.style.display = 'none';
+        if (tabNavigation) tabNavigation.style.display = 'flex'; // Or 'block' depending on original style
+        if (tabContent) tabContent.style.display = 'block';
 
-            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        // Restore the previous tab
+        currentActiveTab = currentState.savedTabBeforeSearch; // Set state variable
+        applyUserActions(); // Re-apply filters/sorts without search term
+        renderActiveTabContent(); // Re-render the restored tab view (will use currentActiveTab)
+        console.log("Exited Search Mode, restored tab:", currentActiveTab);
+
+    } else if (newSearchTerm.length === 0 && !isSearchActive) {
+        // Search cleared, but wasn't in search mode (e.g., backspace on empty input)
+        // Do nothing, or maybe re-apply filters if needed?
+        if (currentState.searchTerm !== '') { // If state had term but input is now empty
+            currentState.searchTerm = '';
+            applyUserActions();
+            renderActiveTabContent();
         }
     }
 }
 
 
 /**
- * Toggles the visibility of the action row associated with a clicked element.
+ * Called when quality filter changes.
  */
-function toggleActions(clickedElement, targetRowId) {
-    const targetRow = document.getElementById(targetRowId);
-    if (!targetRow) return;
+function triggerFilterChange() {
+     if (!qualityFilterSelect) return;
+     const newQualityFilter = qualityFilterSelect.value;
 
-    let mainRowElement = clickedElement.closest('tr');
-    if (!mainRowElement) return;
-    let buttonElement = mainRowElement.querySelector('.view-button');
-    if (!buttonElement) return;
+     if (newQualityFilter !== currentState.qualityFilter) {
+         currentState.qualityFilter = newQualityFilter;
+         currentState.currentPage = 1; // Reset current view's page
+         // Reset saved pages for tabs too, as filter affects them
+         currentState.savedPageAll = 1;
+         currentState.savedPageMovies = 1;
+         currentState.savedPageSeries = 1;
 
-    const isCurrentlyVisible = targetRow.style.display !== 'none';
+         closePlayerIfNeeded();
+         applyUserActions(); // Recalculate filteredAndSortedData
 
-    if (!isCurrentlyVisible && videoContainer?.style.display === 'flex' && activeActionRow !== targetRow) {
-        closePlayer();
-    }
-
-    if (activeActionRow && activeActionRow !== targetRow && activeActionRow.style.display !== 'none') {
-        activeActionRow.style.display = 'none';
-        const otherMainRow = activeActionRow.previousElementSibling;
-        const otherButton = otherMainRow?.querySelector('.view-button');
-        if (otherButton) {
-            otherButton.textContent = 'View';
-            otherButton.setAttribute('aria-expanded', 'false');
-        }
-        if (videoContainer?.parentElement === activeActionRow.querySelector('td')) {
-            closePlayer();
-        }
-    }
-
-    if (isCurrentlyVisible) {
-        targetRow.style.display = 'none';
-        buttonElement.textContent = 'View';
-        buttonElement.setAttribute('aria-expanded', 'false');
-        activeActionRow = null;
-        closePlayer();
-    } else {
-        targetRow.style.display = 'table-row';
-        buttonElement.textContent = 'Hide';
-        buttonElement.setAttribute('aria-expanded', 'true');
-        activeActionRow = targetRow;
-
-        const actionCell = targetRow.querySelector('td');
-        if (actionCell && videoContainer?.parentElement !== actionCell) {
-             if (videoElement && videoElement.hasAttribute('src')) {
-                 videoElement.pause();
-                 videoElement.removeAttribute('src');
-                 videoElement.load();
-             }
-             if (videoContainer) videoContainer.style.display = 'none';
-             if (videoContainer) actionCell.appendChild(videoContainer);
-        } else if (!actionCell) {
-            console.error("Could not find action cell to move player into:", targetRowId);
-        }
-
-        setTimeout(() => {
-            const headerElement = document.querySelector('#movieTable thead') || document.querySelector('#updatesTable thead');
-            const headerHeight = headerElement ? headerElement.offsetHeight : 0;
-            const elementRect = mainRowElement.getBoundingClientRect();
-            const absoluteElementTop = elementRect.top + window.pageYOffset;
-            const scrollOffset = 10;
-            const offsetPosition = absoluteElementTop - headerHeight - scrollOffset;
-            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }, 100);
-    }
-}
-
-
-/**
- * Starts streaming a video in the inline player within the active action row.
- */
- function streamVideo(title, url, filenameForAudioCheck) {
-     if (!videoContainer || !videoElement || !activeActionRow) {
-         console.error("Cannot stream: player/element/active row missing.");
-         return;
-     }
-
-      const actionCell = activeActionRow.querySelector('td');
-      if (!actionCell) { console.error("Cannot stream: action cell not found."); return; }
-      if (videoContainer.parentElement !== actionCell) {
-          console.warn("Video container not in expected cell. Moving.");
-           if(videoElement && videoElement.hasAttribute('src')) {
-               videoElement.pause(); videoElement.removeAttribute('src'); videoElement.load();
-           }
-           actionCell.appendChild(videoContainer);
-      }
-
-     if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
-     if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-     if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show');
-
-     const savedVolume = localStorage.getItem(config.PLAYER_VOLUME_KEY);
-     const savedSpeed = localStorage.getItem(config.PLAYER_SPEED_KEY);
-     videoElement.volume = (savedVolume !== null) ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 1;
-     if (volumeSlider) volumeSlider.value = videoElement.volume;
-     videoElement.muted = (videoElement.volume === 0);
-     videoElement.playbackRate = (savedSpeed !== null) ? parseFloat(savedSpeed) : 1;
-     if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate);
-     updateMuteButton();
-
-     // --- Audio Check ---
-     const ddp51Regex = /\bDDP?([ ._-]?5\.1)?\b/i;
-     const advancedAudioRegex = /\b(DTS|ATMOS|TrueHD)\b/i;
-     const multiAudioHintRegex = /\b(Multi|Dual)[ ._-]?Audio\b/i;
-     let warningText = "";
-      if (filenameForAudioCheck) {
-          const lowerFilename = filenameForAudioCheck.toLowerCase();
-          if (ddp51Regex.test(lowerFilename)) {
-              warningText = "<strong>Audio Note:</strong> Dolby Digital Plus (DDP) audio might not be supported in this browser. Use 'Copy URL' or 'Open Externally' if you experience sound issues.";
-          } else if (advancedAudioRegex.test(lowerFilename)) {
-              warningText = "<strong>Audio Note:</strong> DTS/Atmos/TrueHD audio is likely unsupported in this browser. Use 'Copy URL' or 'Open Externally' for playback with compatible players.";
-          } else if (multiAudioHintRegex.test(lowerFilename)) {
-              warningText = "<strong>Audio Note:</strong> This file may contain multiple audio tracks. Use the audio track selector below (if available after loading) or an external player.";
-          }
-      }
-      if (warningText && audioWarningDiv) {
-          audioWarningDiv.innerHTML = warningText;
-          audioWarningDiv.style.display = 'block';
-      }
-
-     // --- Setup and Play ---
-     if (videoTitle) videoTitle.innerText = title;
-     if (vlcText) vlcText.innerText = url;
-     if (vlcBox) vlcBox.style.display = 'block';
-     videoElement.src = url;
-     videoElement.load();
-
-     videoElement.play().catch(e => {
-          console.log("Autoplay prevented or failed:", e.message);
-     });
-     videoContainer.style.display = 'flex';
-
-     setTimeout(() => {
-         videoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-     }, 150);
- }
-
-/**
- * Closes the inline video player, stops playback, resets its state, and moves it back.
- */
- function closePlayer() {
-    if (!videoContainer || !videoElement) return;
-
-    const wasPlaying = videoContainer.style.display !== 'none';
-
-    try {
-        const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
-        if (fsElement && (fsElement === videoElement || fsElement === videoContainer)) {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        }
-    } catch(err) { console.error("Error exiting fullscreen:", err); }
-
-    videoElement.pause();
-    videoElement.removeAttribute('src');
-    videoElement.load();
-
-    videoContainer.style.display = 'none';
-    if (vlcBox) vlcBox.style.display = 'none';
-    if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
-    if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-    if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show');
-    if (videoTitle) videoTitle.innerText = '';
-
-    // Move player container back to main container
-     if (container && videoContainer.parentElement !== container) {
-        if (document.body.contains(container)) {
-             container.appendChild(videoContainer);
-        } else {
-             console.warn("Main container #cinemaghar-container not found, cannot move player back.");
-        }
-     }
-
-     // Reset view button if corresponding row was active
-     if (wasPlaying && activeActionRow && activeActionRow.style.display !== 'none') {
-         const actionCell = activeActionRow.querySelector('td');
-         // Check if player was inside this row's cell when closed (safety check)
-         if (actionCell && videoContainer.parentElement === actionCell) {
-              const viewButton = activeActionRow.previousElementSibling?.querySelector('.view-button');
-              if (viewButton && viewButton.textContent === 'Hide') {
-                  viewButton.textContent = 'View';
-                  viewButton.setAttribute('aria-expanded', 'false');
-              }
+         // Render the currently visible view (search or tabs)
+         if (isSearchActive) {
+             renderSearchResults();
+         } else {
+             renderActiveTabContent();
          }
      }
-
-     // Ensure fullscreen class is removed
-     if (videoContainer.classList.contains('is-fullscreen')) {
-        videoContainer.classList.remove('is-fullscreen');
-     }
  }
 
-/** Utility to close the player only if it's currently visible. */
+/**
+ * Handles clicks on sortable table headers (works for tabs and search).
+ */
+function handleSort(event) {
+    const header = event.target.closest('th.sortable');
+    if (!header) return;
+    const sortKey = header.dataset.sortKey;
+    if (!sortKey) return;
+
+    // Determine new sort state
+    if (currentState.sortColumn === sortKey) {
+        currentState.sortDirection = currentState.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentState.sortColumn = sortKey;
+        currentState.sortDirection = ['filename', 'quality'].includes(sortKey) ? 'asc' : 'desc';
+    }
+
+    currentState.currentPage = 1; // Reset current view's page to 1
+    // Reset saved pages for tabs too, as sort affects them
+    currentState.savedPageAll = 1;
+    currentState.savedPageMovies = 1;
+    currentState.savedPageSeries = 1;
+
+    closePlayerIfNeeded();
+    applyUserActions(); // Recalculate filteredAndSortedData
+
+    // Render the currently visible view
+    if (isSearchActive) {
+        renderSearchResults();
+    } else {
+        renderActiveTabContent();
+    }
+}
+
+
+/**
+ * Changes the current page and re-renders the active view (search or tabs).
+ */
+function changePage(newPage) {
+    let totalItems, totalPages;
+
+    if (isSearchActive) {
+        totalItems = filteredAndSortedData.length;
+        totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
+        if (newPage >= 1 && newPage <= totalPages && newPage !== currentState.currentPage) {
+            currentState.currentPage = newPage;
+            closePlayerIfNeeded();
+            renderSearchResults(); // Re-render search results with new page
+            saveStateToLocalStorage();
+            scrollToTopOfActiveTable(searchResultsTableBody);
+        }
+    } else {
+        // Determine data set for the current tab
+        let dataForPagination;
+        let savedPageKey;
+        const mapping = tabMappings[currentActiveTab];
+        if (!mapping || !mapping.savedPageKey) return; // No pagination for this tab (e.g., Updates)
+
+        savedPageKey = mapping.savedPageKey;
+        switch (currentActiveTab) {
+            case 'allFiles': dataForPagination = filteredAndSortedData; break;
+            case 'movies': dataForPagination = filteredAndSortedData.filter(m => !m.isSeries); break;
+            case 'series': dataForPagination = filteredAndSortedData.filter(m => m.isSeries); break;
+            default: return;
+        }
+
+        totalItems = dataForPagination.length;
+        totalPages = Math.ceil(totalItems / config.ITEMS_PER_PAGE);
+        const currentSavedPage = currentState[savedPageKey];
+
+        if (newPage >= 1 && newPage <= totalPages && newPage !== currentSavedPage) {
+             currentState[savedPageKey] = newPage; // Update the specific saved page state
+             closePlayerIfNeeded();
+             renderActiveTabContent(); // Re-render the tab content (will use the new savedPageKey value)
+             saveStateToLocalStorage();
+             // Scroll to top of the active tab's table
+             const activeTableBody = mapping.panel?.querySelector('tbody');
+             scrollToTopOfActiveTable(activeTableBody);
+        }
+    }
+}
+
+/** Helper to scroll to the top of the active table */
+function scrollToTopOfActiveTable(tableBodyElement) {
+    if (tableBodyElement) {
+        const tableContainer = tableBodyElement.closest('.table-container');
+        const headerElement = tableContainer?.querySelector('thead');
+        const headerHeight = headerElement ? headerElement.offsetHeight : 0;
+        const scrollOffset = 20; // Adjust as needed
+        const elementPosition = (tableContainer || tableBodyElement).getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = elementPosition - headerHeight - scrollOffset;
+
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+    }
+}
+
+// --- Tab Switching Logic (Only works when not searching) ---
+function switchTab(tabId) {
+    if (isSearchActive || tabId === currentActiveTab) return; // Don't switch if searching or already on tab
+
+    // Check if the requested tab exists in our mappings
+    if (!tabMappings[tabId]) {
+        console.error("Invalid tabId:", tabId);
+        return;
+    }
+
+    currentActiveTab = tabId; // Update global tracker
+    closePlayerIfNeeded();
+
+    // applyUserActions(); // Re-apply filter/sort (might be needed if state changes affect tab visibility?)
+    renderActiveTabContent(); // Renders the *newly set* currentActiveTab
+
+    // Optional: Scroll to top when switching tabs
+    if (videoContainer?.style.display !== 'flex') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    saveStateToLocalStorage(); // Save the new active tab state indirectly
+}
+
+
+// --- Action Row / Player Logic ---
+/**
+ * Toggles the visibility of the action row. Works for tabs and search results.
+ */
+function toggleActions(clickedElement, targetRowId) {
+     // ... (Keep this exactly the same as in your original code) ...
+     const targetRow = document.getElementById(targetRowId); if (!targetRow) { console.error("Target action row not found:", targetRowId); return; } let mainRowElement = clickedElement.closest('tr'); if (!mainRowElement) { console.error("Could not find parent row."); return; } let buttonElement = mainRowElement.querySelector('.view-button'); if (!buttonElement) { console.error("Could not find view button."); return; } const isCurrentlyVisible = targetRow.style.display !== 'none';
+     if (!isCurrentlyVisible && videoContainer?.style.display === 'flex' && activeActionRow !== targetRow) { closePlayer(); }
+     if (activeActionRow && activeActionRow !== targetRow && activeActionRow.style.display !== 'none') { activeActionRow.style.display = 'none'; const otherMainRow = activeActionRow.previousElementSibling; const otherButton = otherMainRow?.querySelector('.view-button'); if (otherButton) { otherButton.textContent = 'View'; otherButton.setAttribute('aria-expanded', 'false'); } if (videoContainer?.parentElement === activeActionRow.querySelector('td')) { closePlayer(); } }
+     if (isCurrentlyVisible) { targetRow.style.display = 'none'; buttonElement.textContent = 'View'; buttonElement.setAttribute('aria-expanded', 'false'); activeActionRow = null; closePlayer(); }
+     else { targetRow.style.display = 'table-row'; buttonElement.textContent = 'Hide'; buttonElement.setAttribute('aria-expanded', 'true'); activeActionRow = targetRow; const actionCell = targetRow.querySelector('td'); if (actionCell && videoContainer?.parentElement !== actionCell) { if (videoElement && videoElement.hasAttribute('src')) { videoElement.pause(); videoElement.removeAttribute('src'); videoElement.load(); } if (videoContainer) videoContainer.style.display = 'none'; if (vlcBox) vlcBox.style.display = 'none'; if (audioWarningDiv) audioWarningDiv.style.display = 'none'; actionCell.appendChild(videoContainer); } else if (!actionCell) { console.error("Could not find action cell:", targetRowId); }
+     setTimeout(() => { const headerElement = mainRowElement.closest('table')?.querySelector('thead'); const headerHeight = headerElement ? headerElement.offsetHeight : 0; const elementRect = mainRowElement.getBoundingClientRect(); const absoluteElementTop = elementRect.top + window.pageYOffset; const scrollOffset = 10; const offsetPosition = absoluteElementTop - headerHeight - scrollOffset; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); }, 100); }
+}
+
+/** Starts streaming video in the inline player. */
+function streamVideo(title, url, filenameForAudioCheck) {
+    // ... (Keep this exactly the same as in your original code) ...
+    if (!videoContainer || !videoElement || !activeActionRow) { console.error("Cannot stream: player, video element, or active action row missing."); return; } const actionCell = activeActionRow.querySelector('td'); if (!actionCell) { console.error("Cannot stream: active action cell not found."); return; } if (videoContainer.parentElement !== actionCell) { console.warn("Video container not in expected cell. Moving."); if(videoElement && videoElement.hasAttribute('src')) { videoElement.pause(); videoElement.removeAttribute('src'); videoElement.load(); } if (vlcBox) vlcBox.style.display = 'none'; if (audioWarningDiv) audioWarningDiv.style.display = 'none'; actionCell.appendChild(videoContainer); }
+    if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; } if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; } if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show');
+    const savedVolume = localStorage.getItem(config.PLAYER_VOLUME_KEY); const savedSpeed = localStorage.getItem(config.PLAYER_SPEED_KEY); videoElement.volume = (savedVolume !== null) ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 1; if (volumeSlider) volumeSlider.value = videoElement.volume; videoElement.muted = (videoElement.volume === 0); videoElement.playbackRate = (savedSpeed !== null) ? parseFloat(savedSpeed) : 1; if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate); updateMuteButton();
+    const ddp51Regex = /\bDDP?([ ._-]?5\.1)?\b/i; const advancedAudioRegex = /\b(DTS|ATMOS|TrueHD)\b/i; const multiAudioHintRegex = /\b(Multi|Dual)[ ._-]?Audio\b/i; let warningText = ""; if (filenameForAudioCheck) { const lowerFilename = filenameForAudioCheck.toLowerCase(); if (ddp51Regex.test(lowerFilename)) { warningText = "<strong>Audio Note:</strong> DDP audio might not work in browser. Use 'Copy URL' or 'Open Externally'."; } else if (advancedAudioRegex.test(lowerFilename)) { warningText = "<strong>Audio Note:</strong> DTS/Atmos/TrueHD audio likely unsupported. Use external player."; } else if (multiAudioHintRegex.test(lowerFilename)) { warningText = "<strong>Audio Note:</strong> May contain multiple audio tracks. Use selector below or external player."; } } if (warningText && audioWarningDiv) { audioWarningDiv.innerHTML = warningText; audioWarningDiv.style.display = 'block'; }
+    if (videoTitle) videoTitle.innerText = title; if (vlcText) vlcText.innerText = url; if (vlcBox) vlcBox.style.display = 'block'; videoElement.src = url; videoElement.load();
+    videoElement.play().catch(e => { console.log("Autoplay prevented:", e.message); }); videoContainer.style.display = 'flex';
+    setTimeout(() => { videoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 150);
+}
+
+/** Closes the inline video player. */
+function closePlayer() {
+    // ... (Keep this exactly the same as in your original code) ...
+     if (!videoContainer || !videoElement) return; const wasPlaying = videoContainer.style.display !== 'none';
+     try { const fsElement = document.fullscreenElement || document.webkitFullscreenElement; if (fsElement && (fsElement === videoElement || fsElement === videoContainer)) { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } } catch(err) { console.error("Error exiting fullscreen:", err); }
+     videoElement.pause(); videoElement.removeAttribute('src'); videoElement.load();
+     videoContainer.style.display = 'none'; if (vlcBox) vlcBox.style.display = 'none'; if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; } if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; } if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show'); if (videoTitle) videoTitle.innerText = '';
+     // Move player back to main container only if it's not already there and main container exists
+     if (container && document.body.contains(container) && videoContainer.parentElement !== container) {
+         container.appendChild(videoContainer);
+     } else if (!document.body.contains(container)) {
+         console.warn("Main container not found, cannot move player back.");
+     }
+     // Remove 'Hide' text from button only if the row it belonged to is still marked as the active one
+     if (wasPlaying && activeActionRow && activeActionRow.style.display === 'table-row') { // Check if row is still displayed
+        const viewButton = activeActionRow.previousElementSibling?.querySelector('.view-button');
+        if (viewButton && viewButton.textContent === 'Hide') {
+            viewButton.textContent = 'View';
+            viewButton.setAttribute('aria-expanded', 'false');
+        }
+     }
+     if (videoContainer.classList.contains('is-fullscreen')) { videoContainer.classList.remove('is-fullscreen'); }
+}
+
+/** Utility to close player if visible */
 function closePlayerIfNeeded() {
-    if (videoContainer?.style.display === 'flex') {
+    if (videoContainer?.style.display === 'flex') { // Use 'flex' as the visible display style
          closePlayer();
     }
 }
 
-// --- Player Control Functions ---
-function seekVideo(seconds) { if (videoElement) videoElement.currentTime += seconds; }
-function togglePlayPause() {
-    if (!videoElement) return;
-    if (videoElement.paused || videoElement.ended) {
-        videoElement.play().catch(e => console.log("Play error:", e.message));
-    } else { videoElement.pause(); }
+// --- Player Control Functions (seekVideo, togglePlayPause, toggleMute, updateMuteButton, setVolume, setPlaybackSpeed, toggleFullscreen, handleFullscreenChange, populateAudioTrackSelector, changeAudioTrack) ---
+// ... (Keep these exactly the same as in your original code) ...
+function seekVideo(seconds) { if (videoElement) videoElement.currentTime += seconds; } function togglePlayPause() { if (videoElement) { if (videoElement.paused || videoElement.ended) videoElement.play().catch(e => console.log("Play error:", e.message)); else videoElement.pause(); } } function toggleMute() { if (videoElement) videoElement.muted = !videoElement.muted; }
+function updateMuteButton() { if (!videoElement || !muteButton) return; const isMuted = videoElement.muted || videoElement.volume === 0; muteButton.textContent = isMuted ? "Unmute" : "Mute"; muteButton.setAttribute('aria-pressed', String(isMuted)); if (volumeSlider) { volumeSlider.style.opacity = isMuted ? '0.5' : '1'; volumeSlider.disabled = isMuted; if (!isMuted && videoElement.volume === 0) { const defaultUnmuteVolume = 0.5; videoElement.volume = defaultUnmuteVolume; volumeSlider.value = defaultUnmuteVolume; } } }
+function setVolume(value) { if (videoElement) { const vol = parseFloat(value); videoElement.volume = vol; videoElement.muted = (vol === 0); } } function setPlaybackSpeed(value) { if (videoElement) videoElement.playbackRate = parseFloat(value); }
+function toggleFullscreen() { const elementToMakeFullscreen = videoContainer; if (!elementToMakeFullscreen) return; const fsElement = document.fullscreenElement || document.webkitFullscreenElement; try { if (!fsElement) { if (elementToMakeFullscreen.requestFullscreen) elementToMakeFullscreen.requestFullscreen(); else if (elementToMakeFullscreen.webkitRequestFullscreen) elementToMakeFullscreen.webkitRequestFullscreen(); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } } catch (err) { console.error("Fullscreen API error:", err); alert("Fullscreen mode failed."); } }
+function handleFullscreenChange() { const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement); if (!videoContainer) return; videoContainer.classList.toggle('is-fullscreen', isFullscreen); console.log("Fullscreen state changed:", isFullscreen); }
+if(videoElement) { videoElement.addEventListener('volumechange', () => { if (volumeSlider && parseFloat(volumeSlider.value) !== videoElement.volume) volumeSlider.value = videoElement.volume; updateMuteButton(); try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); } catch (e) { console.warn("LS volume save failed", e); } }); videoElement.addEventListener('ratechange', () => { if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate); try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); } catch (e) { console.warn("LS speed save failed", e); } }); videoElement.addEventListener('loadedmetadata', populateAudioTrackSelector); }
+document.addEventListener('fullscreenchange', handleFullscreenChange); document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+function populateAudioTrackSelector() { if (!videoElement || typeof videoElement.audioTracks === 'undefined' || !audioTrackSelect) { if(audioTrackSelect) audioTrackSelect.style.display = 'none'; return; } const tracks = videoElement.audioTracks; audioTrackSelect.innerHTML = ''; if (tracks.length <= 1) { audioTrackSelect.style.display = 'none'; return; } let hasEnabledTrack = false; for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) hasEnabledTrack = true; } if (!hasEnabledTrack && tracks.length > 0) { try { tracks[0].enabled = true; } catch(e) { console.warn("Could not auto-enable first audio track:", e); } } let preferredTrackIndex = -1; for (let i = 0; i < tracks.length; i++) { const track = tracks[i]; const option = document.createElement('option'); const trackValue = track.id || i; option.value = trackValue; let label = track.label || `Track ${i + 1}`; let languageName = ''; if (track.language) { try { languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]); label += ` (${languageName || track.language})`; } catch (e) { label += ` (${track.language})`; } } option.textContent = label; option.selected = track.enabled; option.disabled = track.readyState === 'ended'; audioTrackSelect.appendChild(option); const lang = track.language?.toLowerCase(); const lbl = label.toLowerCase(); if (preferredTrackIndex === -1 && (lang?.startsWith('hi') || lbl.includes('hindi') || languageName?.toLowerCase() === 'hindi')) { preferredTrackIndex = i; } } if (preferredTrackIndex !== -1) { console.log(`Preferred track found at index ${preferredTrackIndex}. Attempting auto-selection.`); try { let trackChanged = false; for (let i = 0; i < tracks.length; i++) { const shouldBeEnabled = (i === preferredTrackIndex); if (tracks[i].enabled !== shouldBeEnabled) { tracks[i].enabled = shouldBeEnabled; trackChanged = true; } } const preferredTrackValue = tracks[preferredTrackIndex].id || preferredTrackIndex; audioTrackSelect.value = preferredTrackValue; if (trackChanged) console.log("Successfully auto-selected preferred track."); } catch(e) { console.error("Error auto-selecting preferred audio track:", e); } } else { console.log("No preferred audio track found."); for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) { audioTrackSelect.value = tracks[i].id || i; break; } } } audioTrackSelect.style.display = 'inline-block'; try { if (tracks.onchange === null) tracks.onchange = populateAudioTrackSelector; } catch(e) { console.warn("Browser might not support 'onchange' on AudioTrackList", e)} }
+function changeAudioTrack(selectElement) { if (!videoElement || !videoElement.audioTracks) return; const selectedTrackValue = selectElement.value; const tracks = videoElement.audioTracks; let trackChanged = false; for (let i = 0; i < tracks.length; i++) { const track = tracks[i]; const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue; if (track.enabled !== isSelectedTrack) { try { track.enabled = isSelectedTrack; if (isSelectedTrack) console.log("Enabled audio track:", track.label || track.id || i); trackChanged = true; } catch (e) { console.error("Error changing audio track state for track:", track.id || i, e); } } } if (!trackChanged) console.warn("Selected audio track already active or no change applied."); }
+
+// --- External Player / Copy Functionality (openWithIntent, copyVLCLink, fallbackCopyTextToClipboard, showCopyFeedback, highlightVlcText) ---
+// ... (Keep these exactly the same as in your original code) ...
+function openWithIntent(url) { if (!url) return; const mime = getMimeTypeFromUrl(url); const titleEncoded = encodeURIComponent(videoTitle?.innerText || document.title || 'Video'); const intentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${titleEncoded};end`; console.log("Intent:", intentUri); window.location.href = intentUri; } function copyVLCLink(buttonElement, url) { if (!url) return; const currentActionRow = buttonElement.closest('.action-row'); const currentVlcBox = currentActionRow?.querySelector('.vlc-copy-box'); const feedbackSpan = currentVlcBox?.querySelector('.copy-feedback'); if (!currentVlcBox || currentVlcBox.style.display === 'none') { console.warn("VLC box not visible/found for this row."); } if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) { navigator.clipboard.writeText(url).then(() => { if (feedbackSpan) showCopyFeedback(feedbackSpan); }).catch(err => { console.error("Async clipboard failed:", err); alert("Copy failed. Please copy manually."); highlightVlcText(); }); } else { console.warn("Using fallback copy."); fallbackCopyTextToClipboard(url, feedbackSpan); } } function fallbackCopyTextToClipboard(text, feedbackSpan) { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px"; textArea.style.opacity = "0"; textArea.setAttribute("readonly", ""); document.body.appendChild(textArea); let successful = false; try { textArea.select(); textArea.setSelectionRange(0, textArea.value.length); successful = document.execCommand('copy'); if (successful && feedbackSpan) showCopyFeedback(feedbackSpan); else if (!successful) throw new Error('execCommand failed'); } catch (err) { console.error('Fallback copy failed:', err); alert("Copy failed. Please copy manually."); highlightVlcText(); } finally { document.body.removeChild(textArea); } } function showCopyFeedback(spanElement) { if (!spanElement) return; clearTimeout(copyTimeout); spanElement.classList.add('show'); copyTimeout = setTimeout(() => { spanElement.classList.remove('show'); }, 2000); } function highlightVlcText() { const currentVlcBox = activeActionRow?.querySelector('.vlc-copy-box'); const currentVlcText = currentVlcBox?.querySelector('code'); if (currentVlcText && currentVlcBox?.style.display === 'block') { try { const range = document.createRange(); range.selectNodeContents(currentVlcText); const selection = window.getSelection(); if (selection) { selection.removeAllRanges(); selection.addRange(range); } } catch (selectErr) { console.warn("Could not highlight VLC text:", selectErr); } } }
+
+// --- Player Keyboard Shortcuts ---
+function handlePlayerKeyboardShortcuts(event) {
+    // ... (Keep this exactly the same as in your original code) ...
+     if (!videoContainer || videoContainer.style.display !== 'flex' || !videoElement) return; const targetTagName = event.target.tagName.toLowerCase(); if (targetTagName === 'input' || targetTagName === 'select' || targetTagName === 'textarea') return; const key = event.key; let prevented = false; switch (key) { case ' ': case 'k': togglePlayPause(); prevented = true; break; case 'ArrowLeft': seekVideo(-10); prevented = true; break; case 'ArrowRight': seekVideo(10); prevented = true; break; case 'ArrowUp': setVolume(Math.min(videoElement.volume + 0.05, 1)); prevented = true; break; case 'ArrowDown': setVolume(Math.max(videoElement.volume - 0.05, 0)); prevented = true; break; case 'm': toggleMute(); prevented = true; break; case 'f': toggleFullscreen(); prevented = true; break; } if (prevented) event.preventDefault();
 }
-function toggleMute() { if (videoElement) videoElement.muted = !videoElement.muted; }
-function updateMuteButton() {
-    if (!videoElement || !muteButton) return;
-    const isMuted = videoElement.muted || videoElement.volume === 0;
-    muteButton.textContent = isMuted ? "Unmute" : "Mute";
-    muteButton.setAttribute('aria-pressed', String(isMuted));
-    if (volumeSlider) {
-        volumeSlider.style.opacity = isMuted ? '0.5' : '1';
-        volumeSlider.disabled = isMuted;
-        if (!isMuted && videoElement.volume === 0) {
-             const defaultUnmuteVolume = 0.5;
-             videoElement.volume = defaultUnmuteVolume;
-             volumeSlider.value = defaultUnmuteVolume;
-        }
-    }
-}
-function setVolume(value) {
-    if (videoElement) {
-        const newVolume = parseFloat(value);
-        videoElement.volume = newVolume;
-        videoElement.muted = (newVolume === 0);
-    }
-}
-function setPlaybackSpeed(value) { if (videoElement) videoElement.playbackRate = parseFloat(value); }
-function toggleFullscreen() {
-    const elementToMakeFullscreen = videoContainer;
-    if (!elementToMakeFullscreen) return;
-    const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
-
-    try {
-        if (!fsElement) {
-            if (elementToMakeFullscreen.requestFullscreen) elementToMakeFullscreen.requestFullscreen();
-            else if (elementToMakeFullscreen.webkitRequestFullscreen) elementToMakeFullscreen.webkitRequestFullscreen();
-        } else {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        }
-    } catch (err) {
-        console.error("Fullscreen API error:", err);
-        alert("Could not enter/exit fullscreen mode.");
-    }
-}
-
-// --- Fullscreen Change Handler ---
-function handleFullscreenChange() {
-    const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if (!videoContainer) return;
-    videoContainer.classList.toggle('is-fullscreen', isFullscreen);
-    console.log("Fullscreen state changed. Is fullscreen:", isFullscreen);
-}
-
- // --- Event Listeners for Player State ---
- if(videoElement) {
-     videoElement.addEventListener('volumechange', () => {
-         if (volumeSlider && parseFloat(volumeSlider.value) !== videoElement.volume) {
-              volumeSlider.value = videoElement.volume;
-         }
-         updateMuteButton();
-         try { localStorage.setItem(config.PLAYER_VOLUME_KEY, String(videoElement.volume)); }
-         catch (e) { console.warn("Could not save volume to localStorage", e); }
-     });
-     videoElement.addEventListener('ratechange', () => {
-        if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate);
-         try { localStorage.setItem(config.PLAYER_SPEED_KEY, String(videoElement.playbackRate)); }
-         catch (e) { console.warn("Could not save playback speed to localStorage", e); }
-     });
-     videoElement.addEventListener('loadedmetadata', populateAudioTrackSelector);
- }
- document.addEventListener('fullscreenchange', handleFullscreenChange);
- document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-
-
- // --- Audio Track Selection Logic ---
- function populateAudioTrackSelector() {
-      if (!videoElement || typeof videoElement.audioTracks === 'undefined' || !audioTrackSelect) {
-          if(audioTrackSelect) audioTrackSelect.style.display = 'none';
-          return;
-      }
-      const tracks = videoElement.audioTracks;
-      audioTrackSelect.innerHTML = '';
-
-      if (tracks.length <= 1) {
-          audioTrackSelect.style.display = 'none';
-          return;
-      }
-
-      let hasEnabledTrack = false;
-      for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) hasEnabledTrack = true; }
-      if (!hasEnabledTrack && tracks.length > 0) {
-          try { tracks[0].enabled = true; } catch(e) { console.warn("Could not auto-enable first audio track:", e); }
-      }
-
-      let preferredTrackIndex = -1;
-
-      for (let i = 0; i < tracks.length; i++) {
-          const track = tracks[i];
-          const option = document.createElement('option');
-          const trackValue = track.id || i;
-          option.value = trackValue;
-
-          let label = track.label || `Track ${i + 1}`;
-          let languageName = '';
-          if (track.language) {
-              try {
-                  languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]);
-                  label += ` (${languageName || track.language})`;
-              } catch (e) { label += ` (${track.language})`; }
-          }
-          option.textContent = label;
-          option.selected = track.enabled;
-          option.disabled = track.readyState === 'ended';
-          audioTrackSelect.appendChild(option);
-
-          if (track.language && track.language.toLowerCase().startsWith('hi')) {
-             if (preferredTrackIndex === -1) preferredTrackIndex = i;
-          }
-          else if (preferredTrackIndex === -1 && (label.toLowerCase().includes('hindi') || (languageName && languageName.toLowerCase() === 'hindi'))) {
-              preferredTrackIndex = i;
-          }
-      }
-
-      if (preferredTrackIndex !== -1) {
-          console.log(`Preferred track found at index ${preferredTrackIndex}. Attempting auto-selection.`);
-          try {
-              let trackChanged = false;
-              for (let i = 0; i < tracks.length; i++) {
-                   const shouldBeEnabled = (i === preferredTrackIndex);
-                   if (tracks[i].enabled !== shouldBeEnabled) {
-                       tracks[i].enabled = shouldBeEnabled;
-                       trackChanged = true;
-                   }
-              }
-              const preferredTrackValue = tracks[preferredTrackIndex].id || preferredTrackIndex;
-              audioTrackSelect.value = preferredTrackValue;
-              if (trackChanged) console.log("Successfully auto-selected preferred track.");
-          } catch(e) { console.error("Error auto-selecting preferred audio track:", e); }
-      } else {
-          console.log("No preferred audio track found for auto-selection.");
-          for (let i = 0; i < tracks.length; i++) {
-              if (tracks[i].enabled) {
-                  audioTrackSelect.value = tracks[i].id || i;
-                  break;
-              }
-          }
-      }
-
-      audioTrackSelect.style.display = 'inline-block';
-
-       try { if (tracks.onchange === null) tracks.onchange = populateAudioTrackSelector; } // Use onchange as addEventListener might not be supported
-       catch(e) { console.warn("Browser might not support 'onchange' on AudioTrackList", e)}
-  }
-
- function changeAudioTrack(selectElement) {
-      if (!videoElement || !videoElement.audioTracks) return;
-      const selectedTrackValue = selectElement.value;
-      const tracks = videoElement.audioTracks;
-      let trackChanged = false;
-      for (let i = 0; i < tracks.length; i++) {
-           const track = tracks[i];
-           const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue;
-           if (track.enabled !== isSelectedTrack) {
-                try {
-                    track.enabled = isSelectedTrack;
-                    if (isSelectedTrack) console.log("Enabled audio track:", track.label || track.id || i);
-                    trackChanged = true;
-                }
-                catch (e) { console.error("Error changing audio track state for track:", track.id || i, e); }
-           }
-      }
-      if (!trackChanged) console.warn("Selected audio track already active or no change applied.");
-  }
-
-
-// --- External Player / Copy Functionality ---
-function openWithIntent(url) {
-    if (!url) return;
-    const mime = getMimeTypeFromUrl(url);
-    const videoTitleEncoded = encodeURIComponent(videoTitle?.innerText || document.title || 'Video');
-    const genericIntentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${videoTitleEncoded};end`;
-    console.log("Attempting generic VIEW intent:", genericIntentUri);
-    window.location.href = genericIntentUri;
-}
-
-function copyVLCLink(buttonElement, url) {
-    if (!url) return;
-    const currentActionRow = buttonElement.closest('.action-row');
-    const feedbackSpan = currentActionRow?.querySelector('.copy-feedback');
-
-    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
-        navigator.clipboard.writeText(url).then(() => {
-            if (feedbackSpan) showCopyFeedback(feedbackSpan);
-        }).catch(err => {
-            console.error("Async clipboard write failed:", err);
-            alert("Could not copy URL automatically. Please copy manually.");
-            highlightVlcText();
-        });
-    } else {
-        console.warn("Using fallback clipboard method.");
-        fallbackCopyTextToClipboard(url, feedbackSpan);
-    }
-}
-
-function fallbackCopyTextToClipboard(text, feedbackSpan) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px";
-    textArea.style.opacity = "0";
-    textArea.setAttribute("readonly", "");
-    document.body.appendChild(textArea);
-    let successful = false;
-    try {
-        textArea.select();
-        textArea.setSelectionRange(0, textArea.value.length);
-        successful = document.execCommand('copy');
-        if (successful && feedbackSpan) showCopyFeedback(feedbackSpan);
-        else if (!successful) throw new Error('execCommand returned false');
-    } catch (err) {
-        console.error('Fallback copy failed:', err);
-        alert("Automatic copy failed. Please select and copy the URL manually.");
-        highlightVlcText();
-    } finally {
-        document.body.removeChild(textArea);
-    }
-}
-
-function showCopyFeedback(spanElement) {
-    if (!spanElement) return;
-    clearTimeout(copyTimeout);
-    spanElement.classList.add('show');
-    copyTimeout = setTimeout(() => {
-        spanElement.classList.remove('show');
-    }, 2000);
-}
-
-function highlightVlcText() {
-     if (vlcText && vlcBox?.style.display === 'block') {
-         try {
-             const range = document.createRange(); range.selectNodeContents(vlcText);
-             const selection = window.getSelection();
-             if (selection) {
-                 selection.removeAllRanges(); selection.addRange(range);
-             }
-         } catch (selectErr) {
-             console.warn("Could not highlight VLC text:", selectErr);
-         }
-     }
-}
-
 
 // --- State Persistence ---
 function saveStateToLocalStorage() {
@@ -2253,7 +2023,12 @@ function saveStateToLocalStorage() {
             qualityFilter: currentState.qualityFilter,
             sortColumn: currentState.sortColumn,
             sortDirection: currentState.sortDirection,
-            currentPage: currentState.currentPage
+            // No longer save generic currentPage
+            savedPageAll: currentState.savedPageAll,
+            savedPageMovies: currentState.savedPageMovies,
+            savedPageSeries: currentState.savedPageSeries,
+            savedTabBeforeSearch: currentState.savedTabBeforeSearch, // Save this too
+             // Optionally save isSearchActive? Maybe not needed if searchTerm is saved.
         };
         localStorage.setItem(config.LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
     }
@@ -2269,170 +2044,173 @@ function loadStateFromLocalStorage() {
             currentState.qualityFilter = typeof parsedState.qualityFilter === 'string' ? parsedState.qualityFilter : '';
             currentState.sortColumn = typeof parsedState.sortColumn === 'string' ? parsedState.sortColumn : 'lastUpdated';
             currentState.sortDirection = (typeof parsedState.sortDirection === 'string' && ['asc', 'desc'].includes(parsedState.sortDirection)) ? parsedState.sortDirection : 'desc';
-            currentState.currentPage = (typeof parsedState.currentPage === 'number' && parsedState.currentPage > 0) ? Math.floor(parsedState.currentPage) : 1;
+            currentState.savedPageAll = (typeof parsedState.savedPageAll === 'number' && parsedState.savedPageAll > 0) ? Math.floor(parsedState.savedPageAll) : 1;
+            currentState.savedPageMovies = (typeof parsedState.savedPageMovies === 'number' && parsedState.savedPageMovies > 0) ? Math.floor(parsedState.savedPageMovies) : 1;
+            currentState.savedPageSeries = (typeof parsedState.savedPageSeries === 'number' && parsedState.savedPageSeries > 0) ? Math.floor(parsedState.savedPageSeries) : 1;
+            currentState.savedTabBeforeSearch = typeof parsedState.savedTabBeforeSearch === 'string' ? parsedState.savedTabBeforeSearch : 'updates';
+
+            // Determine initial view based on loaded search term
+            isSearchActive = currentState.searchTerm.length > 0;
+            currentState.currentPage = 1; // Always start on page 1 on load
 
             if(searchInput) searchInput.value = currentState.searchTerm;
+            // Set the current active tab based on saved state, IF NOT searching
+            if (!isSearchActive) {
+                currentActiveTab = currentState.savedTabBeforeSearch || 'updates';
+            }
+
+        } else {
+             // Set default if no saved state
+             isSearchActive = false;
+             currentState.searchTerm = '';
+             currentState.currentPage = 1;
+             currentActiveTab = 'updates'; // Default tab
         }
     } catch (e) {
         console.error("Failed to load state from localStorage:", e);
-        localStorage.removeItem(config.LOCAL_STORAGE_KEY);
+        localStorage.removeItem(config.LOCAL_STORAGE_KEY); // Clear corrupted state
+        // Reset to defaults
+        isSearchActive = false;
+        currentState.searchTerm = '';
+        currentState.currentPage = 1;
+        currentActiveTab = 'updates'; // Default tab
     }
 }
 
 // --- Initial Data Loading and Setup ---
 async function loadInitialData() {
     const loadingHTML = '<tr><td colspan="6" class="status-message">Loading... <div class="spinner" style="margin: 10px auto;"></div></td></tr>';
-    if(updatesTableBody) updatesTableBody.innerHTML = loadingHTML;
-    if(movieTableBody) movieTableBody.innerHTML = loadingHTML;
-    if(paginationControlsContainer) paginationControlsContainer.style.display = 'none';
+    // Show loading in all potential table bodies
+    Object.values(tabMappings).forEach(mapping => {
+        if(mapping?.panel) {
+            const tbody = mapping.panel.querySelector('tbody');
+            if (tbody) tbody.innerHTML = loadingHTML;
+        }
+    });
+    if(searchResultsTableBody) searchResultsTableBody.innerHTML = loadingHTML;
+
+    // Hide all pagination controls initially
+    Object.values(tabMappings).forEach(mapping => {
+        if(mapping?.pagination) mapping.pagination.style.display = 'none';
+    });
+    if(searchResultsPaginationControls) searchResultsPaginationControls.style.display = 'none';
+
+    // Hide search results container initially
+    if(searchResultsContainer) searchResultsContainer.style.display = 'none';
 
     uniqueQualities.clear();
-    loadStateFromLocalStorage();
+    loadStateFromLocalStorage(); // Load state, sets isSearchActive and currentActiveTab (if not searching)
 
     try {
-        // Check if the URL is still the default placeholder
         if (!config.GSheetWebAppURL || config.GSheetWebAppURL.includes("macros/library/d/")) {
-            throw new Error("Google Sheet Web App URL is missing or incorrect. Please paste your deployed script URL into the 'config' object in the JavaScript code.");
+            throw new Error("Google Sheet Web App URL is missing or incorrect. Please paste your deployed script URL into the 'config' object.");
         }
-
         console.log("Fetching data from:", config.GSheetWebAppURL);
         const response = await fetch(config.GSheetWebAppURL);
-        console.log("Fetch response status:", response.status);
-
         if (!response.ok) {
              let errorText = `Network error: ${response.statusText || `HTTP status ${response.status}`}`;
-             try {
-                const errorData = await response.json(); // Try to get error message from backend JSON response
-                if(errorData?.error) errorText = `API Error: ${errorData.error}`;
-             } catch(e) { /* Ignore if response body isn't JSON */ }
+             try { const errorData = await response.json(); if(errorData?.error) errorText = `API Error: ${errorData.error}`; } catch(e) { /* Ignore */ }
              throw new Error(errorText);
         }
-
         const result = await response.json();
-
-        if (result.error) throw new Error(`API Error: ${result.error}`); // Check for errors returned within the JSON data
-        if (!Array.isArray(result.data)) throw new Error("Invalid data format received from API (expected 'data' array).");
+        if (result.error) throw new Error(`API Error: ${result.error}`);
+        if (!Array.isArray(result.data)) throw new Error("Invalid data format (expected 'data' array).");
 
         allMovieData = result.data
-                        .filter(movie => movie && (movie.id || movie.filename || movie.url)) // Basic validation
-                        .map(preprocessMovieData); // Process each valid item
+                        .filter(movie => movie && (movie.id || movie.filename || movie.url))
+                        .map(preprocessMovieData);
+        console.log(`Processed ${allMovieData.length} items.`);
 
-        console.log(`Successfully processed ${allMovieData.length} movie items.`);
+        populateQualityFilter(); // Populate the filter dropdown
 
-        populateQualityFilter(); // Populate dropdown based on processed data
-
-        // Restore selected quality filter if it exists
+        // Restore selected quality filter *after* options are populated
         if(qualityFilterSelect && uniqueQualities.has(currentState.qualityFilter)) {
              qualityFilterSelect.value = currentState.qualityFilter;
-        } else {
-             currentState.qualityFilter = '';
-             if (qualityFilterSelect) qualityFilterSelect.value = '';
+        } else if (qualityFilterSelect) {
+             qualityFilterSelect.value = '';
+             if (!uniqueQualities.has(currentState.qualityFilter)) {
+                  currentState.qualityFilter = ''; // Ensure state matches empty selection
+             }
         }
+        updateFilterIndicator();
 
-        applyUserActions(); // Apply initial filters/sort and render
+        // Apply initial filters/sort based on loaded state
+        applyUserActions();
+
+        // ----- *** REVISED INITIAL RENDER LOGIC *** -----
+        if (isSearchActive) {
+            console.log("Loading directly into Search Mode.");
+            if (tabNavigation) tabNavigation.style.display = 'none';
+            if (tabContent) tabContent.style.display = 'none';
+            if (searchResultsContainer) searchResultsContainer.style.display = 'block';
+            renderSearchResults(); // Render search results directly
+        } else {
+            console.log("Loading into Tab Mode, initial tab:", currentActiveTab);
+            if (tabNavigation) tabNavigation.style.display = 'flex'; // Or block
+            if (tabContent) tabContent.style.display = 'block';
+            if (searchResultsContainer) searchResultsContainer.style.display = 'none';
+
+            // No need to call switchTab here. currentActiveTab is already set.
+            // Just call the main tab rendering function.
+            renderActiveTabContent();
+        }
+        // ----- *** END REVISED LOGIC *** -----
+
 
     } catch (error) {
-        console.error('FATAL: Failed to load or process initial data:', error);
-        displayLoadError(`Error loading movie data: ${error.message}. Please check the script URL, sheet configuration, and ensure the script is deployed correctly. Then refresh the page.`);
+        console.error('FATAL: Failed to load/process initial data:', error);
+        const errorMessage = `Error loading data: ${error.message}. Check script URL, sheet config, and deployment. Refresh page.`;
+        displayLoadError(errorMessage);
     }
 }
 
-/**
- * Populates the quality filter dropdown with unique qualities found in the data.
- */
+
+/** Populates the quality filter dropdown. */
 function populateQualityFilter() {
-    if (!qualityFilterSelect) return;
-    const currentSelectedValue = currentState.qualityFilter;
-    qualityFilterSelect.innerHTML = '<option value="">All Qualities</option>';
-
-    const sortedQualities = [...uniqueQualities].sort((a, b) => {
-        const resRegex = /^(4K|\d{3,4})P$/i;
-        const sourceRegex = /^(WEBDL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVD|DVDScr|HDCAM|HC|TC|TS|CAM)$/i;
-        const getScore = (q) => {
-            q = String(q || '').toUpperCase();
-            if (q === '4K' || q === '2160P') return 10;
-            if (q === '1080P') return 9;
-            if (q === '720P') return 8;
-            if (q === '480P') return 7;
-            if (sourceRegex.test(q)) return 6;
-            if (['HDR', 'DOLBY VISION', 'DV', 'HEVC', 'X265'].includes(q)) return 5;
-            return 0;
-        };
-        const scoreA = getScore(a);
-        const scoreB = getScore(b);
-        if (scoreA !== scoreB) return scoreB - scoreA;
-        return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' });
-    });
-
-    sortedQualities.forEach(quality => {
-        if (quality) {
-            const option = document.createElement('option');
-            option.value = quality; option.textContent = quality;
-            qualityFilterSelect.appendChild(option);
-        }
-    });
-
-    if (currentSelectedValue && sortedQualities.includes(currentSelectedValue)) {
-         qualityFilterSelect.value = currentSelectedValue;
-    }
-    updateFilterIndicator();
+    // ... (Keep this exactly the same as in your original code) ...
+     if (!qualityFilterSelect) return; const currentSelectedValue = currentState.qualityFilter; const sortedQualities = [...uniqueQualities].sort((a, b) => { const resRegex = /^(4K|\d{3,4})P$/i; const sourceRegex = /^(WEBDL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVD|DVDScr|HDCAM|HC|TC|TS|CAM)$/i; const getScore = (q) => { q = String(q || '').toUpperCase(); if (q === '4K' || q === '2160P') return 10; if (q === '1080P') return 9; if (q === '720P') return 8; if (q === '480P') return 7; if (sourceRegex.test(q)) return 6; if (['HDR', 'DOLBY VISION', 'DV', 'HEVC', 'X265'].includes(q)) return 5; return 0; }; const scoreA = getScore(a); const scoreB = getScore(b); if (scoreA !== scoreB) return scoreB - scoreA; return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' }); });
+     qualityFilterSelect.innerHTML = '<option value="">All Qualities</option>'; sortedQualities.forEach(quality => { if (quality) { const option = document.createElement('option'); option.value = quality; option.textContent = quality; qualityFilterSelect.appendChild(option); } });
+     // Ensure the select value matches the state *after* populating
+     qualityFilterSelect.value = currentState.qualityFilter || "";
 }
 
-/**
- * Displays a critical error message in the table bodies.
- */
+/** Displays a critical error message in the appropriate visible table body. */
 function displayLoadError(message) {
     const errorMsgHTML = `<tr><td colspan="6" class="error-message">${sanitize(message)}</td></tr>`;
-    if (updatesTableBody) updatesTableBody.innerHTML = errorMsgHTML;
-    if (movieTableBody) movieTableBody.innerHTML = errorMsgHTML;
-    if (paginationControlsContainer) paginationControlsContainer.style.display = 'none';
-    if (updatesSection) updatesSection.style.display = 'block';
+    // Determine where to show the error based on initial load state attempt
+    if (isSearchActive && searchResultsTableBody) {
+        searchResultsTableBody.innerHTML = errorMsgHTML;
+        if (searchResultsContainer) searchResultsContainer.style.display = 'block';
+        if (tabNavigation) tabNavigation.style.display = 'none';
+        if (tabContent) tabContent.style.display = 'none';
+    } else if (updatesTableBody) { // Use updates as default tab target for errors if not searching
+        updatesTableBody.innerHTML = errorMsgHTML;
+        if (searchResultsContainer) searchResultsContainer.style.display = 'none';
+        if (tabNavigation) tabNavigation.style.display = 'flex'; // Or block
+        if (tabContent) tabContent.style.display = 'block';
+        // Make sure the updates tab is visually active
+        Object.keys(tabMappings).forEach(tabId => {
+            const mapping = tabMappings[tabId];
+             if (mapping?.button) mapping.button.classList.toggle('active', tabId === 'updates');
+             if (mapping?.panel) mapping.panel.classList.toggle('active', tabId === 'updates');
+        });
+        currentActiveTab = 'updates'; // Ensure state matches
+    } else {
+        // Fallback if no bodies found
+        if(container) container.innerHTML = `<div class="error-message" style="padding: 20px;">${sanitize(message)}</div>`;
+    }
+    // Hide all pagination controls on error
+    Object.values(tabMappings).forEach(mapping => {
+        if(mapping?.pagination) mapping.pagination.style.display = 'none';
+    });
+    if(searchResultsPaginationControls) searchResultsPaginationControls.style.display = 'none';
 }
-
-/**
- * Called when search criteria changes.
- */
-function triggerSearch() {
-    if (!searchInput) return;
-    const newSearchTerm = searchInput.value;
-    if (newSearchTerm !== currentState.searchTerm) {
-        currentState.searchTerm = newSearchTerm;
-        currentState.currentPage = 1;
-        closePlayerIfNeeded();
-        applyUserActions();
-    }
-}
-
-// --- Keyboard Shortcuts for Player ---
-function handlePlayerKeyboardShortcuts(event) {
-    if (!videoContainer || videoContainer.style.display !== 'flex' || !videoElement) {
-        return;
-    }
-    const targetTagName = event.target.tagName.toLowerCase();
-    if (targetTagName === 'input' || targetTagName === 'select' || targetTagName === 'textarea') {
-        return;
-    }
-
-    const key = event.key;
-    let prevented = false;
-    switch (key) {
-        case ' ': case 'k': togglePlayPause(); prevented = true; break;
-        case 'ArrowLeft': seekVideo(-10); prevented = true; break;
-        case 'ArrowRight': seekVideo(10); prevented = true; break;
-        case 'ArrowUp': setVolume(Math.min(videoElement.volume + 0.05, 1)); prevented = true; break;
-        case 'ArrowDown': setVolume(Math.max(videoElement.volume - 0.05, 0)); prevented = true; break;
-        case 'm': toggleMute(); prevented = true; break;
-        case 'f': toggleFullscreen(); prevented = true; break;
-    }
-    if (prevented) { event.preventDefault(); }
-}
-
 
 // --- Global Event Listeners Setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    loadInitialData();
+    loadInitialData(); // Fetch data and set up initial view
 
-    // --- Search ---
+    // --- Search Input Handling ---
     if (searchInput) {
         searchInput.addEventListener('input', () => {
             clearTimeout(searchDebounceTimeout);
@@ -2440,37 +2218,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         searchInput.addEventListener('keydown', (event) => {
              if (event.key === 'Enter') {
-                 event.preventDefault(); clearTimeout(searchDebounceTimeout); triggerSearch();
+                 event.preventDefault();
+                 clearTimeout(searchDebounceTimeout);
+                 triggerSearch();
              }
          });
-        searchInput.addEventListener('search', () => { // Handles 'x' clear button
+        searchInput.addEventListener('search', () => { // Handles 'x' button click
             clearTimeout(searchDebounceTimeout);
-            setTimeout(() => { if (searchInput.value === '') triggerSearch(); }, 0);
+            // Value clears slightly after event, use timeout
+            setTimeout(() => { if (searchInput.value === '') triggerSearch(); }, 50); // Small delay
         });
     }
 
-    // --- Filter ---
+    // --- Quality Filter Handling ---
     if (qualityFilterSelect) {
-        qualityFilterSelect.addEventListener('change', () => {
-            currentState.qualityFilter = qualityFilterSelect.value;
-            currentState.currentPage = 1;
-            closePlayerIfNeeded();
-            applyUserActions();
-        });
+        qualityFilterSelect.addEventListener('change', triggerFilterChange);
     }
 
-    // --- Sort ---
-    if (movieTableHead) {
-        movieTableHead.addEventListener('click', handleSort);
-    }
+    // --- Table Sorting Handling (Add listeners to all sortable tables) ---
+    [allFilesTableHead, moviesTableHead, seriesTableHead, searchResultsTableHead].forEach(head => {
+        if(head) head.addEventListener('click', handleSort);
+    });
 
-    // --- Player Keyboard ---
+    // --- Player Keyboard Shortcuts ---
     document.addEventListener('keydown', handlePlayerKeyboardShortcuts);
 
+    // Tab switching listeners are set via onclick attributes in HTML
+    // They will implicitly not work if .tab-navigation is hidden
 });
 
 // ]]>
 </script>
-
 </body>
 </html>
