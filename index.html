@@ -1548,12 +1548,17 @@ function handleVideoError(event) { console.error("HTML5 Video Error:", event, vi
 function extractQualityFromFilename(filename) { if (!filename) return null; const patterns = [ /(?:^|\.|\[|\(|\s|_|-)((?:4k|2160p|1080p|720p|480p))(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(WEB-?DL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVDrip|DVDScr|HDCAM|HC|TC|TS|CAM)(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i ]; let foundQuality = null; for (const regex of patterns) { const match = filename.match(regex); if (match && match[1]) { let quality = match[1].toUpperCase(); quality = quality.replace(/WEB-?DL/i, 'WEBDL'); quality = quality.replace(/BLURAY/i, 'BluRay'); quality = quality.replace(/DVDRIP/i, 'DVD'); quality = quality.replace(/DOLBY.?VISION/i, 'Dolby Vision'); if (quality === '2160P') quality = '4K'; if (patterns.indexOf(regex) < 2) return quality; if (patterns.indexOf(regex) === 2 && !foundQuality) foundQuality = quality; } } return foundQuality; }
 function normalizeTextForSearch(text) { if (!text) return ""; return String(text) .toLowerCase() .replace(/[.\-_\(\)\[\]]/g, '') .replace(/\s+/g, ' ') .trim(); }
 function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// --- START: MODIFIED copyToClipboard ---
 async function copyToClipboard(text, feedbackSpan, timeoutVar) {
+    console.log("Attempting to copy:", text); // DEBUG
     let success = false;
     if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+        console.log("Using navigator.clipboard.writeText"); // DEBUG
         try {
             await navigator.clipboard.writeText(text);
             success = true;
+            console.log("navigator.clipboard.writeText SUCCEEDED"); // DEBUG
         } catch (err) {
             console.error("Async clipboard write failed:", err);
             success = false;
@@ -1561,15 +1566,16 @@ async function copyToClipboard(text, feedbackSpan, timeoutVar) {
     }
 
     if (!success) { // Fallback
-        console.warn("Using fallback copy method.");
+        console.warn("Using fallback copy method (execCommand).");
         const textArea = document.createElement("textarea");
         textArea.value = text;
         textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px"; textArea.style.opacity = "0"; textArea.setAttribute("readonly", "");
         document.body.appendChild(textArea);
         try {
             textArea.select();
-            textArea.setSelectionRange(0, textArea.value.length);
+            textArea.setSelectionRange(0, textArea.value.length); // Ensure selection for mobile
             success = document.execCommand('copy');
+            console.log("Fallback execCommand result:", success); // DEBUG
         } catch (err) {
             console.error('Fallback copy execCommand failed:', err);
             success = false;
@@ -1578,13 +1584,59 @@ async function copyToClipboard(text, feedbackSpan, timeoutVar) {
         }
     }
 
-    if (success && feedbackSpan) {
-        showCopyFeedback(feedbackSpan, timeoutVar);
-    } else if (!success) {
-        alert("Copy failed. Please try again or copy manually.");
+    if (success) {
+        console.log("Copy successful!"); // DEBUG
+        // Show original feedback span (e.g., "Copied!")
+        if (feedbackSpan) {
+            showCopyFeedback(feedbackSpan, timeoutVar);
+        }
+
+        // Show Web Notification
+        if ('Notification' in window) {
+            const permission = Notification.permission;
+            const notificationTitle = "URL Copied!";
+            const notificationBody = "Paste into VLC/MX player to stream.";
+
+            if (permission === 'granted') {
+                try {
+                    new Notification(notificationTitle, { body: notificationBody, icon: '/favicon.ico' }); // Optional icon
+                    console.log("Web notification shown."); // DEBUG
+                } catch (e) {
+                     console.error("Error showing notification:", e);
+                }
+            } else if (permission === 'default') {
+                console.log("Requesting notification permission..."); // DEBUG
+                Notification.requestPermission().then(newPermission => {
+                    if (newPermission === 'granted') {
+                        try {
+                             new Notification(notificationTitle, { body: notificationBody, icon: '/favicon.ico' });
+                             console.log("Web notification shown after permission grant."); // DEBUG
+                        } catch (e) {
+                            console.error("Error showing notification after grant:", e);
+                        }
+                    } else {
+                        console.log("Notification permission denied or dismissed."); // DEBUG
+                        // Optionally inform user that notifications are blocked if desired
+                        // alert("Notifications are blocked. URL copied, but no notification shown.");
+                    }
+                });
+            } else { // permission === 'denied'
+                console.log("Notification permission was denied previously."); // DEBUG
+                // Maybe provide feedback that notifications are blocked if important
+                // alert("Notifications are blocked by your browser settings.");
+            }
+        } else {
+            console.warn("Web Notifications API not supported in this browser."); // DEBUG
+        }
+
+    } else {
+        console.error("Copy FAILED."); // DEBUG
+        alert("Copy failed. Please try again or copy manually. Check console for errors (F12).");
     }
     return success;
 }
+// --- END: MODIFIED copyToClipboard ---
+
 
 // --- Data Preprocessing ---
 function preprocessMovieData(movie) {
@@ -2245,7 +2297,7 @@ function updateSortIndicators(tableHeadElement) {
      tableHeadElement.querySelectorAll('th.sortable').forEach(th => {
         th.classList.remove('sort-asc', 'sort-desc');
         if (th.dataset.sortKey === currentState.sortColumn) {
-            th.classList.add(currentState.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            th.classList.add(currentState.sortDirection === 'asc' ? 'sort-asc' : 'desc-desc');
             th.setAttribute('aria-sort', currentState.sortDirection === 'asc' ? 'ascending' : 'descending');
         } else {
             th.removeAttribute('aria-sort');
@@ -2726,17 +2778,41 @@ function handleFullscreenChange() { const isFullscreen = !!(document.fullscreenE
 function populateAudioTrackSelector() { if (!videoElement || typeof videoElement.audioTracks === 'undefined' || !audioTrackSelect) { if(audioTrackSelect) audioTrackSelect.style.display = 'none'; return; } const tracks = videoElement.audioTracks; audioTrackSelect.innerHTML = ''; if (tracks.length <= 1) { audioTrackSelect.style.display = 'none'; return; } let hasEnabledTrack = false; for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) hasEnabledTrack = true; } if (!hasEnabledTrack && tracks.length > 0) { try { tracks[0].enabled = true; } catch(e) { console.warn("Could not auto-enable first audio track:", e); } } let preferredTrackIndex = -1; for (let i = 0; i < tracks.length; i++) { const track = tracks[i]; const option = document.createElement('option'); const trackValue = track.id || i; option.value = trackValue; let label = track.label || `Track ${i + 1}`; let languageName = ''; if (track.language) { try { languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(track.language.split('-')[0]); label += ` (${languageName || track.language})`; } catch (e) { label += ` (${track.language})`; } } option.textContent = label; option.selected = track.enabled; option.disabled = track.readyState === 'ended'; audioTrackSelect.appendChild(option); const lang = track.language?.toLowerCase(); const lbl = label.toLowerCase(); if (preferredTrackIndex === -1 && (lang?.startsWith('hi') || lbl.includes('hindi') || languageName?.toLowerCase() === 'hindi')) { preferredTrackIndex = i; } } if (preferredTrackIndex !== -1) { console.log(`Preferred track found at index ${preferredTrackIndex}. Attempting auto-selection.`); try { let trackChanged = false; for (let i = 0; i < tracks.length; i++) { const shouldBeEnabled = (i === preferredTrackIndex); if (tracks[i].enabled !== shouldBeEnabled) { tracks[i].enabled = shouldBeEnabled; trackChanged = true; } } const preferredTrackValue = tracks[preferredTrackIndex].id || preferredTrackIndex; audioTrackSelect.value = preferredTrackValue; if (trackChanged) console.log("Successfully auto-selected preferred track."); } catch(e) { console.error("Error auto-selecting preferred audio track:", e); } } else { console.log("No preferred audio track found."); for (let i = 0; i < tracks.length; i++) { if (tracks[i].enabled) { audioTrackSelect.value = tracks[i].id || i; break; } } } audioTrackSelect.style.display = 'inline-block'; try { if (tracks.onchange === null) tracks.onchange = populateAudioTrackSelector; } catch(e) { console.warn("Browser might not support 'onchange' on AudioTrackList", e)} }
 function changeAudioTrack(selectElement) { if (!videoElement || !videoElement.audioTracks) return; const selectedTrackValue = selectElement.value; const tracks = videoElement.audioTracks; let trackChanged = false; for (let i = 0; i < tracks.length; i++) { const track = tracks[i]; const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue; if (track.enabled !== isSelectedTrack) { try { track.enabled = isSelectedTrack; if (isSelectedTrack) console.log("Enabled audio track:", track.label || track.id || i); trackChanged = true; } catch (e) { console.error("Error changing audio track state for track:", track.id || i, e); } } } if (!trackChanged) console.warn("Selected audio track already active or no change applied."); }
 function openWithIntent(url) { if (!url) return; const mime = getMimeTypeFromUrl(url); const titleEncoded = encodeURIComponent(videoTitle?.innerText || document.title || 'Video'); const intentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${titleEncoded};end`; console.log("Intent:", intentUri); window.location.href = intentUri; }
+
+// --- START: MODIFIED copyVLCLink ---
 function copyVLCLink(buttonElement, url) {
-    const currentVlcBox = buttonElement.closest('.action-row td, .preview-action-row, #shared-item-content')?.querySelector('#vlcBox');
+    console.log("Copy VLC button clicked. URL:", url); // DEBUG
+    if (!url) {
+        console.error("copyVLCLink: No URL provided.");
+        alert("Cannot copy: URL is missing.");
+        return;
+    }
+
+    // Find the specific feedback span related to this button's context
+    const currentContext = buttonElement.closest('.action-row td, .preview-action-row, #shared-item-content');
+    if (!currentContext) {
+        console.error("copyVLCLink: Could not find context (action row/shared content).");
+        alert("Internal error: Could not find context for feedback.");
+        return;
+    }
+    const currentVlcBox = currentContext.querySelector('#vlcBox');
     const feedbackSpan = currentVlcBox?.querySelector('#copyFeedback');
 
-    if (!url) return;
-    if (!currentVlcBox) { console.warn("VLC box not found relative to button."); return; }
+    if (!feedbackSpan) {
+        console.warn("copyVLCLink: Feedback span (#copyFeedback) not found within context:", currentContext);
+        // Attempt copy anyway, but without the visual feedback span
+    }
 
+    // Call the updated copyToClipboard function
     copyToClipboard(url, feedbackSpan, copyTimeout).then(success => {
-        if (!success) highlightVlcText();
+        if (!success) {
+            // If copy failed after both methods, try highlighting the text as a last resort
+            highlightVlcText();
+        }
     });
 }
+// --- END: MODIFIED copyVLCLink ---
+
 function showCopyFeedback(spanElement, timeoutVarRef) {
     if (!spanElement) return;
     clearTimeout(timeoutVarRef); // Clear previous timeout for this specific feedback
@@ -2768,6 +2844,7 @@ function highlightVlcText() {
             const range = document.createRange(); range.selectNodeContents(currentVlcText);
             const selection = window.getSelection();
             if (selection) { selection.removeAllRanges(); selection.addRange(range); }
+            console.log("Highlighted VLC text as fallback."); // DEBUG
         } catch (selectErr) { console.warn("Could not highlight VLC text:", selectErr); }
     }
 }
@@ -2975,7 +3052,7 @@ function handleActionClick(event) {
             streamVideo(title, url, filename);
         } else if (action === 'copy-vlc' && url) {
             event.preventDefault();
-            copyVLCLink(button, url);
+            copyVLCLink(button, url); // Pass the button element itself
         } else if (action === 'open-intent' && url) {
             event.preventDefault();
             openWithIntent(url);
