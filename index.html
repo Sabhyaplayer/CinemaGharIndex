@@ -83,14 +83,14 @@ body {
     width: 100%;
     min-height: 100vh; /* Ensure body takes at least full viewport height */
     display: flex;
-    flex-direction: column; /* Stack header/content vertically */
+    flex-direction: column; /* Stack header/content/footer vertically */
     margin: 0; /* Remove default body margin */
 }
 
 #cinemaghar-container {
     background-color: transparent;
     margin: 0 auto; /* Center horizontally */
-    padding: 20px 0; /* Add some padding top/bottom */
+    padding: 20px 0 0 0; /* NO bottom padding, footer will handle it */
     width: 100%;
     max-width: 1300px; /* Max width */
     border-radius: 0; /* No radius */
@@ -99,7 +99,7 @@ body {
     flex-direction: column;
     flex-grow: 1; /* Allow container to grow */
     overflow: visible; /* Allow absolute elements */
-    position: relative; /* For absolute positioning of buttons */
+    position: relative; /* For absolute positioning (though not used for footer now) */
     color: var(--text-color);
     transition: background-color var(--transition-speed) var(--transition-timing),
                 padding var(--transition-speed) var(--transition-timing);
@@ -110,76 +110,15 @@ body {
     padding-top: 0; /* Remove top padding when results show */
 }
 
-/* --- Top Right Buttons --- */
-.top-right-buttons {
-    position: absolute;
-    top: 20px;
-    right: 25px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    z-index: 10;
-}
-/* Default style for non-blue buttons */
-#cinemaghar-container .top-right-buttons .button:not(.telegram-button) {
-    font-size: 13px;
-    padding: 7px 13px;
-    border-radius: var(--border-radius-sm);
-    box-shadow: none;
-    background-color: var(--light-bg);
-    color: var(--text-color) !important;
-    border: 1px solid var(--border-color);
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-#cinemaghar-container .top-right-buttons .button:not(.telegram-button):hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-    box-shadow: var(--shadow-sm);
-    filter: none;
-    opacity: 1;
-    transform: none;
-}
-/* Specific style for BLUE Telegram buttons */
-#cinemaghar-container .top-right-buttons .button.telegram-button {
-    font-size: 13px;
-    padding: 7px 13px;
-    border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-sm); /* Subtle shadow for depth */
-    background-color: var(--primary-color); /* BLUE */
-    color: white !important; /* WHITE TEXT */
-    border: 1px solid var(--primary-color); /* BLUE BORDER */
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-#cinemaghar-container .top-right-buttons .button.telegram-button:hover {
-    background-color: var(--primary-hover); /* Darker blue on hover */
-    border-color: var(--primary-hover);
-    color: white !important;
-    box-shadow: var(--shadow-md); /* Slightly stronger shadow on hover */
-    filter: none;
-    opacity: 1;
-    transform: translateY(-1px); /* Slight lift on hover */
-}
-/* Icon styling for all buttons */
-#cinemaghar-container .top-right-buttons .button svg {
-    height: 1em;
-    width: 1em;
-    margin-right: 5px;
-    vertical-align: text-bottom;
-    fill: currentColor; /* Inherits text color */
-    opacity: 0.9; /* Slightly transparent */
-}
-/* Specific icon color for blue buttons */
-#cinemaghar-container .top-right-buttons .button.telegram-button svg {
-    fill: white; /* WHITE ICON */
-    opacity: 1;
-}
-
+/* --- Removed Top Right Buttons --- */
+/* .top-right-buttons { ... } */
 
 /* --- Search Focus Area (Handles Centering Logic) --- */
 #search-focus-area {
     display: flex;
     flex-direction: column;
     align-items: center; /* Center horizontally */
+    /* Adjusted padding to account for missing top-right buttons space */
     padding: 100px 20px 20px 20px;
     text-align: center;
     transition: flex-grow var(--transition-speed) var(--transition-timing),
@@ -188,7 +127,7 @@ body {
                 background-color var(--transition-speed) var(--transition-timing),
                 border-bottom var(--transition-speed) var(--transition-timing);
     width: 100%;
-    flex-grow: 1;
+    flex-grow: 1; /* Takes up space initially */
     justify-content: center;
 }
 
@@ -573,7 +512,7 @@ body {
     display: none; /* Hidden initially - JS controls display: block */
     padding: 15px 25px 20px 25px; /* Padding */
     background-color: var(--container-bg); /* White background */
-    flex-grow: 1; /* Allow results area to take space */
+    /* flex-grow: 1; */ /* Let content determine height */
     overflow: hidden; /* Contain elements */
     width: 100%; /* Ensure it spans width */
     opacity: 0;
@@ -760,14 +699,14 @@ body {
 
 
 /* --- Buttons General Styling --- */
-/* Excludes search button, top-right buttons, preview view button, table view button, back button */
-#cinemaghar-container .button:not(#searchSubmitButton):not(.top-right-buttons .button):not(.preview-col-view .button):not(.movie-data-row .view-button):not(.back-button) {
+/* Excludes search button, footer buttons, preview view button, table view button, back button */
+#cinemaghar-container .button:not(#searchSubmitButton):not(#page-footer .button):not(.preview-col-view .button):not(.movie-data-row .view-button):not(.back-button) {
     display: inline-flex; align-items: center; justify-content: center; padding: 10px 18px; margin: 2px 0; color: white !important; border: none; border-radius: var(--border-radius-sm); /* Match box theme */ text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; white-space: nowrap; line-height: 1.4; transition: all 0.2s ease-in-out; box-shadow: var(--shadow-sm);
 }
-#cinemaghar-container .button:not(#searchSubmitButton):not(.top-right-buttons .button):not(.preview-col-view .button):not(.movie-data-row .view-button):not(.back-button):hover {
+#cinemaghar-container .button:not(#searchSubmitButton):not(#page-footer .button):not(.preview-col-view .button):not(.movie-data-row .view-button):not(.back-button):hover {
     opacity: 0.9; filter: brightness(1.1); box-shadow: 0 3px 7px rgba(0,0,0,0.12); transform: translateY(-1px);
 }
-#cinemaghar-container .button:not(#searchSubmitButton):not(.top-right-buttons .button):not(.preview-col-view .button):not(.movie-data-row .view-button):not(.back-button):active {
+#cinemaghar-container .button:not(#searchSubmitButton):not(#page-footer .button):not(.preview-col-view .button):not(.movie-data-row .view-button):not(.back-button):active {
     filter: brightness(0.9); transform: translateY(0); box-shadow: var(--shadow-sm);
 }
 
@@ -778,7 +717,7 @@ body {
 #cinemaghar-container .intent-button { background-color: #17a2b8; border-radius: var(--border-radius-sm); }
 #cinemaghar-container .vlc-button { background-color: #fd7e14; border-radius: var(--border-radius-sm); }
 #cinemaghar-container .download-button { background-color: var(--primary-color); border-radius: var(--border-radius-sm); }
-#cinemaghar-container .telegram-button:not(.top-right-buttons .button) { background-color: #0088cc; border-radius: var(--border-radius-sm); } /* Avoid conflict with top-right */
+#cinemaghar-container .telegram-button:not(#page-footer .button) { background-color: #0088cc; border-radius: var(--border-radius-sm); } /* Avoid conflict with footer */
 #cinemaghar-container .gdflix-button { background-color: #E50914; border-radius: var(--border-radius-sm); }
 #cinemaghar-container .hubcloud-button { background-color: #1E90FF; border-radius: var(--border-radius-sm); }
 #cinemaghar-container .filepress-button { background-color: #6c757d; border-radius: var(--border-radius-sm); }
@@ -824,31 +763,84 @@ body {
 .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--primary-color); margin: 30px auto; animation: spin 1s ease infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+
+/* --- Footer Styles --- */
+#page-footer {
+    width: 100%;
+    margin-top: 40px; /* Space above footer */
+    padding: 25px 20px; /* Padding inside footer */
+    border-top: 1px solid var(--border-color);
+    background-color: var(--light-bg); /* Subtle background */
+    text-align: center;
+    display: flex;
+    flex-direction: column; /* Stack text and buttons vertically initially */
+    align-items: center;
+    gap: 15px; /* Gap between text and button row */
+    flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
+#page-footer .footer-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 0; /* Remove extra margin */
+}
+
+#page-footer .footer-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Space between buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+}
+
+/* Style for footer buttons */
+#cinemaghar-container #page-footer .button {
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    padding: 8px 15px; /* Slightly larger padding than original top-right */
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-sm); /* Subtle shadow for depth */
+    background-color: var(--primary-color); /* BLUE */
+    color: white !important; /* WHITE TEXT */
+    border: 1px solid var(--primary-color); /* BLUE BORDER */
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+#cinemaghar-container #page-footer .button:hover {
+    background-color: var(--primary-hover); /* Darker blue on hover */
+    border-color: var(--primary-hover);
+    color: white !important;
+    box-shadow: var(--shadow-md); /* Slightly stronger shadow on hover */
+    filter: none;
+    opacity: 1;
+    transform: translateY(-1px); /* Slight lift on hover */
+}
+/* Icon styling for footer buttons */
+#cinemaghar-container #page-footer .button svg {
+    height: 1em;
+    width: 1em;
+    margin-right: 6px; /* Slightly more space for icon */
+    vertical-align: text-bottom;
+    fill: white; /* WHITE ICON */
+    opacity: 1;
+}
+
 /* --- Responsive Styles --- */
 @media screen and (max-width: 768px) {
   body { font-size: 14px; }
   #cinemaghar-container {
       max-width: 100%;
       margin: 0;
-      padding: 10px 0; /* Reduced padding on mobile */
+      padding: 10px 0 0 0; /* NO bottom padding */
       border-radius: 0;
       box-shadow: none;
       flex-grow: 1;
   }
 
-  /* Top Right Buttons Mobile */
-  .top-right-buttons {
-      top: 10px;
-      right: 10px;
-      gap: 8px;
-  }
-  #cinemaghar-container .top-right-buttons .button {
-      font-size: 11px;
-      padding: 6px 10px;
-  }
-  #cinemaghar-container .top-right-buttons .button svg {
-      height: 0.9em; width: 0.9em; margin-right: 3px;
-  }
+  /* Removed Mobile Styles for .top-right-buttons */
+  /* #cinemaghar-container .top-right-buttons { ... } */
+  /* #cinemaghar-container.results-active .top-right-buttons { ... } */
 
   /* Search Focus Area on mobile */
   #search-focus-area {
@@ -857,6 +849,7 @@ body {
   #cinemaghar-container.results-active #search-focus-area {
       padding: 15px 15px 10px 15px; /* Adjusted padding */
       border-bottom: 1px solid var(--border-color);
+      min-height: 67px; /* Ensure minimum height to prevent jitter */
   }
 
   /* Title Mobile */
@@ -1058,6 +1051,26 @@ body {
     .pagination-container button,
     .pagination-container span { padding: 8px 12px; font-size: 13px; margin: 0 3px;}
     .pagination-container .page-info { font-size: 12px; margin: 0 5px; padding: 8px 0;}
+
+    /* Footer Mobile Adjustments */
+    #page-footer {
+        margin-top: 30px; /* Less margin */
+        padding: 20px 15px; /* Less padding */
+        gap: 12px;
+    }
+    #page-footer .footer-text {
+        font-size: 12px; /* Smaller text */
+    }
+    #page-footer .footer-buttons {
+        gap: 12px; /* Less gap */
+    }
+    #cinemaghar-container #page-footer .button {
+        font-size: 12px; /* Smaller button text */
+        padding: 7px 12px; /* Smaller padding */
+    }
+    #cinemaghar-container #page-footer .button svg {
+        margin-right: 5px;
+    }
 }
 
 /* ]]> */
@@ -1067,21 +1080,7 @@ body {
 <!-- Main Container: Holds everything, controls background/shadow -->
 <div id="cinemaghar-container">
 
-  <!-- Top Right Buttons -->
-  <div class="top-right-buttons">
-      <a href="https://t.me/The_Sabhyaplayer_bot" target="_blank" rel="noopener noreferrer" class="button telegram-button">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
-              <path d="M97.9,161.4l-2.8,29.9c3.4,0,4.9-1.7,6.8-3.6l14.1-13.6l29.4,21.7c5.4,3.1,9.3,1.5,10.8-4.9l19.9-93.5c1.8-7.8-2.4-11.5-7.5-9.3L36.4,127.1c-7.6,3-7.6,7.5-1.3,9.6l30.2,9.4l70.4-44.3c3.3-2,6.1-0.9,3.6,1.4L97.9,161.4z"/>
-          </svg>
-          <span>Contact</span>
-      </a>
-      <a href="https://t.me/Cinemaghar_Lobby" target="_blank" rel="noopener noreferrer" class="button telegram-button">
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
-               <path d="M97.9,161.4l-2.8,29.9c3.4,0,4.9-1.7,6.8-3.6l14.1-13.6l29.4,21.7c5.4,3.1,9.3,1.5,10.8-4.9l19.9-93.5c1.8-7.8-2.4-11.5-7.5-9.3L36.4,127.1c-7.6,3-7.6,7.5-1.3,9.6l30.2,9.4l70.4-44.3c3.3-2,6.1-0.9,3.6,1.4L97.9,161.4z"/>
-           </svg>
-          <span>Channel</span>
-      </a>
-  </div>
+  <!-- Removed Top Right Buttons -->
 
   <!-- Search Focus Area: Centered initially, moves top when results show -->
   <div id="search-focus-area">
@@ -1092,7 +1091,7 @@ body {
       <!-- Right-aligned Signature -->
       <p class="signature">Curated with ❣️ by The_SabhyaPlayer</p>
 
-      <!-- MODIFICATION: Removed <p class="search-prompt"> -->
+      <!-- Search Input -->
       <div class="search-input-wrapper">
           <!-- MODIFICATION: Changed placeholder text -->
           <input type="search" id="mainSearchInput" placeholder="Search your movie, series, or file here:" autocomplete="off" />
@@ -1116,7 +1115,7 @@ body {
           </div>
           <button id="showMoreUpdatesButton" style="display: none;" onclick="appendMoreUpdates()">Show More</button>
       </div>
-  </div>
+  </div> <!-- End #search-focus-area -->
 
   <!-- Results Area: Hidden initially, displayed below search when active -->
   <div id="results-area">
@@ -1246,7 +1245,26 @@ body {
           <code id="vlcText"></code>
           <span class="copy-feedback" id="copyFeedback">Copied!</span>
       </div>
-  </div>
+  </div> <!-- End #videoContainer -->
+
+  <!-- Footer Section -->
+  <footer id="page-footer">
+      <div class="footer-buttons">
+          <a href="https://t.me/The_Sabhyaplayer_bot" target="_blank" rel="noopener noreferrer" class="button telegram-button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
+                  <path d="M97.9,161.4l-2.8,29.9c3.4,0,4.9-1.7,6.8-3.6l14.1-13.6l29.4,21.7c5.4,3.1,9.3,1.5,10.8-4.9l19.9-93.5c1.8-7.8-2.4-11.5-7.5-9.3L36.4,127.1c-7.6,3-7.6,7.5-1.3,9.6l30.2,9.4l70.4-44.3c3.3-2,6.1-0.9,3.6,1.4L97.9,161.4z"/>
+              </svg>
+              <span>Contact The_Sabhyaplayer</span>
+          </a>
+          <a href="https://t.me/Cinemaghar_Lobby" target="_blank" rel="noopener noreferrer" class="button telegram-button">
+               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
+                   <path d="M97.9,161.4l-2.8,29.9c3.4,0,4.9-1.7,6.8-3.6l14.1-13.6l29.4,21.7c5.4,3.1,9.3,1.5,10.8-4.9l19.9-93.5c1.8-7.8-2.4-11.5-7.5-9.3L36.4,127.1c-7.6,3-7.6,7.5-1.3,9.6l30.2,9.4l70.4-44.3c3.3-2,6.1-0.9,3.6,1.4L97.9,161.4z"/>
+               </svg>
+              <span>Join Telegram Channel</span>
+          </a>
+      </div>
+      <p class="footer-text">&copy; 2025 Cinema Ghar Index. Maintained by The_SabhyaPlayer.</p>
+  </footer> <!-- End #page-footer -->
 
 </div> <!-- End #cinemaghar-container -->
 
@@ -1345,6 +1363,8 @@ const moviesPaginationControls = document.getElementById('moviesPaginationContro
 const seriesPaginationControls = document.getElementById('seriesPaginationControls');
 // MODIFICATION: Added Back Button Reference (Optional, can use ID selector directly)
 const backToHomeButton = document.getElementById('backToHomeButton');
+// Footer Reference (Optional)
+const pageFooter = document.getElementById('page-footer');
 
 // Mapping for easy access to tab-related elements and state
 const tabMappings = {
@@ -1574,8 +1594,14 @@ function handleSearchSubmit() {
         suggestionsContainer.style.display = 'none';
     }
 
-    const searchTerm = searchInput.value.trim();
+    const searchTerm = searchInput.value.trim(); // Read value first
     console.log("Handling search submit for:", searchTerm);
+
+    // *** KEYBOARD FIX: Dismiss keyboard by removing focus from input ***
+    if (searchInput) {
+        searchInput.blur();
+    }
+    // ******************************************************************
 
     if (searchTerm.length === 0) {
         if (currentViewMode !== 'homepage') { resetToHomepage(); }
@@ -1587,13 +1613,14 @@ function handleSearchSubmit() {
     currentState.searchTerm = searchTerm;
     currentState.qualityFilter = qualityFilterSelect.value || '';
     resetPagination();
-    showLoadingStateInTables();
+    showLoadingStateInTables(); // Show loading *after* blur
 
-    searchTimeout = setTimeout(() => {
+    searchTimeout = setTimeout(() => { // Delay actual search logic slightly
         applyFiltersAndSort();
         renderActiveResultsView();
     }, 50);
 }
+
 
 function handleSearchClear() {
     clearTimeout(suggestionDebounceTimeout);
@@ -2495,8 +2522,8 @@ function populateQualityFilter() {
 function displayLoadError(message) {
     const errorHtml = `<div class="error-message" style="padding: 20px; text-align: center; width: 100%; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: var(--border-radius-sm); margin: 20px;">${sanitize(message)}</div>`;
 
-    const topButtons = document.querySelector('.top-right-buttons');
-    if (topButtons) topButtons.style.display = 'none';
+    const footerElem = document.getElementById('page-footer');
+    if (footerElem) footerElem.style.display = 'none'; // Hide footer on load error
 
     if (searchFocusArea) {
         searchFocusArea.innerHTML = errorHtml;
