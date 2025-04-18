@@ -1550,6 +1550,7 @@ function normalizeTextForSearch(text) { if (!text) return ""; return String(text
 function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 // --- START: MODIFIED copyToClipboard ---
+// Removed the Web Notification part, relying on the inline feedback span instead.
 async function copyToClipboard(text, feedbackSpan, timeoutVar) {
     console.log("Attempting to copy:", text); // DEBUG
     let success = false;
@@ -1586,48 +1587,17 @@ async function copyToClipboard(text, feedbackSpan, timeoutVar) {
 
     if (success) {
         console.log("Copy successful!"); // DEBUG
-        // Show original feedback span (e.g., "Copied!")
+        // Show original inline feedback span (e.g., "Copied!")
         if (feedbackSpan) {
             showCopyFeedback(feedbackSpan, timeoutVar);
         }
 
-        // Show Web Notification
-        if ('Notification' in window) {
-            const permission = Notification.permission;
-            const notificationTitle = "URL Copied!";
-            const notificationBody = "Paste into VLC/MX player to stream.";
-
-            if (permission === 'granted') {
-                try {
-                    new Notification(notificationTitle, { body: notificationBody, icon: '/favicon.ico' }); // Optional icon
-                    console.log("Web notification shown."); // DEBUG
-                } catch (e) {
-                     console.error("Error showing notification:", e);
-                }
-            } else if (permission === 'default') {
-                console.log("Requesting notification permission..."); // DEBUG
-                Notification.requestPermission().then(newPermission => {
-                    if (newPermission === 'granted') {
-                        try {
-                             new Notification(notificationTitle, { body: notificationBody, icon: '/favicon.ico' });
-                             console.log("Web notification shown after permission grant."); // DEBUG
-                        } catch (e) {
-                            console.error("Error showing notification after grant:", e);
-                        }
-                    } else {
-                        console.log("Notification permission denied or dismissed."); // DEBUG
-                        // Optionally inform user that notifications are blocked if desired
-                        // alert("Notifications are blocked. URL copied, but no notification shown.");
-                    }
-                });
-            } else { // permission === 'denied'
-                console.log("Notification permission was denied previously."); // DEBUG
-                // Maybe provide feedback that notifications are blocked if important
-                // alert("Notifications are blocked by your browser settings.");
-            }
-        } else {
-            console.warn("Web Notifications API not supported in this browser."); // DEBUG
-        }
+        // --- Removed Web Notification Block ---
+        // The logic to check Notification API and show browser notification
+        // was previously here, but has been removed as per the request.
+        // The inline feedback shown by showCopyFeedback is now the primary
+        // indicator to the user that the copy was successful.
+        console.log("Web notification logic removed."); // DEBUG
 
     } else {
         console.error("Copy FAILED."); // DEBUG
@@ -2297,7 +2267,7 @@ function updateSortIndicators(tableHeadElement) {
      tableHeadElement.querySelectorAll('th.sortable').forEach(th => {
         th.classList.remove('sort-asc', 'sort-desc');
         if (th.dataset.sortKey === currentState.sortColumn) {
-            th.classList.add(currentState.sortDirection === 'asc' ? 'sort-asc' : 'desc-desc');
+            th.classList.add(currentState.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc'); /* Fixed typo here */
             th.setAttribute('aria-sort', currentState.sortDirection === 'asc' ? 'ascending' : 'descending');
         } else {
             th.removeAttribute('aria-sort');
@@ -2803,7 +2773,7 @@ function copyVLCLink(buttonElement, url) {
         // Attempt copy anyway, but without the visual feedback span
     }
 
-    // Call the updated copyToClipboard function
+    // Call the updated copyToClipboard function (which no longer shows web notifications)
     copyToClipboard(url, feedbackSpan, copyTimeout).then(success => {
         if (!success) {
             // If copy failed after both methods, try highlighting the text as a last resort
