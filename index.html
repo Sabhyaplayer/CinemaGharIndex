@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CinemaGhar Index</title>
+    <!-- Make title dynamic based on shared item later -->
+    <title>Cinema Ghar Index</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Product+Sans:wght@400;700&display=swap" rel="stylesheet">
@@ -43,7 +44,8 @@
     --button-secondary-hover: var(--secondary-hover);
     --button-primary-bg: var(--primary-color); /* Added for Search button */
     --button-primary-hover: var(--primary-hover); /* Added for Search button */
-    /* Removed Google Title Colors */
+    --button-share-bg: #6f42c1; /* Bootstrap purple for share */
+    --button-share-hover: #5a349b;
 
     --border-radius-sm: 0.25rem; /* 4px */
     --border-radius-md: 0.5rem;
@@ -110,9 +112,6 @@ body {
     padding-top: 0; /* Remove top padding when results show */
 }
 
-/* --- Removed Top Right Buttons --- */
-/* .top-right-buttons { ... } */
-
 /* --- Search Focus Area (Handles Centering Logic) --- */
 #search-focus-area {
     display: flex;
@@ -125,7 +124,8 @@ body {
                 padding var(--transition-speed) var(--transition-timing),
                 justify-content var(--transition-speed) var(--transition-timing),
                 background-color var(--transition-speed) var(--transition-timing),
-                border-bottom var(--transition-speed) var(--transition-timing);
+                border-bottom var(--transition-speed) var(--transition-timing),
+                display var(--transition-speed) var(--transition-timing); /* Added display transition */
     width: 100%;
     flex-grow: 1; /* Takes up space initially */
     justify-content: center;
@@ -139,13 +139,16 @@ body {
     background-color: var(--header-bg); /* Need background when results show */
     border-bottom: 1px solid var(--border-color); /* Separator line */
 }
+/* Hide search focus area completely when showing shared item */
+#cinemaghar-container.shared-view-active #search-focus-area {
+    display: none;
+}
 
 /* --- Simplified Title --- */
 #search-focus-area .simple-title {
     font-family: 'Poppins', 'Product Sans', Arial, sans-serif;
     font-size: 60px; /* Adjusted size */
     font-weight: 500; /* Medium weight */
-    /* MODIFICATION: Changed title color to black/text color */
     color: var(--text-color); /* Changed from var(--primary-color) */
     margin-bottom: 5px; /* Reduced margin to bring signature closer */
     cursor: pointer; /* For reset functionality */
@@ -157,7 +160,6 @@ body {
     opacity: 1;
     line-height: 1.2;
     letter-spacing: -0.5px; /* Optional subtle tightening */
-    /* Removed specific char colors */
 }
 
 /* Signature Style */
@@ -191,13 +193,10 @@ body {
     overflow: hidden; /* Ensure fully hidden */
 }
 
-/* MODIFICATION: Removed .search-prompt CSS rule as element is removed */
-
 .search-input-wrapper {
     position: relative;
     width: 100%;
     max-width: 700px; /* Consistent width */
-    /* MODIFICATION: Adjusted bottom margin after removing prompt */
     margin: 0 auto 25px auto;
     display: flex;
     align-items: center;
@@ -490,8 +489,9 @@ body {
     opacity: 0.7;
 }
 
-/* Hide updates preview section when results are active */
-#cinemaghar-container.results-active #updates-preview-section {
+/* Hide updates preview section when results are active or shared view is active */
+#cinemaghar-container.results-active #updates-preview-section,
+#cinemaghar-container.shared-view-active #updates-preview-section {
     opacity: 0;
     transform: translateY(-10px);
     pointer-events: none;
@@ -518,17 +518,77 @@ body {
     opacity: 0;
     transform: translateY(10px);
     transition: opacity var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2),
-                transform var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2);
+                transform var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2),
+                display var(--transition-speed) var(--transition-timing); /* Added display transition */
 }
 #cinemaghar-container.results-active #results-area {
     display: block; /* Show when results are active */
     opacity: 1;
     transform: translateY(0);
 }
+/* Hide results area completely when showing shared item */
+#cinemaghar-container.shared-view-active #results-area {
+    display: none;
+}
+
+/* --- Shared Item View (Hidden by Default) --- */
+#shared-item-view {
+    display: none; /* Hidden initially */
+    padding: 25px;
+    margin-top: 20px;
+    background-color: var(--container-bg);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    max-width: 850px; /* Limit width like action rows */
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2),
+                transform var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2);
+}
+#cinemaghar-container.shared-view-active #shared-item-view {
+    display: block; /* Show when shared view is active */
+    opacity: 1;
+    transform: translateY(0);
+}
+#shared-item-view .back-button {
+    margin-bottom: 25px; /* Space below back button */
+}
+#shared-item-content {
+    /* Styles similar to action row content */
+    padding: 20px 15px;
+    background-color: #f0f2f5;
+    border-radius: var(--border-radius-sm);
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.04);
+}
+#shared-item-content .action-info,
+#shared-item-content .action-buttons-container {
+    /* Reuse existing action row styles */
+    margin-bottom: 20px;
+}
+#shared-item-content .action-buttons-container {
+    border-top: 1px solid var(--border-color);
+    padding-top: 25px;
+}
+#shared-item-view .status-message,
+#shared-item-view .error-message {
+    text-align: center;
+    padding: 30px 15px;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+#shared-item-view .error-message {
+    color: var(--error-color);
+    font-weight: 500;
+}
+
 
 /* MODIFICATION: Back Button Styling */
 #cinemaghar-container .back-button {
-    display: none; /* Hidden by default */
+    display: inline-flex; /* Use inline-flex to allow margin */
+    align-items: center; /* Align icon and text */
     margin-bottom: 15px; /* Space below */
     padding: 8px 16px;
     font-size: 14px;
@@ -540,7 +600,7 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     font-weight: 500;
-    align-self: flex-start;
+    align-self: flex-start; /* Keep it left-aligned */
 }
 
 #cinemaghar-container .back-button:hover {
@@ -549,10 +609,17 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-/* Show back button only when results are active */
-#cinemaghar-container.results-active #backToHomeButton {
-    display: inline-flex; /* Or block/flex */
-    align-items: center; /* Align icon and text */
+/* Show back button only when results or shared view are active */
+#cinemaghar-container.results-active #backToHomeButtonResults,
+#cinemaghar-container.shared-view-active #backToHomeButtonShared {
+    display: inline-flex;
+}
+/* Hide the respective back buttons when not in their active state */
+#cinemaghar-container:not(.results-active) #backToHomeButtonResults {
+    display: none;
+}
+#cinemaghar-container:not(.shared-view-active) #backToHomeButtonShared {
+    display: none;
 }
 
 
@@ -685,17 +752,41 @@ body {
 /* Action Row (Table) */
 #cinemaghar-container tr.action-row { display: none; background-color: #f8f9fa; }
 #cinemaghar-container .action-row td { padding: 25px 20px; text-align: left; border-bottom: none; box-shadow: inset 0 3px 5px rgba(0,0,0,0.04); }
-/* Common Action Info/Buttons styles used by both table and preview action rows */
-#cinemaghar-container .action-info { margin-bottom: 20px; font-size: 14px; color: var(--text-muted); text-align: left; line-height: 1.7; }
-#cinemaghar-container .action-info .info-item { display: block; margin-bottom: 8px; }
-#cinemaghar-container .action-info strong { color: var(--text-color); font-weight: 600; margin-right: 8px; display: inline-block; min-width: 90px; }
-#cinemaghar-container .action-info .quality-logo { height: 1.1em; width: auto; vertical-align: text-bottom; margin-left: 4px; display: inline-block; }
-#cinemaghar-container .action-buttons-container { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 25px; }
-#cinemaghar-container .preview-action-row .action-info { margin-bottom: 20px; font-size: 14px; color: var(--text-muted); text-align: left; line-height: 1.7; }
-#cinemaghar-container .preview-action-row .action-info .info-item { display: block; margin-bottom: 8px; }
-#cinemaghar-container .preview-action-row .action-info strong { color: var(--text-color); font-weight: 600; margin-right: 8px; display: inline-block; min-width: 90px; }
-#cinemaghar-container .preview-action-row .action-info .quality-logo { height: 1.1em; width: auto; vertical-align: text-bottom; margin-left: 4px; display: inline-block; }
-#cinemaghar-container .preview-action-row .action-buttons-container { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 25px; }
+/* Common Action Info/Buttons styles used by table, preview, and shared view */
+#cinemaghar-container .action-info,
+#cinemaghar-container .preview-action-row .action-info,
+#cinemaghar-container #shared-item-content .action-info {
+    margin-bottom: 20px; font-size: 14px; color: var(--text-muted); text-align: left; line-height: 1.7;
+}
+#cinemaghar-container .action-info .info-item,
+#cinemaghar-container .preview-action-row .action-info .info-item,
+#cinemaghar-container #shared-item-content .action-info .info-item {
+    display: block; margin-bottom: 8px;
+}
+#cinemaghar-container .action-info strong,
+#cinemaghar-container .preview-action-row .action-info strong,
+#cinemaghar-container #shared-item-content .action-info strong {
+    color: var(--text-color); font-weight: 600; margin-right: 8px; display: inline-block; min-width: 90px;
+}
+#cinemaghar-container .action-info .quality-logo,
+#cinemaghar-container .preview-action-row .action-info .quality-logo,
+#cinemaghar-container #shared-item-content .action-info .quality-logo {
+    height: 1.1em; width: auto; vertical-align: text-bottom; margin-left: 4px; display: inline-block;
+}
+#cinemaghar-container .action-buttons-container,
+#cinemaghar-container .preview-action-row .action-buttons-container,
+#cinemaghar-container #shared-item-content .action-buttons-container {
+    display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 25px;
+}
+/* Remove bottom margin from last element in shared content */
+#cinemaghar-container #shared-item-content > *:last-child {
+    margin-bottom: 0;
+}
+/* Ensure border-top doesn't apply if action-info is first in shared content */
+#cinemaghar-container #shared-item-content > .action-buttons-container:first-child {
+    border-top: none;
+    padding-top: 0;
+}
 
 
 /* --- Buttons General Styling --- */
@@ -722,6 +813,9 @@ body {
 #cinemaghar-container .hubcloud-button { background-color: #1E90FF; border-radius: var(--border-radius-sm); }
 #cinemaghar-container .filepress-button { background-color: #6c757d; border-radius: var(--border-radius-sm); }
 #cinemaghar-container .gdtot-button { background-color: #ffc107; color: #333 !important; border-radius: var(--border-radius-sm); }
+/* Share Button Style */
+#cinemaghar-container .share-button { background-color: var(--button-share-bg); border-radius: var(--border-radius-sm); }
+#cinemaghar-container .share-button:hover { background-color: var(--button-share-hover); }
 
 
 /* --- Copy Feedback --- */
@@ -777,6 +871,11 @@ body {
     align-items: center;
     gap: 15px; /* Gap between text and button row */
     flex-shrink: 0; /* Prevent footer from shrinking */
+    transition: display var(--transition-speed) var(--transition-timing); /* Added display transition */
+}
+/* Hide footer in shared view */
+#cinemaghar-container.shared-view-active #page-footer {
+    display: none;
 }
 
 #page-footer .footer-text {
@@ -837,10 +936,6 @@ body {
       box-shadow: none;
       flex-grow: 1;
   }
-
-  /* Removed Mobile Styles for .top-right-buttons */
-  /* #cinemaghar-container .top-right-buttons { ... } */
-  /* #cinemaghar-container.results-active .top-right-buttons { ... } */
 
   /* Search Focus Area on mobile */
   #search-focus-area {
@@ -936,8 +1031,43 @@ body {
   /* Results Area on mobile */
   #results-area { margin: 0; padding: 15px; border-radius: 0;}
 
+  /* Shared Item View on mobile */
+  #shared-item-view {
+      padding: 15px;
+      margin-top: 10px;
+      max-width: 95%;
+      border-radius: var(--border-radius-sm);
+  }
+  #shared-item-view .back-button {
+      margin-bottom: 20px;
+      padding: 7px 12px;
+      font-size: 13px;
+  }
+  #shared-item-content {
+      padding: 15px 10px;
+  }
+  #shared-item-content .action-info {
+      font-size: 13px; margin-bottom: 15px;
+  }
+   #shared-item-content .action-info .info-item {
+      margin-bottom: 6px; line-height: 1.5;
+  }
+   #shared-item-content .action-info strong {
+      min-width: 65px; margin-right: 5px;
+  }
+   #shared-item-content .action-info .quality-logo {
+      height: 0.9em;
+  }
+   #shared-item-content .action-buttons-container {
+      flex-direction: column; align-items: stretch; gap: 8px; padding-top: 15px;
+  }
+   #shared-item-content .action-buttons-container .button {
+      font-size: 13px; padding: 10px 15px; width: 100%; margin: 0; box-sizing: border-box;
+  }
+
+
   /* MODIFICATION: Back Button Mobile Style */
-  #cinemaghar-container .back-button {
+  #cinemaghar-container .back-button { /* General style for mobile back buttons */
       padding: 7px 12px;
       font-size: 13px;
   }
@@ -1080,8 +1210,6 @@ body {
 <!-- Main Container: Holds everything, controls background/shadow -->
 <div id="cinemaghar-container">
 
-  <!-- Removed Top Right Buttons -->
-
   <!-- Search Focus Area: Centered initially, moves top when results show -->
   <div id="search-focus-area">
       <!-- Simplified Title -->
@@ -1093,15 +1221,13 @@ body {
 
       <!-- Search Input -->
       <div class="search-input-wrapper">
-          <!-- MODIFICATION: Changed placeholder text -->
           <input type="search" id="mainSearchInput" placeholder="Search your movie, series, or file" autocomplete="off" />
           <div id="searchInputSuggestions"></div>
           <button class="button" id="searchSubmitButton" onclick="handleSearchSubmit()">Search</button>
       </div>
-      <!-- Optional buttons can still go here -->
+      <!-- Optional buttons -->
       <div class="search-actions">
-           <!-- <button class="button">Feeling Lucky?</button> -->
-           <!-- <button class="button">Another Button</button> -->
+           <!-- Buttons here if needed -->
       </div>
       <!-- Updates Preview Section (only shown on homepage) -->
       <div id="updates-preview-section" style="display: none;">
@@ -1119,9 +1245,9 @@ body {
 
   <!-- Results Area: Hidden initially, displayed below search when active -->
   <div id="results-area">
-      <!-- MODIFICATION: Added Back Button -->
-      <button id="backToHomeButton" class="button back-button" onclick="resetToHomepage()">
-          &larr; Back to Home <!-- Using HTML arrow entity -->
+      <!-- MODIFICATION: Added Back Button specific to Results View -->
+      <button id="backToHomeButtonResults" class="button back-button" onclick="resetToHomepage()">
+          &larr; Back to Home
       </button>
 
       <!-- Filter Area within Results -->
@@ -1210,6 +1336,19 @@ body {
       </div> <!-- End .tab-content -->
   </div> <!-- End #results-area -->
 
+  <!-- Shared Item View Area (Hidden initially) -->
+  <div id="shared-item-view">
+      <button id="backToHomeButtonShared" class="button back-button" onclick="resetToHomepage()">
+          &larr; Back to Home
+      </button>
+      <div id="shared-item-content">
+          <!-- JS populates this with shared item details or error message -->
+          <div class="status-message">Loading shared item...</div>
+      </div>
+       <!-- Video player will be moved inside shared-item-content when playing from share view -->
+  </div> <!-- End #shared-item-view -->
+
+
   <!-- Video Player Container - Initially hidden, moved dynamically by JS -->
   <div class="video-container" id="videoContainer" style="display: none;">
       <button class="close-btn" onclick="closePlayer()">✖ Close</button>
@@ -1244,6 +1383,7 @@ body {
           <strong>External Player URL:</strong>
           <code id="vlcText"></code>
           <span class="copy-feedback" id="copyFeedback">Copied!</span>
+          <span class="copy-feedback" id="shareFallbackFeedback" style="color: var(--text-muted);">Link copied!</span>
       </div>
   </div> <!-- End #videoContainer -->
 
@@ -1279,12 +1419,12 @@ const config = {
     HDR_LOGO_URL: "https://as1.ftcdn.net/v2/jpg/05/32/83/72/1000_F_532837228_v8CGZRU0jy39uCtqFRnJz6xDntrGuLLx.webp",
     FOURK_LOGO_URL: "https://i.pinimg.com/736x/85/c4/b0/85c4b0a2fb8612825d0cd2f53460925f.jpg",
     ITEMS_PER_PAGE: 50,
-    LOCAL_STORAGE_KEY: 'cinemaGharState_v7_search', // Incremented version
+    LOCAL_STORAGE_KEY: 'cinemaGharState_v8_share', // Incremented version
     PLAYER_VOLUME_KEY: 'cinemaGharPlayerVolume',
     PLAYER_SPEED_KEY: 'cinemaGharPlayerSpeed',
     SEARCH_DEBOUNCE_DELAY: 300,
     SUGGESTIONS_DEBOUNCE_DELAY: 250,
-    MAX_SUGGESTIONS: 50, // <<< INCREASED suggestion limit
+    MAX_SUGGESTIONS: 50,
     UPDATES_PREVIEW_INITIAL_COUNT: 10,
     UPDATES_PREVIEW_LOAD_MORE_COUNT: 10
 };
@@ -1298,10 +1438,12 @@ let uniqueQualities = new Set();
 let activeTableActionRow = null; // Reference to the currently open action TR in search results
 let activePreviewActionRow = null; // Reference to the currently open action DIV in updates preview
 let copyTimeout;
+let shareFallbackTimeout; // Separate timeout for share fallback copy
 let suggestionDebounceTimeout;
 let searchTimeout;
+let isDirectShareLoad = false; // Flag for direct share link loading
 
-let currentViewMode = 'homepage'; // 'homepage' or 'search'
+let currentViewMode = 'homepage'; // 'homepage', 'search', or 'shared'
 let activeResultsTab = 'allFiles'; // 'allFiles', 'movies', 'series'
 
 // Represents the user's current selections for search/filtering/sorting/pagination
@@ -1319,6 +1461,8 @@ let currentState = {
 const container = document.getElementById('cinemaghar-container');
 const searchFocusArea = document.getElementById('search-focus-area');
 const resultsArea = document.getElementById('results-area');
+const sharedItemView = document.getElementById('shared-item-view'); // <-- New
+const sharedItemContent = document.getElementById('shared-item-content'); // <-- New
 const searchInput = document.getElementById('mainSearchInput');
 const suggestionsContainer = document.getElementById('searchInputSuggestions');
 const qualityFilterSelect = document.getElementById('mainQualityFilterSelect');
@@ -1341,6 +1485,7 @@ const playbackSpeedSelect = document.getElementById('playbackSpeedSelect');
 const customControlsContainer = document.getElementById('customControlsContainer');
 const audioTrackSelect = document.getElementById('audioTrackSelect');
 const copyFeedbackSpan = document.getElementById('copyFeedback');
+const shareFallbackFeedbackSpan = document.getElementById('shareFallbackFeedback'); // <-- New
 const playerCloseButton = document.querySelector('.video-container .close-btn');
 
 // Tab Navigation and Content Area
@@ -1361,9 +1506,12 @@ const seriesTableHead = document.querySelector('#seriesTable thead');
 const allFilesPaginationControls = document.getElementById('allFilesPaginationControls');
 const moviesPaginationControls = document.getElementById('moviesPaginationControls');
 const seriesPaginationControls = document.getElementById('seriesPaginationControls');
-// MODIFICATION: Added Back Button Reference (Optional, can use ID selector directly)
-const backToHomeButton = document.getElementById('backToHomeButton');
-// Footer Reference (Optional)
+
+// Back Button References
+const backToHomeButtonResults = document.getElementById('backToHomeButtonResults');
+const backToHomeButtonShared = document.getElementById('backToHomeButtonShared');
+
+// Footer Reference
 const pageFooter = document.getElementById('page-footer');
 
 // Mapping for easy access to tab-related elements and state
@@ -1373,7 +1521,7 @@ const tabMappings = {
     series: { button: seriesTabButton, panel: seriesTabPanel, tableBody: seriesTableBody, pagination: seriesPaginationControls, pageKey: 'currentPageSeries', tableHead: seriesTableHead }
 };
 
-// --- Utility Functions (sanitize, TimeAgo, extractSizeData, getMimeTypeFromUrl, handleVideoError, extractQualityFromFilename, normalizeTextForSearch, escapeRegExp) ---
+// --- Utility Functions (sanitize, TimeAgo, extractSizeData, getMimeTypeFromUrl, handleVideoError, extractQualityFromFilename, normalizeTextForSearch, escapeRegExp, copyToClipboard) ---
 const sanitize = (str) => { if (str === null || typeof str === 'undefined') return ""; const temp = document.createElement('div'); temp.textContent = String(str); return temp.innerHTML; };
 const TimeAgo = { MINUTE: 60, HOUR: 3600, DAY: 86400, WEEK: 604800, MONTH: 2592000, YEAR: 31536000, format: (isoString) => { if (!isoString) return 'N/A'; try { const date = new Date(isoString); const seconds = Math.floor((new Date() - date) / 1000); if (isNaN(seconds) || seconds < 0) { return TimeAgo.formatFullDate(date); } if (seconds < 2) return "just now"; if (seconds < TimeAgo.MINUTE) return `${seconds} sec${seconds > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.HOUR) return `${Math.floor(seconds / TimeAgo.MINUTE)} min${Math.floor(seconds / TimeAgo.MINUTE) > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.DAY) return `${Math.floor(seconds / TimeAgo.HOUR)} hr${Math.floor(seconds / TimeAgo.HOUR) > 1 ? 's' : ''} ago`; if (seconds < TimeAgo.DAY * 2) return "Yesterday"; if (seconds < TimeAgo.WEEK) return `${Math.floor(seconds / TimeAgo.DAY)} days ago`; if (seconds < TimeAgo.MONTH) return `${Math.floor(seconds / TimeAgo.WEEK)} wk${Math.floor(seconds / TimeAgo.WEEK) > 1 ? 's' : ''} ago`; return TimeAgo.formatFullDate(date, true); } catch (e) { console.error("Date Format Error (TimeAgo):", isoString, e); return 'Invalid Date'; } }, formatFullDate: (date, short = false) => { if (!(date instanceof Date) || isNaN(date.getTime())) return 'Invalid Date'; const optsDate = short ? { year: '2-digit', month: 'numeric', day: 'numeric' } : { year: 'numeric', month: 'short', day: 'numeric' }; const optsTime = { hour: 'numeric', minute: '2-digit', hour12: true }; try { return `${date.toLocaleDateString(undefined, optsDate)}${short ? '' : ', ' + date.toLocaleTimeString(undefined, optsTime)}`; } catch (e) { console.error("toLocaleDateString/Time failed:", e); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; } } };
 function extractSizeData(inputString) { if (!inputString) return { value: 0, unit: '', display: 'N/A', bytes: 0 }; const r = /(?<size>[\d.]+)\s?(?<unit>GB|MB)/i; const m = String(inputString).match(r); if (m?.groups?.size && m?.groups?.unit) { const value = parseFloat(m.groups.size); const unit = m.groups.unit.toUpperCase(); if (!isNaN(value)) { const bytes = unit === 'GB' ? value * 1024 * 1024 * 1024 : value * 1024 * 1024; return { value: value, unit: unit, display: `${value} ${unit}`, bytes: isNaN(bytes) ? 0 : bytes }; } } return { value: 0, unit: '', display: 'N/A', bytes: 0 }; }
@@ -1382,6 +1530,43 @@ function handleVideoError(event) { console.error("HTML5 Video Error:", event, vi
 function extractQualityFromFilename(filename) { if (!filename) return null; const patterns = [ /(?:^|\.|\[|\(|\s|_|-)((?:4k|2160p|1080p|720p|480p))(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(WEB-?DL|WEBRip|BluRay|BDRip|BRRip|HDTV|HDRip|DVDrip|DVDScr|HDCAM|HC|TC|TS|CAM)(?=$|\.|\]|\)|\s|_|-)/i, /(?:^|\.|\[|\(|\s|_-)(HDR|DV|Dolby.?Vision|HEVC|x265)(?=$|\.|\]|\)|\s|_|-)/i ]; let foundQuality = null; for (const regex of patterns) { const match = filename.match(regex); if (match && match[1]) { let quality = match[1].toUpperCase(); quality = quality.replace(/WEB-?DL/i, 'WEBDL'); quality = quality.replace(/BLURAY/i, 'BluRay'); quality = quality.replace(/DVDRIP/i, 'DVD'); quality = quality.replace(/DOLBY.?VISION/i, 'Dolby Vision'); if (quality === '2160P') quality = '4K'; if (patterns.indexOf(regex) < 2) return quality; if (patterns.indexOf(regex) === 2 && !foundQuality) foundQuality = quality; } } return foundQuality; }
 function normalizeTextForSearch(text) { if (!text) return ""; return String(text) .toLowerCase() .replace(/[.\-_\(\)\[\]]/g, '') .replace(/\s+/g, ' ') .trim(); }
 function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+async function copyToClipboard(text, feedbackSpan, timeoutVar) {
+    let success = false;
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            success = true;
+        } catch (err) {
+            console.error("Async clipboard write failed:", err);
+            success = false;
+        }
+    }
+
+    if (!success) { // Fallback
+        console.warn("Using fallback copy method.");
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px"; textArea.style.opacity = "0"; textArea.setAttribute("readonly", "");
+        document.body.appendChild(textArea);
+        try {
+            textArea.select();
+            textArea.setSelectionRange(0, textArea.value.length);
+            success = document.execCommand('copy');
+        } catch (err) {
+            console.error('Fallback copy execCommand failed:', err);
+            success = false;
+        } finally {
+            document.body.removeChild(textArea);
+        }
+    }
+
+    if (success && feedbackSpan) {
+        showCopyFeedback(feedbackSpan, timeoutVar);
+    } else if (!success) {
+        alert("Copy failed. Please try again or copy manually.");
+    }
+    return success;
+}
 
 // --- Data Preprocessing ---
 function preprocessMovieData(movie) {
@@ -1426,6 +1611,7 @@ function createActionContentHTML(movie) {
     const escapedStreamTitle = streamTitle.replace(/'/g, "\\'");
     const escapedFilename = displayFilename.replace(/'/g, "\\'");
     const escapedUrl = movie.url ? movie.url.replace(/'/g, "\\'") : '';
+    const escapedId = movie.id ? String(movie.id).replace(/'/g, "\\'") : ''; // Escape ID for data attributes
 
     let actionButtonsHTML = '';
     if (movie.url) {
@@ -1444,6 +1630,12 @@ function createActionContentHTML(movie) {
     if (movie.hubcloudLink) actionButtonsHTML += `<a class="button hubcloud-button" href="${sanitize(movie.hubcloudLink)}" target="_blank" rel="noopener noreferrer">HubCloud</a>`;
     if (movie.filepressLink) actionButtonsHTML += `<a class="button filepress-button" href="${sanitize(movie.filepressLink)}" target="_blank" rel="noopener noreferrer">Filepress</a>`;
     if (movie.gdtotLink) actionButtonsHTML += `<a class="button gdtot-button" href="${sanitize(movie.gdtotLink)}" target="_blank" rel="noopener noreferrer">GDToT</a>`;
+
+    // Add Share Button if ID exists
+    if (movie.id) {
+         actionButtonsHTML += `<button class="button share-button" data-action="share" data-id="${escapedId}" data-title="${escapedStreamTitle}" data-filename="${escapedFilename}">Share Post</button>`;
+    }
+
     if (!actionButtonsHTML) {
         actionButtonsHTML = '<span style="color: var(--text-muted); font-style: italic; text-align: center; width: 100%; display: block; padding: 10px 0;">No stream/download actions available</span>';
     }
@@ -1501,9 +1693,10 @@ function setViewMode(mode) {
     currentViewMode = mode;
     closePlayerIfNeeded();
 
+    container.classList.toggle('results-active', mode === 'search');
+    container.classList.toggle('shared-view-active', mode === 'shared');
+
     if (mode === 'homepage') {
-        container.classList.remove('results-active');
-        // Back button is handled by CSS based on .results-active
         if (updatesPreviewSection) updatesPreviewSection.style.display = 'block';
         searchInput.value = '';
         currentState.searchTerm = '';
@@ -1518,15 +1711,31 @@ function setViewMode(mode) {
             if (updatesPreviewList) updatesPreviewList.innerHTML = '<div class="status-message" style="text-align:center; padding: 15px 0;">No recent updates found in the last 7 days.</div>';
             if (showMoreUpdatesButton) showMoreUpdatesButton.style.display = 'none';
         }
-    } else { // 'search'
-        container.classList.add('results-active');
-        // Back button is handled by CSS based on .results-active
+        // Reset page title
+        document.title = "Cinema Ghar Index";
+    } else if (mode === 'search') {
         closeActiveActionRow('preview');
+        // Reset page title
+        document.title = "Cinema Ghar Index";
+    } else if (mode === 'shared') {
+        closeActiveActionRow('table');
+        closeActiveActionRow('preview');
+        // Title will be set by displaySharedItem
     }
+
     saveStateToLocalStorage();
 }
 
 function resetToHomepage() {
+    // Clear the shareId parameter from URL without reloading
+    if (window.history.pushState) {
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.pushState({ path: cleanUrl }, '', cleanUrl);
+    } else {
+        // Fallback for older browsers (might cause a reload if hash was used)
+        window.location.hash = '';
+    }
+    isDirectShareLoad = false; // Reset flag
     setViewMode('homepage');
 }
 
@@ -1597,11 +1806,9 @@ function handleSearchSubmit() {
     const searchTerm = searchInput.value.trim(); // Read value first
     console.log("Handling search submit for:", searchTerm);
 
-    // *** KEYBOARD FIX: Dismiss keyboard by removing focus from input ***
     if (searchInput) {
         searchInput.blur();
     }
-    // ******************************************************************
 
     if (searchTerm.length === 0) {
         if (currentViewMode !== 'homepage') { resetToHomepage(); }
@@ -1663,6 +1870,7 @@ function prepareWeeklyUpdatesData() {
 }
 
 function displayInitialUpdates() {
+    if (isDirectShareLoad) return; // Don't show updates if loading a shared item
     if (!updatesPreviewList || !showMoreUpdatesButton) return;
     updatesPreviewList.innerHTML = '';
     updatesPreviewShownCount = 0;
@@ -1736,7 +1944,7 @@ function appendUpdatesToPreview(startIndex, endIndex) {
         actionRowDiv.id = actionRowId;
         actionRowDiv.className = 'preview-action-row';
         actionRowDiv.style.display = 'none';
-        actionRowDiv.dataset.parentItemId = itemDiv.id; // Note: itemDiv doesn't have an explicit ID, might be better to rely on dataset.index
+        actionRowDiv.dataset.parentItemId = itemDiv.id;
         fragment.appendChild(actionRowDiv);
      }
      updatesPreviewList.appendChild(fragment);
@@ -1826,7 +2034,7 @@ function triggerFilterChange() {
 
 function handleSort(event) {
     const header = event.target.closest('th.sortable');
-    if (!header || currentViewMode === 'homepage') return;
+    if (!header || currentViewMode === 'homepage' || currentViewMode === 'shared') return;
     const sortKey = header.dataset.sortKey;
     if (!sortKey) return;
 
@@ -1850,7 +2058,10 @@ function handleSort(event) {
 // --- Rendering Logic ---
 function renderActiveResultsView() {
     if (currentViewMode !== 'search' || !tabMappings[activeResultsTab]) {
-        showLoadingStateInTables('Enter search term above.');
+        // Don't show search message if we are in homepage or shared view
+        if (currentViewMode === 'search') {
+            showLoadingStateInTables('Enter search term above.');
+        }
         return;
     }
     console.log(`Rendering SEARCH results view for tab: ${activeResultsTab}`);
@@ -2035,14 +2246,14 @@ function scrollToTopOfActiveTable(tableBodyElement) {
     const tableContainer = tableBodyElement.closest('.table-container');
     if (tableContainer) {
         const searchBarArea = container.querySelector('#search-focus-area');
-        const backButtonElem = resultsArea.querySelector('#backToHomeButton');
+        const backButtonElem = resultsArea.querySelector('#backToHomeButtonResults'); // Use results back button
         const filterArea = resultsArea.querySelector('.results-filter-area');
         const tabNav = resultsArea.querySelector('.tab-navigation');
 
         let stickyHeaderHeight = 0;
         if (container.classList.contains('results-active')) {
              stickyHeaderHeight = (searchBarArea?.offsetHeight || 0) +
-                                  (backButtonElem?.offsetHeight || 0) + (backButtonElem ? parseFloat(getComputedStyle(backButtonElem).marginBottom) : 0) + // Include back button height + margin
+                                  (backButtonElem?.offsetHeight || 0) + (backButtonElem ? parseFloat(getComputedStyle(backButtonElem).marginBottom) : 0) +
                                   (filterArea?.offsetHeight || 0) +
                                   (tabNav?.offsetHeight || 0);
         }
@@ -2086,19 +2297,30 @@ function closeActiveActionRow(type = 'any') {
     }
 
     if (rowToClose && rowToClose.style.display !== 'none') {
+        // Check if the player is inside the row being closed
+        const isPlayerInside = videoContainer?.parentElement === rowToClose ||
+                              (rowToClose.matches('tr.action-row') && videoContainer?.parentElement === rowToClose.querySelector('td')) ||
+                              (rowToClose.matches('.preview-action-row') && videoContainer?.parentElement === rowToClose);
+
+        if (isPlayerInside) {
+            closePlayer(); // Close player *first* if it's inside
+        }
+
         rowToClose.style.display = 'none';
         if (buttonElement) {
             buttonElement.textContent = 'View';
             buttonElement.setAttribute('aria-expanded', 'false');
         }
-        if (videoContainer?.parentElement === rowToClose || videoContainer?.parentElement === rowToClose.querySelector('td')) {
-            closePlayer();
-        }
+
+        // Clear content only for preview row (table row gets removed anyway)
         if (rowToClose.classList.contains('preview-action-row')) {
             rowToClose.innerHTML = '';
         }
         if (rowToClose.matches('tr.action-row')) {
-             rowToClose.remove(); // Remove dynamically added table action rows
+             // Only remove if it still exists (might be removed by closePlayer)
+             if (rowToClose.parentElement) {
+                 rowToClose.remove();
+             }
         }
     }
 }
@@ -2115,25 +2337,19 @@ function toggleTableActions(mainRowElement) {
     const buttonElement = mainRowElement.querySelector('.view-button');
     if (!buttonElement) { console.error("Could not find view button in row:", mainRowElement); return; }
 
-    // Check if the currently active action row *is* the one associated with this clicked row
     const isCurrentlyAssociatedActiveRow = activeTableActionRow && activeTableActionRow.id === targetRowId;
 
-    // If we are clicking on a row and *another* action row is open, close the other one first.
     if (!isCurrentlyAssociatedActiveRow) {
         closePlayerIfNeeded();
-        closeActiveActionRow('any'); // Close any open action row (table or preview)
+        closeActiveActionRow('any');
     }
 
-    // Now, handle the toggling for the clicked row
     if (isCurrentlyAssociatedActiveRow) {
-        // It's already open, so close it
-        closeActiveActionRow('table');
+        closeActiveActionRow('table'); // This will also handle player closing if needed
     } else {
-        // It's not open, or a different one was open and is now closed. Open this one.
         const movie = currentViewData[dataIndex];
         if (!movie) { console.error("Movie data not found for index:", dataIndex); return; }
 
-        // Create and insert the action row if it doesn't exist (it might if we just closed it)
         if (!document.getElementById(targetRowId)) {
             targetRow = document.createElement('tr');
             targetRow.id = targetRowId;
@@ -2142,18 +2358,16 @@ function toggleTableActions(mainRowElement) {
             targetRow.innerHTML = `<td colspan="${colspanValue}">${createActionContentHTML(movie)}</td>`;
             mainRowElement.parentNode.insertBefore(targetRow, mainRowElement.nextSibling);
         } else {
-            targetRow = document.getElementById(targetRowId); // Re-get the element if it existed
-             // Re-populate content just in case? Or assume it's correct if it exists.
-             // For simplicity, let's re-populate to ensure data freshness if needed.
+            targetRow = document.getElementById(targetRowId);
              const colspanValue = mainRowElement.cells.length || 6;
              targetRow.innerHTML = `<td colspan="${colspanValue}">${createActionContentHTML(movie)}</td>`;
         }
 
-        targetRow.style.display = 'table-row'; // Show it
+        targetRow.style.display = 'table-row';
         buttonElement.textContent = 'Hide';
         buttonElement.setAttribute('aria-expanded', 'true');
         mainRowElement.classList.add('active-main-row');
-        activeTableActionRow = targetRow; // Set as the currently active one
+        activeTableActionRow = targetRow;
 
         scrollToRowIfNeeded(mainRowElement);
     }
@@ -2171,34 +2385,27 @@ function togglePreviewActions(mainItemDiv) {
      const buttonElement = mainItemDiv.querySelector('.view-button');
      if (!targetRowDiv || !buttonElement) { console.error("Target action div or button not found.", targetRowId); return; }
 
-     // Check if the currently active preview action row *is* the one associated with this clicked item
      const isCurrentlyAssociatedActiveRow = activePreviewActionRow && activePreviewActionRow.id === targetRowId;
 
-     // If we are clicking on an item and *another* action row is open (preview or table), close the other one first.
      if (!isCurrentlyAssociatedActiveRow) {
          closePlayerIfNeeded();
-         closeActiveActionRow('any'); // Close any open action row
+         closeActiveActionRow('any');
      }
 
-     // Now, handle the toggling for the clicked item
      if (isCurrentlyAssociatedActiveRow) {
-         // It's already open, so close it
-         closeActiveActionRow('preview');
+         closeActiveActionRow('preview'); // Handles player if needed
      } else {
-         // It's not open, or a different one was open and is now closed. Open this one.
          const movie = weeklyUpdatesData[movieIndex];
          if (!movie) { console.error("Movie data not found for preview index:", movieIndex); return; }
 
-         // Populate the content
          const actionContentHTML = createActionContentHTML(movie);
          targetRowDiv.innerHTML = actionContentHTML;
 
-         // Show it
          targetRowDiv.style.display = 'block';
          buttonElement.textContent = 'Hide';
          buttonElement.setAttribute('aria-expanded', 'true');
          mainItemDiv.classList.add('active-main-row');
-         activePreviewActionRow = targetRowDiv; // Set as the currently active one
+         activePreviewActionRow = targetRowDiv;
 
          scrollToRowIfNeeded(mainItemDiv);
      }
@@ -2210,25 +2417,95 @@ function scrollToRowIfNeeded(mainElement) {
     }, 100);
 }
 
-// --- Player Logic ---
-function streamVideo(title, url, filenameForAudioCheck) {
-    const currentActiveActionRow = activeTableActionRow || activePreviewActionRow;
-    if (!videoContainer || !videoElement || !currentActiveActionRow) {
-        console.error("Cannot stream: player, video element, or active action row missing.");
+// --- Share Logic ---
+async function handleShareClick(buttonElement) {
+    const itemId = buttonElement.dataset.id;
+    const itemTitle = buttonElement.dataset.title || "Cinema Ghar Item";
+    const itemFilename = buttonElement.dataset.filename || "";
+
+    if (!itemId) {
+        console.error("Share failed: Item ID missing.");
+        alert("Cannot share this item (missing ID).");
         return;
     }
 
-    const actionContainer = currentActiveActionRow.matches('tr')
-                            ? currentActiveActionRow.querySelector('td')
-                            : currentActiveActionRow; // For preview, the action row itself is the container
-    if (!actionContainer) {
-        console.error("Cannot stream: active action container (td or div) not found.");
+    // Construct the shareable URL
+    const shareUrl = `${window.location.origin}${window.location.pathname}?shareId=${encodeURIComponent(itemId)}`;
+    const shareText = `Check out: ${itemTitle}\n${itemFilename ? `(${itemFilename})\n` : ''}`;
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: itemTitle,
+                text: shareText,
+                url: shareUrl,
+            });
+            console.log('Successful share');
+        } catch (error) {
+            console.error('Error sharing:', error);
+            // Optional: Provide feedback if the user cancelled vs. other errors
+            if (error.name !== 'AbortError') {
+                alert(`Share failed: ${error.message}`);
+            }
+        }
+    } else {
+        console.log('Web Share API not supported, falling back to copy.');
+        // Fallback: Copy the share URL to clipboard
+        await copyToClipboard(shareUrl, shareFallbackFeedbackSpan, shareFallbackTimeout);
+    }
+}
+
+// --- Shared Item Display Logic ---
+function displaySharedItem(shareId) {
+    if (!shareId || !sharedItemView || !sharedItemContent) return;
+
+    const sharedMovie = allMovieData.find(movie => String(movie.id) === String(shareId));
+
+    if (sharedMovie) {
+        console.log("Displaying shared item:", sharedMovie.displayFilename);
+        const actionHTML = createActionContentHTML(sharedMovie);
+        sharedItemContent.innerHTML = actionHTML;
+        setViewMode('shared');
+        // Set page title
+        document.title = `${sharedMovie.displayFilename} - Cinema Ghar`;
+        // Ensure player is not visible initially in shared view
+        if (videoContainer) videoContainer.style.display = 'none';
+        // Scroll to top smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } else {
+        console.error("Shared item not found for ID:", shareId);
+        sharedItemContent.innerHTML = `<div class="error-message">Error: Shared item with ID ${sanitize(shareId)} was not found. It might have been removed or the link is incorrect.</div>`;
+        setViewMode('shared'); // Still set view mode to show back button etc.
+        document.title = "Item Not Found - Cinema Ghar Index";
+    }
+}
+
+// --- Player Logic ---
+function streamVideo(title, url, filenameForAudioCheck) {
+    // Determine the correct container: action row (table/preview) or shared content div
+    let currentActionContainer = null;
+    if (currentViewMode === 'shared' && sharedItemContent) {
+        currentActionContainer = sharedItemContent; // Player goes inside shared content
+    } else {
+        const currentActiveRow = activeTableActionRow || activePreviewActionRow;
+        if (!currentActiveRow) {
+            console.error("Cannot stream: active action row/div missing.");
+            return;
+        }
+        currentActionContainer = currentActiveRow.matches('tr')
+                                ? currentActiveRow.querySelector('td')
+                                : currentActiveRow; // For preview, the action row itself is the container
+    }
+
+    if (!videoContainer || !videoElement || !currentActionContainer) {
+        console.error("Cannot stream: player, video element, or action container missing.");
         return;
     }
 
     // If the video container is not already inside the correct action container, move it.
-    if (videoContainer.parentElement !== actionContainer) {
-        console.log("Moving video container to active action row/div.");
+    if (videoContainer.parentElement !== currentActionContainer) {
+        console.log("Moving video container to active container.");
         if (videoElement && videoElement.hasAttribute('src')) {
             videoElement.pause();
             videoElement.removeAttribute('src');
@@ -2238,25 +2515,25 @@ function streamVideo(title, url, filenameForAudioCheck) {
         if (vlcBox) vlcBox.style.display = 'none';
         if (audioWarningDiv) audioWarningDiv.style.display = 'none';
         if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-        clearCopyFeedback();
+        clearCopyFeedback(); // Clear both types of feedback
 
-        actionContainer.appendChild(videoContainer);
+        currentActionContainer.appendChild(videoContainer); // Append to the correct container
     }
 
     // Reset warnings/options for the new video
     if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
     if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-    clearCopyFeedback();
+    clearCopyFeedback(); // Clear both types of feedback
 
     // Restore saved settings or defaults
     const savedVolume = localStorage.getItem(config.PLAYER_VOLUME_KEY);
     const savedSpeed = localStorage.getItem(config.PLAYER_SPEED_KEY);
     videoElement.volume = (savedVolume !== null) ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 1;
     if (volumeSlider) volumeSlider.value = videoElement.volume;
-    videoElement.muted = (videoElement.volume === 0); // Ensure muted state matches volume
+    videoElement.muted = (videoElement.volume === 0);
     videoElement.playbackRate = (savedSpeed !== null) ? parseFloat(savedSpeed) : 1;
     if(playbackSpeedSelect) playbackSpeedSelect.value = String(videoElement.playbackRate);
-    updateMuteButton(); // Update button based on restored state
+    updateMuteButton();
 
     // Display audio warnings based on filename
     const ddp51Regex = /\bDDP?([ ._-]?5\.1)?\b/i;
@@ -2285,13 +2562,11 @@ function streamVideo(title, url, filenameForAudioCheck) {
 
     // Load and play
     videoElement.src = url;
-    videoElement.load(); // Important to load the new source
+    videoElement.load();
     videoElement.play().catch(e => {
-        // Common error, especially on mobile - requires user interaction first
         console.log("Autoplay was prevented or failed:", e.message);
-        // Optionally, display a play button overlay or message here
     });
-    videoContainer.style.display = 'flex'; // Show the container
+    videoContainer.style.display = 'flex';
 
     // Scroll into view smoothly
     setTimeout(() => {
@@ -2303,6 +2578,7 @@ function streamVideo(title, url, filenameForAudioCheck) {
 function closePlayer() {
     if (!videoContainer || !videoElement) return;
     const wasPlaying = videoContainer.style.display !== 'none';
+    const parentContainer = videoContainer.parentElement; // Store parent before detaching
 
     try {
         const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
@@ -2314,42 +2590,47 @@ function closePlayer() {
 
     videoElement.pause();
     videoElement.removeAttribute('src');
-    videoElement.load(); // Important: unload the source
+    videoElement.load();
 
     videoContainer.style.display = 'none';
     if (vlcBox) vlcBox.style.display = 'none';
     if (audioWarningDiv) { audioWarningDiv.style.display = 'none'; audioWarningDiv.innerHTML = ''; }
     if (audioTrackSelect) { audioTrackSelect.innerHTML = ''; audioTrackSelect.style.display = 'none'; }
-    clearCopyFeedback();
+    clearCopyFeedback(); // Clear both
     if (videoTitle) videoTitle.innerText = '';
 
     if (videoContainer.classList.contains('is-fullscreen')) {
         videoContainer.classList.remove('is-fullscreen');
     }
 
-    // If the player was open and associated with an action row, reset that row's state
-    const parentActionRow = activeTableActionRow || activePreviewActionRow;
-    if (wasPlaying && parentActionRow) {
-        const mainElement = parentActionRow.previousElementSibling;
-        if (mainElement) {
-             const viewButton = mainElement.querySelector('.view-button');
-             if (viewButton && viewButton.getAttribute('aria-expanded') === 'true') {
-                 viewButton.textContent = 'View';
-                 viewButton.setAttribute('aria-expanded', 'false');
-             }
-             mainElement.classList.remove('active-main-row');
+    // Reset associated row/item state IF the player was inside an action row/preview
+    if (wasPlaying && (parentContainer?.closest('.action-row, .preview-action-row'))) {
+        const parentActionRow = parentContainer.closest('.action-row, .preview-action-row');
+        if (parentActionRow) {
+            const mainElement = parentActionRow.previousElementSibling;
+            if (mainElement) {
+                 const viewButton = mainElement.querySelector('.view-button');
+                 if (viewButton && viewButton.getAttribute('aria-expanded') === 'true') {
+                     viewButton.textContent = 'View';
+                     viewButton.setAttribute('aria-expanded', 'false');
+                 }
+                 mainElement.classList.remove('active-main-row');
+            }
+            // Hide the action row itself if it wasn't already hidden
+            if (parentActionRow.style.display !== 'none') {
+                 parentActionRow.style.display = 'none';
+                 if (parentActionRow.classList.contains('preview-action-row')) {
+                     parentActionRow.innerHTML = '';
+                 } else if (parentActionRow.matches('tr.action-row')) {
+                     if(parentActionRow.parentElement) parentActionRow.remove();
+                 }
+            }
         }
-        // Hide the action row itself
-        if (parentActionRow.style.display !== 'none') {
-             parentActionRow.style.display = 'none';
-             // Clear content only for preview row (table row gets removed)
-             if (parentActionRow.classList.contains('preview-action-row')) {
-                 parentActionRow.innerHTML = '';
-             } else if (parentActionRow.matches('tr.action-row')) {
-                 parentActionRow.remove(); // Remove the dynamically added table row
-             }
-        }
+    } else if (wasPlaying && currentViewMode === 'shared') {
+         // If closing player in shared view, just hide it, don't affect shared content display
+         console.log("Closing player within shared view.");
     }
+
 
     // Move player back to main container IF it's not already there (and container exists)
     const mainBodyContainer = document.getElementById('cinemaghar-container');
@@ -2360,9 +2641,14 @@ function closePlayer() {
         console.warn("Main container #cinemaghar-container not found, cannot move player back.");
     }
 
-    // Reset the active row references
-    activeTableActionRow = null;
-    activePreviewActionRow = null;
+    // Reset the active row references if they match the parent's row
+    const closedRowId = parentContainer?.closest('.action-row, .preview-action-row')?.id;
+    if (activeTableActionRow && activeTableActionRow.id === closedRowId) {
+        activeTableActionRow = null;
+    }
+    if (activePreviewActionRow && activePreviewActionRow.id === closedRowId) {
+        activePreviewActionRow = null;
+    }
 }
 
 
@@ -2384,39 +2670,60 @@ function populateAudioTrackSelector() { if (!videoElement || typeof videoElement
 function changeAudioTrack(selectElement) { if (!videoElement || !videoElement.audioTracks) return; const selectedTrackValue = selectElement.value; const tracks = videoElement.audioTracks; let trackChanged = false; for (let i = 0; i < tracks.length; i++) { const track = tracks[i]; const isSelectedTrack = (track.id && track.id === selectedTrackValue) || String(i) === selectedTrackValue; if (track.enabled !== isSelectedTrack) { try { track.enabled = isSelectedTrack; if (isSelectedTrack) console.log("Enabled audio track:", track.label || track.id || i); trackChanged = true; } catch (e) { console.error("Error changing audio track state for track:", track.id || i, e); } } } if (!trackChanged) console.warn("Selected audio track already active or no change applied."); }
 function openWithIntent(url) { if (!url) return; const mime = getMimeTypeFromUrl(url); const titleEncoded = encodeURIComponent(videoTitle?.innerText || document.title || 'Video'); const intentUri = `intent:${url}#Intent;type=${mime};action=android.intent.action.VIEW;S.title=${titleEncoded};end`; console.log("Intent:", intentUri); window.location.href = intentUri; }
 function copyVLCLink(buttonElement, url) {
-    const currentVlcBox = videoContainer.querySelector('#vlcBox');
+    const currentVlcBox = buttonElement.closest('.action-row td, .preview-action-row, #shared-item-content')?.querySelector('#vlcBox');
     const feedbackSpan = currentVlcBox?.querySelector('#copyFeedback');
 
     if (!url) return;
-    if (!currentVlcBox || currentVlcBox.style.display === 'none') {
-        console.warn("VLC box not visible/found in the active player.");
-    }
+    if (!currentVlcBox) { console.warn("VLC box not found relative to button."); return; }
 
-    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
-        navigator.clipboard.writeText(url).then(() => {
-            if (feedbackSpan) showCopyFeedback(feedbackSpan);
-        }).catch(err => {
-            console.error("Async clipboard failed:", err);
-            alert("Copy failed. Please copy manually or use fallback.");
-            highlightVlcText();
-        });
-    } else {
-        console.warn("Using fallback copy method due to insecure context or lack of API support.");
-        fallbackCopyTextToClipboard(url, feedbackSpan);
+    copyToClipboard(url, feedbackSpan, copyTimeout).then(success => {
+        if (!success) highlightVlcText();
+    });
+}
+function showCopyFeedback(spanElement, timeoutVarRef) {
+    if (!spanElement) return;
+    clearTimeout(timeoutVarRef); // Clear previous timeout for this specific feedback
+    spanElement.classList.add('show');
+    // Use a local variable for the timeout ID, don't rely on a single global
+    const currentTimeoutId = setTimeout(() => {
+        spanElement.classList.remove('show');
+    }, 2500);
+    // Store the ID if you need to clear it externally (e.g., copyTimeout or shareFallbackTimeout)
+    if (spanElement.id === 'copyFeedback') {
+        copyTimeout = currentTimeoutId;
+    } else if (spanElement.id === 'shareFallbackFeedback') {
+        shareFallbackTimeout = currentTimeoutId;
     }
 }
-function fallbackCopyTextToClipboard(text, feedbackSpan) { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px"; textArea.style.opacity = "0"; textArea.setAttribute("readonly", ""); document.body.appendChild(textArea); let successful = false; try { textArea.select(); textArea.setSelectionRange(0, textArea.value.length); successful = document.execCommand('copy'); if (successful && feedbackSpan) showCopyFeedback(feedbackSpan); else if (!successful) throw new Error('execCommand failed'); } catch (err) { console.error('Fallback copy failed:', err); alert("Copy failed. Please copy manually."); highlightVlcText(); } finally { document.body.removeChild(textArea); } }
-function showCopyFeedback(spanElement) { if (!spanElement) return; clearTimeout(copyTimeout); spanElement.classList.add('show'); copyTimeout = setTimeout(() => { spanElement.classList.remove('show'); }, 2500); }
-function clearCopyFeedback() { const feedbackSpan = videoContainer?.querySelector('#copyFeedback'); if (feedbackSpan) { clearTimeout(copyTimeout); feedbackSpan.classList.remove('show'); } }
-function highlightVlcText() { const currentVlcBox = videoContainer.querySelector('#vlcBox'); const currentVlcText = currentVlcBox?.querySelector('code'); if (currentVlcText && currentVlcBox?.style.display === 'block') { try { const range = document.createRange(); range.selectNodeContents(currentVlcText); const selection = window.getSelection(); if (selection) { selection.removeAllRanges(); selection.addRange(range); } } catch (selectErr) { console.warn("Could not highlight VLC text:", selectErr); } } }
+function clearCopyFeedback() {
+    clearTimeout(copyTimeout);
+    clearTimeout(shareFallbackTimeout);
+    if (copyFeedbackSpan) copyFeedbackSpan.classList.remove('show');
+    if (shareFallbackFeedbackSpan) shareFallbackFeedbackSpan.classList.remove('show');
+}
+function highlightVlcText() {
+    // Find the VLC box within the currently visible context (action row or shared view)
+    const activeContext = activeTableActionRow || activePreviewActionRow || (currentViewMode === 'shared' ? sharedItemContent : null);
+    if (!activeContext) return;
+    const currentVlcText = activeContext.querySelector('#vlcBox code');
+    if (currentVlcText && currentVlcText.closest('#vlcBox')?.style.display !== 'none') {
+        try {
+            const range = document.createRange(); range.selectNodeContents(currentVlcText);
+            const selection = window.getSelection();
+            if (selection) { selection.removeAllRanges(); selection.addRange(range); }
+        } catch (selectErr) { console.warn("Could not highlight VLC text:", selectErr); }
+    }
+}
 function handlePlayerKeyboardShortcuts(event) { if (!videoContainer || videoContainer.style.display !== 'flex' || !videoElement) return; const targetTagName = event.target.tagName.toLowerCase(); if (targetTagName === 'input' || targetTagName === 'select' || targetTagName === 'textarea') return; const key = event.key; let prevented = false; switch (key) { case ' ': case 'k': togglePlayPause(); prevented = true; break; case 'ArrowLeft': seekVideo(-10); prevented = true; break; case 'ArrowRight': seekVideo(10); prevented = true; break; case 'ArrowUp': setVolume(Math.min(videoElement.volume + 0.05, 1)); if(volumeSlider) volumeSlider.value = videoElement.volume; prevented = true; break; case 'ArrowDown': setVolume(Math.max(videoElement.volume - 0.05, 0)); if(volumeSlider) volumeSlider.value = videoElement.volume; prevented = true; break; case 'm': toggleMute(); prevented = true; break; case 'f': toggleFullscreen(); prevented = true; break; } if (prevented) event.preventDefault(); }
 
 // --- State Persistence ---
 function saveStateToLocalStorage() {
     try {
+        // Only save sorting/filtering state, not search term or pagination
         const stateToSave = {};
         if (currentState.sortColumn !== 'lastUpdated') stateToSave.sortColumn = currentState.sortColumn;
         if (currentState.sortDirection !== 'desc') stateToSave.sortDirection = currentState.sortDirection;
+        if (currentState.qualityFilter !== '') stateToSave.qualityFilter = currentState.qualityFilter; // Save quality filter
 
         if (Object.keys(stateToSave).length > 0) {
             localStorage.setItem(config.LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
@@ -2435,10 +2742,12 @@ function loadStateFromLocalStorage() {
             const parsedState = JSON.parse(savedState);
             currentState.sortColumn = typeof parsedState.sortColumn === 'string' ? parsedState.sortColumn : 'lastUpdated';
             currentState.sortDirection = (typeof parsedState.sortDirection === 'string' && ['asc', 'desc'].includes(parsedState.sortDirection)) ? parsedState.sortDirection : 'desc';
-             console.log("Loaded state:", { sortColumn: currentState.sortColumn, sortDirection: currentState.sortDirection });
+            currentState.qualityFilter = typeof parsedState.qualityFilter === 'string' ? parsedState.qualityFilter : ''; // Load quality filter
+             console.log("Loaded state:", { sortColumn: currentState.sortColumn, sortDirection: currentState.sortDirection, qualityFilter: currentState.qualityFilter });
         } else {
              currentState.sortColumn = 'lastUpdated';
              currentState.sortDirection = 'desc';
+             currentState.qualityFilter = '';
              console.log("No saved state found, using defaults.");
         }
     } catch (e) {
@@ -2446,12 +2755,13 @@ function loadStateFromLocalStorage() {
         localStorage.removeItem(config.LOCAL_STORAGE_KEY);
         currentState.sortColumn = 'lastUpdated';
         currentState.sortDirection = 'desc';
+        currentState.qualityFilter = '';
     }
 
+    // Reset dynamic parts of state on load
     currentState.searchTerm = '';
-    currentState.qualityFilter = '';
     resetPagination();
-    currentViewMode = 'homepage';
+    // currentViewMode will be determined by shareId check later
     activeResultsTab = 'allFiles';
     activeTableActionRow = null;
     activePreviewActionRow = null;
@@ -2459,14 +2769,32 @@ function loadStateFromLocalStorage() {
 
 // --- Initial Data Loading and Setup ---
 async function loadInitialData() {
-    if(updatesPreviewList) updatesPreviewList.innerHTML = `<div class="update-item status-message" style="justify-content: center; padding: 20px 0;"><div class="spinner" style="margin: 0;"></div><span style="margin-left: 10px;">Loading updates...</span></div>`;
-    if(showMoreUpdatesButton) showMoreUpdatesButton.style.display = 'none';
-    showLoadingStateInTables('Loading data...');
+    // Check for shareId *before* showing loading states for homepage elements
+    const urlParams = new URLSearchParams(window.location.search);
+    const shareId = urlParams.get('shareId');
+    isDirectShareLoad = !!shareId; // Set the flag
+
+    if (isDirectShareLoad) {
+        console.log("Direct share link detected for ID:", shareId);
+        // Show loading state specifically for shared view
+        if (sharedItemContent) sharedItemContent.innerHTML = `<div class="status-message"><div class="spinner" style="margin: 0 auto 15px auto;"></div>Loading shared item...</div>`;
+        if (sharedItemView) sharedItemView.style.display = 'block'; // Show container early
+        if (searchFocusArea) searchFocusArea.style.display = 'none';
+        if (resultsArea) resultsArea.style.display = 'none';
+        if (updatesPreviewSection) updatesPreviewSection.style.display = 'none';
+        if (pageFooter) pageFooter.style.display = 'none';
+        container.classList.add('shared-view-active'); // Apply class early
+    } else {
+        console.log("Loading homepage view.");
+        if(updatesPreviewList) updatesPreviewList.innerHTML = `<div class="update-item status-message" style="justify-content: center; padding: 20px 0;"><div class="spinner" style="margin: 0;"></div><span style="margin-left: 10px;">Loading updates...</span></div>`;
+        if(showMoreUpdatesButton) showMoreUpdatesButton.style.display = 'none';
+        showLoadingStateInTables('Loading data...');
+    }
 
     uniqueQualities.clear();
-    loadStateFromLocalStorage();
+    loadStateFromLocalStorage(); // Load sorting/filter defaults
 
-    setViewMode('homepage');
+    // setViewMode will be called later after data load, either for 'homepage' or 'shared'
 
     try {
         if (!config.GSheetWebAppURL || config.GSheetWebAppURL.includes("macros/library/d/")) {
@@ -2488,25 +2816,31 @@ async function loadInitialData() {
                         .map(preprocessMovieData);
         console.log(`Successfully loaded and processed ${allMovieData.length} items.`);
 
+        // Always populate filter, even for shared view (it's hidden but needs options if user goes back)
         populateQualityFilter();
         if (qualityFilterSelect) {
             qualityFilterSelect.value = currentState.qualityFilter || '';
             updateFilterIndicator();
         }
 
-        prepareWeeklyUpdatesData();
-        displayInitialUpdates();
-        if(updatesPreviewSection) updatesPreviewSection.style.display = 'block';
-
-        const defaultMessageHTML = `<tr><td colspan="6" class="status-message">Enter search term above.</td></tr>`;
-        Object.values(tabMappings).forEach(mapping => {
-            if (mapping?.tableBody) mapping.tableBody.innerHTML = defaultMessageHTML;
-        });
+        // --- Decide final view based on shareId ---
+        if (isDirectShareLoad) {
+            displaySharedItem(shareId); // This function now also calls setViewMode('shared')
+        } else {
+            prepareWeeklyUpdatesData();
+            displayInitialUpdates();
+            if(updatesPreviewSection) updatesPreviewSection.style.display = 'block';
+            const defaultMessageHTML = `<tr><td colspan="6" class="status-message">Enter search term above.</td></tr>`;
+            Object.values(tabMappings).forEach(mapping => {
+                if (mapping?.tableBody) mapping.tableBody.innerHTML = defaultMessageHTML;
+            });
+            setViewMode('homepage'); // Explicitly set homepage view
+        }
 
     } catch (error) {
         console.error('FATAL: Failed to load or process initial data:', error);
         const errorMessage = `Error loading data: ${error.message}. Please check the script URL or deployment status, then refresh the page.`;
-        displayLoadError(errorMessage);
+        displayLoadError(errorMessage); // Display error in the appropriate container
     }
 }
 
@@ -2522,118 +2856,112 @@ function populateQualityFilter() {
 function displayLoadError(message) {
     const errorHtml = `<div class="error-message" style="padding: 20px; text-align: center; width: 100%; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: var(--border-radius-sm); margin: 20px;">${sanitize(message)}</div>`;
 
-    const footerElem = document.getElementById('page-footer');
-    if (footerElem) footerElem.style.display = 'none'; // Hide footer on load error
+    // Hide elements regardless of initial mode
+    if (searchFocusArea) searchFocusArea.style.display = 'none';
+    if (resultsArea) resultsArea.style.display = 'none';
+    if (updatesPreviewSection) updatesPreviewSection.style.display = 'none';
+    if (pageFooter) pageFooter.style.display = 'none';
 
-    if (searchFocusArea) {
+    // Determine where to show the error
+    if (isDirectShareLoad && sharedItemContent) {
+        sharedItemContent.innerHTML = errorHtml;
+        // Keep sharedItemView visible if it was already shown
+        if (sharedItemView && sharedItemView.style.display !== 'block') {
+             sharedItemView.style.display = 'block';
+             sharedItemView.style.opacity = '1'; // Ensure visible
+             sharedItemView.style.transform = 'translateY(0)';
+        }
+        container.classList.add('shared-view-active'); // Ensure class is set
+    } else if (searchFocusArea) { // Fallback to search area if not shared load
         searchFocusArea.innerHTML = errorHtml;
+        searchFocusArea.style.display = 'flex'; // Ensure it's visible
         searchFocusArea.style.justifyContent = 'center';
         searchFocusArea.style.flexGrow = '1';
         searchFocusArea.style.padding = '20px';
-    } else if (container) {
+        container.classList.remove('results-active', 'shared-view-active');
+    } else if (container) { // Absolute fallback
         container.innerHTML = errorHtml;
+        container.classList.remove('results-active', 'shared-view-active');
     }
-    if (resultsArea) resultsArea.style.display = 'none';
-    if (updatesPreviewSection) updatesPreviewSection.style.display = 'none';
 }
 
 // --- Event Handling Setup (Delegation) ---
+function handleActionClick(event) {
+    const target = event.target;
+    const button = target.closest('.action-buttons-container .button'); // Target buttons inside any action container
+
+    if (button) {
+        const action = button.dataset.action;
+        const url = button.dataset.url;
+        const title = button.dataset.title;
+        const filename = button.dataset.filename;
+        const id = button.dataset.id; // For share
+
+        if (action === 'play' && url && title) {
+            event.preventDefault();
+            streamVideo(title, url, filename);
+        } else if (action === 'copy-vlc' && url) {
+            event.preventDefault();
+            copyVLCLink(button, url);
+        } else if (action === 'open-intent' && url) {
+            event.preventDefault();
+            openWithIntent(url);
+        } else if (action === 'share' && id) {
+            event.preventDefault();
+            handleShareClick(button);
+        }
+        // Let other links (Telegram, GDFLIX, etc.) behave normally (<a> tags)
+    }
+}
+
 function handleTableClick(event) {
     const target = event.target;
 
+    // Check View button or Filename cell first for toggling action row
     const viewButton = target.closest('.view-button');
-    if (viewButton) {
+    const filenameCell = target.closest('td.col-filename');
+    if (viewButton || filenameCell) {
         event.preventDefault();
         const mainRow = target.closest('tr.movie-data-row');
         if (mainRow) {
             toggleTableActions(mainRow);
         }
-        return;
+        return; // Stop further processing if toggle action was initiated
     }
 
-    const filenameCell = target.closest('td.col-filename');
-    if (filenameCell) {
-         event.preventDefault();
-         const mainRow = target.closest('tr.movie-data-row');
-         if (mainRow) {
-             toggleTableActions(mainRow);
-         }
-         return;
-    }
-
-    const actionButton = target.closest('.action-buttons-container .button');
-    if (actionButton) {
-        const action = actionButton.dataset.action;
-        const url = actionButton.dataset.url;
-        const title = actionButton.dataset.title;
-        const filename = actionButton.dataset.filename;
-
-        if (action === 'play' && url && title) {
-            event.preventDefault();
-            streamVideo(title, url, filename);
-        } else if (action === 'copy-vlc' && url) {
-            event.preventDefault();
-            copyVLCLink(actionButton, url);
-        } else if (action === 'open-intent' && url) {
-            event.preventDefault();
-            openWithIntent(url);
-        }
-        // Let other links (Telegram, GDFLIX, etc.) behave normally
-    }
+    // Then check for action buttons within an already open action row
+    handleActionClick(event);
 }
 
 function handlePreviewClick(event) {
     const target = event.target;
 
-    // Check for click on View button first
+    // Check View button or Filename div first for toggling action row
     const viewButton = target.closest('.view-button');
-    if (viewButton) {
+    const filenameDiv = target.closest('.preview-col-filename');
+    if (viewButton || filenameDiv) {
         event.preventDefault();
         const mainItem = target.closest('div.update-item');
         if (mainItem) {
             togglePreviewActions(mainItem);
         }
-        return; // Handled view button click
+        return; // Stop further processing if toggle action was initiated
     }
 
-    // **** ADDED: Check for click on filename div ****
-    const filenameDiv = target.closest('.preview-col-filename');
-    if (filenameDiv) {
-        event.preventDefault(); // Prevent any default link behavior if it were an anchor
-        const mainItem = target.closest('div.update-item');
-        if (mainItem) {
-            togglePreviewActions(mainItem);
-        }
-        return; // Handled filename click
-    }
-    // ************************************************
+    // Then check for action buttons within an already open action row
+    handleActionClick(event);
+}
 
-    // Check for clicks on action buttons within an *already open* action row
-    const actionButton = target.closest('.action-buttons-container .button');
-    if (actionButton) {
-        const action = actionButton.dataset.action;
-        const url = actionButton.dataset.url;
-        const title = actionButton.dataset.title;
-        const filename = actionButton.dataset.filename; // Use for audio check
-
-        if (action === 'play' && url && title) {
-            event.preventDefault();
-            streamVideo(title, url, filename);
-        } else if (action === 'copy-vlc' && url) {
-            event.preventDefault();
-            copyVLCLink(actionButton, url);
-        } else if (action === 'open-intent' && url) {
-            event.preventDefault();
-            openWithIntent(url);
-        }
-        // Let other links (Telegram, GDFLIX, etc.) behave normally
-    }
+function handleSharedViewClick(event) {
+    // Only handle action buttons within the shared view
+    handleActionClick(event);
+    // Back button is handled by onclick in HTML
 }
 
 
 // --- Global Event Listeners Setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    loadInitialData();
+    loadInitialData(); // Checks for shareId internally
 
     if (searchInput) {
         searchInput.addEventListener('input', handleSearchInput);
@@ -2662,24 +2990,23 @@ document.addEventListener('DOMContentLoaded', () => {
         qualityFilterSelect.addEventListener('change', triggerFilterChange);
     }
 
+    // Delegate clicks within specific areas
     if (resultsArea) {
         resultsArea.addEventListener('click', (event) => {
             if (event.target.closest('th.sortable')) {
                 handleSort(event);
+            } else {
+                handleTableClick(event); // Handle button clicks within results tables
             }
-            // Back button handled by onclick in HTML
         });
     }
-
-    // Table click delegation
-    if (allFilesTableBody) allFilesTableBody.addEventListener('click', handleTableClick);
-    if (moviesTableBody) moviesTableBody.addEventListener('click', handleTableClick);
-    if (seriesTableBody) seriesTableBody.addEventListener('click', handleTableClick);
-
-    // **** MODIFIED: Ensure Preview List exists before adding listener ****
     if (updatesPreviewList) {
         updatesPreviewList.addEventListener('click', handlePreviewClick);
     }
+    if (sharedItemView) {
+        sharedItemView.addEventListener('click', handleSharedViewClick);
+    }
+
 
     // Global keyboard shortcuts for player
     document.addEventListener('keydown', handlePlayerKeyboardShortcuts);
@@ -2694,22 +3021,30 @@ document.addEventListener('DOMContentLoaded', () => {
            }
         }
 
-        // Close player if click is outside player AND its trigger row/item AND not on an action button
+        // Close player if click is outside player AND its parent container
+        // AND not on a button that might trigger an action (like copy/share)
         if (videoContainer && (videoContainer.style.display === 'flex' || videoContainer.style.display === 'block') && !videoContainer.contains(event.target)) {
-            const activeRow = activeTableActionRow || activePreviewActionRow;
-            if (activeRow && !activeRow.contains(event.target)) {
-                 const mainTriggerElement = activeRow.previousElementSibling;
-                 // Check if click is outside the main triggering element (row or item)
-                 if (mainTriggerElement && !mainTriggerElement.contains(event.target)) {
-                    // Further check: ensure the click wasn't on a button that *should* open the player (which it shouldn't be if player is already open)
-                    // This check simplifies to: if click is outside player AND outside its expanded action row AND outside its original trigger row/item -> close player.
-                    console.log("Clicked outside player and its associated elements. Closing player.");
+            const playerParent = videoContainer.parentElement;
+            // Check if click is outside the direct parent (action row td, preview action row, or shared content)
+            if (playerParent && !playerParent.contains(event.target)) {
+                 // Also check if click is outside the *triggering* row/item (the one above the action row/div)
+                 let triggerElement = null;
+                 if (playerParent.closest('.action-row, .preview-action-row')) {
+                     triggerElement = playerParent.closest('.action-row, .preview-action-row').previousElementSibling;
+                 } else if (playerParent === sharedItemContent) {
+                     // In shared view, the trigger is the shared view itself conceptually
+                     triggerElement = sharedItemView;
+                 }
+
+                 if (!triggerElement || (triggerElement && !triggerElement.contains(event.target))) {
+                    // Final check: Was the click on a button that *shouldn't* close the player?
+                    // (e.g., copy, share buttons related to the player/item)
+                    // This logic becomes complex. A simpler approach: if the click is truly outside
+                    // the player *and* its logical container (action row or shared view content)
+                    // *and* the triggering element (the main row/item), then close it.
+                    console.log("Clicked outside player's logical container. Closing player.");
                     closePlayer();
                  }
-            } else if (!activeRow) {
-                // Player is visible but somehow not associated with an active row (shouldn't normally happen, but handle defensively)
-                console.log("Player visible but no active row found. Closing player on outside click.");
-                closePlayer();
             }
         }
     }, false);
