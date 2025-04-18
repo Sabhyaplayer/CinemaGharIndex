@@ -89,6 +89,25 @@ body {
     margin: 0; /* Remove default body margin */
 }
 
+/* Page Loader - Initially visible */
+#page-loader {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease-out;
+}
+#page-loader .spinner {
+    width: 50px;
+    height: 50px;
+    border-width: 5px;
+}
+/* Hide loader via JS by setting display: none */
+
+
 #cinemaghar-container {
     background-color: transparent;
     margin: 0 auto; /* Center horizontally */
@@ -114,7 +133,7 @@ body {
 
 /* --- Search Focus Area (Handles Centering Logic) --- */
 #search-focus-area {
-    display: flex;
+    display: flex; /* Default state is flex */
     flex-direction: column;
     align-items: center; /* Center horizontally */
     /* Adjusted padding to account for missing top-right buttons space */
@@ -124,8 +143,7 @@ body {
                 padding var(--transition-speed) var(--transition-timing),
                 justify-content var(--transition-speed) var(--transition-timing),
                 background-color var(--transition-speed) var(--transition-timing),
-                border-bottom var(--transition-speed) var(--transition-timing),
-                display var(--transition-speed) var(--transition-timing); /* Added display transition */
+                border-bottom var(--transition-speed) var(--transition-timing);
     width: 100%;
     flex-grow: 1; /* Takes up space initially */
     justify-content: center;
@@ -141,7 +159,7 @@ body {
 }
 /* Hide search focus area completely when showing shared item */
 #cinemaghar-container.shared-view-active #search-focus-area {
-    display: none;
+    display: none; /* Hide when shared view is active */
 }
 
 /* --- Simplified Title --- */
@@ -518,8 +536,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
     transition: opacity var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2),
-                transform var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2),
-                display var(--transition-speed) var(--transition-timing); /* Added display transition */
+                transform var(--transition-speed) var(--transition-timing) calc(var(--transition-speed) / 2);
 }
 #cinemaghar-container.results-active #results-area {
     display: block; /* Show when results are active */
@@ -587,7 +604,7 @@ body {
 
 /* MODIFICATION: Back Button Styling */
 #cinemaghar-container .back-button {
-    display: inline-flex; /* Use inline-flex to allow margin */
+    display: none; /* Hidden by default */
     align-items: center; /* Align icon and text */
     margin-bottom: 15px; /* Space below */
     padding: 8px 16px;
@@ -601,6 +618,7 @@ body {
     transition: all 0.2s ease;
     font-weight: 500;
     align-self: flex-start; /* Keep it left-aligned */
+    width: max-content; /* Prevent taking full width */
 }
 
 #cinemaghar-container .back-button:hover {
@@ -612,15 +630,9 @@ body {
 /* Show back button only when results or shared view are active */
 #cinemaghar-container.results-active #backToHomeButtonResults,
 #cinemaghar-container.shared-view-active #backToHomeButtonShared {
-    display: inline-flex;
+    display: inline-flex; /* Use inline-flex to allow margin */
 }
-/* Hide the respective back buttons when not in their active state */
-#cinemaghar-container:not(.results-active) #backToHomeButtonResults {
-    display: none;
-}
-#cinemaghar-container:not(.shared-view-active) #backToHomeButtonShared {
-    display: none;
-}
+/* No need for explicit hide rules, default is display: none */
 
 
 /* --- Results Filter Area --- */
@@ -866,16 +878,16 @@ body {
     border-top: 1px solid var(--border-color);
     background-color: var(--light-bg); /* Subtle background */
     text-align: center;
-    display: flex;
+    display: flex; /* Default state is flex */
     flex-direction: column; /* Stack text and buttons vertically initially */
     align-items: center;
     gap: 15px; /* Gap between text and button row */
     flex-shrink: 0; /* Prevent footer from shrinking */
-    transition: display var(--transition-speed) var(--transition-timing); /* Added display transition */
+    transition: display var(--transition-speed) var(--transition-timing);
 }
 /* Hide footer in shared view */
 #cinemaghar-container.shared-view-active #page-footer {
-    display: none;
+    display: none; /* Hide when shared view is active */
 }
 
 #page-footer .footer-text {
@@ -1210,8 +1222,13 @@ body {
 <!-- Main Container: Holds everything, controls background/shadow -->
 <div id="cinemaghar-container">
 
+  <!-- Page Loader: Shown initially, hidden by JS after load -->
+  <div id="page-loader">
+      <div class="spinner"></div>
+  </div>
+
   <!-- Search Focus Area: Centered initially, moves top when results show -->
-  <div id="search-focus-area">
+  <div id="search-focus-area" style="display: flex;"> <!-- Ensure default display is set -->
       <!-- Simplified Title -->
       <h1 class="simple-title" onclick="resetToHomepage()">
           Cinema Ghar Index
@@ -1388,7 +1405,7 @@ body {
   </div> <!-- End #videoContainer -->
 
   <!-- Footer Section -->
-  <footer id="page-footer">
+  <footer id="page-footer" style="display: flex;"> <!-- Ensure default display is set -->
       <div class="footer-buttons">
           <a href="https://t.me/The_Sabhyaplayer_bot" target="_blank" rel="noopener noreferrer" class="button telegram-button">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
@@ -1459,10 +1476,11 @@ let currentState = {
 
 // --- DOM Element References ---
 const container = document.getElementById('cinemaghar-container');
+const pageLoader = document.getElementById('page-loader'); // <-- New Loader
 const searchFocusArea = document.getElementById('search-focus-area');
 const resultsArea = document.getElementById('results-area');
-const sharedItemView = document.getElementById('shared-item-view'); // <-- New
-const sharedItemContent = document.getElementById('shared-item-content'); // <-- New
+const sharedItemView = document.getElementById('shared-item-view');
+const sharedItemContent = document.getElementById('shared-item-content');
 const searchInput = document.getElementById('mainSearchInput');
 const suggestionsContainer = document.getElementById('searchInputSuggestions');
 const qualityFilterSelect = document.getElementById('mainQualityFilterSelect');
@@ -1485,7 +1503,7 @@ const playbackSpeedSelect = document.getElementById('playbackSpeedSelect');
 const customControlsContainer = document.getElementById('customControlsContainer');
 const audioTrackSelect = document.getElementById('audioTrackSelect');
 const copyFeedbackSpan = document.getElementById('copyFeedback');
-const shareFallbackFeedbackSpan = document.getElementById('shareFallbackFeedback'); // <-- New
+const shareFallbackFeedbackSpan = document.getElementById('shareFallbackFeedback');
 const playerCloseButton = document.querySelector('.video-container .close-btn');
 
 // Tab Navigation and Content Area
@@ -1693,31 +1711,57 @@ function setViewMode(mode) {
     currentViewMode = mode;
     closePlayerIfNeeded();
 
+    // Toggle container classes for CSS transitions/styling
     container.classList.toggle('results-active', mode === 'search');
     container.classList.toggle('shared-view-active', mode === 'shared');
 
+    // Explicitly manage display of core sections
     if (mode === 'homepage') {
+        if (searchFocusArea) searchFocusArea.style.display = 'flex'; // Make sure search area is visible
+        if (pageFooter) pageFooter.style.display = 'flex'; // Make sure footer is visible
+        if (resultsArea) resultsArea.style.display = 'none'; // Hide results
+        if (sharedItemView) sharedItemView.style.display = 'none'; // Hide shared view
+
         if (updatesPreviewSection) updatesPreviewSection.style.display = 'block';
-        searchInput.value = '';
+        if (searchInput) searchInput.value = '';
         currentState.searchTerm = '';
-        suggestionsContainer.style.display = 'none';
+        if (suggestionsContainer) suggestionsContainer.style.display = 'none';
         activeResultsTab = 'allFiles';
         resetPagination();
         closeActiveActionRow('table');
         closeActiveActionRow('preview');
+
+        // Re-display updates if data exists
         if (weeklyUpdatesData.length > 0) {
              displayInitialUpdates();
         } else if (allMovieData.length > 0) {
-            if (updatesPreviewList) updatesPreviewList.innerHTML = '<div class="status-message" style="text-align:center; padding: 15px 0;">No recent updates found in the last 7 days.</div>';
-            if (showMoreUpdatesButton) showMoreUpdatesButton.style.display = 'none';
+            // Only set message if the section itself should be visible
+             if (updatesPreviewList) updatesPreviewList.innerHTML = '<div class="status-message" style="text-align:center; padding: 15px 0;">No recent updates found in the last 7 days.</div>';
+             if (showMoreUpdatesButton) showMoreUpdatesButton.style.display = 'none';
+        } else {
+            // Still loading or error occurred
+             if (updatesPreviewList) updatesPreviewList.innerHTML = '<div class="update-item status-message" style="justify-content: center; padding: 20px 0;"><div class="spinner" style="margin: 0;"></div><span style="margin-left: 10px;">Loading updates...</span></div>';
         }
-        // Reset page title
-        document.title = "Cinema Ghar Index";
+
+        document.title = "Cinema Ghar Index"; // Reset page title
+
     } else if (mode === 'search') {
+        if (searchFocusArea) searchFocusArea.style.display = 'flex'; // Ensure visible (might have been hidden by shared)
+        if (pageFooter) pageFooter.style.display = 'flex'; // Ensure visible
+        if (resultsArea) resultsArea.style.display = 'block'; // Show results
+        if (sharedItemView) sharedItemView.style.display = 'none'; // Hide shared view
+        if (updatesPreviewSection) updatesPreviewSection.style.display = 'none'; // Hide updates preview
+
         closeActiveActionRow('preview');
-        // Reset page title
-        document.title = "Cinema Ghar Index";
+        document.title = "Cinema Ghar Index"; // Reset page title
+
     } else if (mode === 'shared') {
+        if (searchFocusArea) searchFocusArea.style.display = 'none'; // Hide search
+        if (pageFooter) pageFooter.style.display = 'none'; // Hide footer
+        if (resultsArea) resultsArea.style.display = 'none'; // Hide results
+        if (updatesPreviewSection) updatesPreviewSection.style.display = 'none'; // Hide updates preview
+        if (sharedItemView) sharedItemView.style.display = 'block'; // Show shared view
+
         closeActiveActionRow('table');
         closeActiveActionRow('preview');
         // Title will be set by displaySharedItem
@@ -1726,17 +1770,30 @@ function setViewMode(mode) {
     saveStateToLocalStorage();
 }
 
+
 function resetToHomepage() {
-    // Clear the shareId parameter from URL without reloading
-    if (window.history.pushState) {
+    const wasInSharedView = (currentViewMode === 'shared'); // Check *before* potentially changing state
+
+    // Clear the shareId parameter from URL without reloading (only if not doing a full reload)
+    if (!wasInSharedView && window.history.pushState) {
         const cleanUrl = window.location.origin + window.location.pathname;
         window.history.pushState({ path: cleanUrl }, '', cleanUrl);
-    } else {
+    } else if (!wasInSharedView) {
         // Fallback for older browsers (might cause a reload if hash was used)
         window.location.hash = '';
     }
-    isDirectShareLoad = false; // Reset flag
-    setViewMode('homepage');
+
+    isDirectShareLoad = false; // Reset flag regardless
+
+    if (wasInSharedView) {
+        console.log("Returning from shared view, performing full page reload to reset.");
+        // Force a reload to the base URL to ensure fresh state including updates
+        window.location.href = window.location.origin + window.location.pathname;
+        // The script will re-execute from the beginning on reload
+    } else {
+        // If not coming from shared view, just transition the state normally using setViewMode
+        setViewMode('homepage');
+    }
 }
 
 // --- Search and Suggestions Logic ---
@@ -1872,7 +1929,7 @@ function prepareWeeklyUpdatesData() {
 function displayInitialUpdates() {
     if (isDirectShareLoad) return; // Don't show updates if loading a shared item
     if (!updatesPreviewList || !showMoreUpdatesButton) return;
-    updatesPreviewList.innerHTML = '';
+    updatesPreviewList.innerHTML = ''; // Clear previous content/spinner
     updatesPreviewShownCount = 0;
     closeActiveActionRow('preview');
 
@@ -2465,7 +2522,6 @@ function displaySharedItem(shareId) {
         console.log("Displaying shared item:", sharedMovie.displayFilename);
         const actionHTML = createActionContentHTML(sharedMovie);
         sharedItemContent.innerHTML = actionHTML;
-        setViewMode('shared');
         // Set page title
         document.title = `${sharedMovie.displayFilename} - Cinema Ghar`;
         // Ensure player is not visible initially in shared view
@@ -2476,9 +2532,10 @@ function displaySharedItem(shareId) {
     } else {
         console.error("Shared item not found for ID:", shareId);
         sharedItemContent.innerHTML = `<div class="error-message">Error: Shared item with ID ${sanitize(shareId)} was not found. It might have been removed or the link is incorrect.</div>`;
-        setViewMode('shared'); // Still set view mode to show back button etc.
         document.title = "Item Not Found - Cinema Ghar Index";
     }
+    // Set view mode AFTER content is potentially set
+    setViewMode('shared');
 }
 
 // --- Player Logic ---
@@ -2769,32 +2826,39 @@ function loadStateFromLocalStorage() {
 
 // --- Initial Data Loading and Setup ---
 async function loadInitialData() {
-    // Check for shareId *before* showing loading states for homepage elements
+    // Check for shareId *before* potentially showing homepage elements
     const urlParams = new URLSearchParams(window.location.search);
     const shareId = urlParams.get('shareId');
-    isDirectShareLoad = !!shareId; // Set the flag
+    isDirectShareLoad = !!shareId;
+
+    if (pageLoader) pageLoader.style.display = 'flex'; // Show page loader
 
     if (isDirectShareLoad) {
         console.log("Direct share link detected for ID:", shareId);
-        // Show loading state specifically for shared view
+        // Prepare shared view container but show generic loading message
         if (sharedItemContent) sharedItemContent.innerHTML = `<div class="status-message"><div class="spinner" style="margin: 0 auto 15px auto;"></div>Loading shared item...</div>`;
-        if (sharedItemView) sharedItemView.style.display = 'block'; // Show container early
+        if (sharedItemView) sharedItemView.style.display = 'block';
+        container.classList.add('shared-view-active'); // Apply class early
+        // Ensure other sections are hidden initially
         if (searchFocusArea) searchFocusArea.style.display = 'none';
         if (resultsArea) resultsArea.style.display = 'none';
         if (updatesPreviewSection) updatesPreviewSection.style.display = 'none';
         if (pageFooter) pageFooter.style.display = 'none';
-        container.classList.add('shared-view-active'); // Apply class early
     } else {
-        console.log("Loading homepage view.");
+        console.log("Preparing homepage view (pre-data).");
+        // Set initial messages while data loads, loader is visible
         if(updatesPreviewList) updatesPreviewList.innerHTML = `<div class="update-item status-message" style="justify-content: center; padding: 20px 0;"><div class="spinner" style="margin: 0;"></div><span style="margin-left: 10px;">Loading updates...</span></div>`;
         if(showMoreUpdatesButton) showMoreUpdatesButton.style.display = 'none';
         showLoadingStateInTables('Loading data...');
+        // Make sure homepage elements are set to display correctly (loader is covering them)
+        if (searchFocusArea) searchFocusArea.style.display = 'flex';
+        if (pageFooter) pageFooter.style.display = 'flex';
+        if (resultsArea) resultsArea.style.display = 'none';
+        if (sharedItemView) sharedItemView.style.display = 'none';
     }
 
     uniqueQualities.clear();
     loadStateFromLocalStorage(); // Load sorting/filter defaults
-
-    // setViewMode will be called later after data load, either for 'homepage' or 'shared'
 
     try {
         if (!config.GSheetWebAppURL || config.GSheetWebAppURL.includes("macros/library/d/")) {
@@ -2827,9 +2891,9 @@ async function loadInitialData() {
         if (isDirectShareLoad) {
             displaySharedItem(shareId); // This function now also calls setViewMode('shared')
         } else {
-            prepareWeeklyUpdatesData();
+            prepareWeeklyUpdatesData(); // Prepare updates data even if not immediately displayed
             displayInitialUpdates();
-            if(updatesPreviewSection) updatesPreviewSection.style.display = 'block';
+            if(updatesPreviewSection) updatesPreviewSection.style.display = 'block'; // Show updates section now
             const defaultMessageHTML = `<tr><td colspan="6" class="status-message">Enter search term above.</td></tr>`;
             Object.values(tabMappings).forEach(mapping => {
                 if (mapping?.tableBody) mapping.tableBody.innerHTML = defaultMessageHTML;
@@ -2841,6 +2905,10 @@ async function loadInitialData() {
         console.error('FATAL: Failed to load or process initial data:', error);
         const errorMessage = `Error loading data: ${error.message}. Please check the script URL or deployment status, then refresh the page.`;
         displayLoadError(errorMessage); // Display error in the appropriate container
+
+    } finally {
+        // Hide the page loader AFTER everything is processed/rendered (or error shown)
+        if (pageLoader) pageLoader.style.display = 'none';
     }
 }
 
@@ -2861,21 +2929,26 @@ function displayLoadError(message) {
     if (resultsArea) resultsArea.style.display = 'none';
     if (updatesPreviewSection) updatesPreviewSection.style.display = 'none';
     if (pageFooter) pageFooter.style.display = 'none';
+    if (sharedItemView) sharedItemView.style.display = 'none'; // Ensure shared view is hidden too
 
     // Determine where to show the error
     if (isDirectShareLoad && sharedItemContent) {
+        // Display error within the shared item container
         sharedItemContent.innerHTML = errorHtml;
-        // Keep sharedItemView visible if it was already shown
+        // Keep sharedItemView visible to contain the error and back button
         if (sharedItemView && sharedItemView.style.display !== 'block') {
              sharedItemView.style.display = 'block';
-             sharedItemView.style.opacity = '1'; // Ensure visible
+             sharedItemView.style.opacity = '1';
              sharedItemView.style.transform = 'translateY(0)';
         }
-        container.classList.add('shared-view-active'); // Ensure class is set
+        container.classList.add('shared-view-active');
+        if(backToHomeButtonShared) backToHomeButtonShared.style.display = 'inline-flex'; // Ensure back button is visible
+
     } else if (searchFocusArea) { // Fallback to search area if not shared load
         searchFocusArea.innerHTML = errorHtml;
         searchFocusArea.style.display = 'flex'; // Ensure it's visible
         searchFocusArea.style.justifyContent = 'center';
+        searchFocusArea.style.alignItems = 'center'; // Center error vertically too
         searchFocusArea.style.flexGrow = '1';
         searchFocusArea.style.padding = '20px';
         container.classList.remove('results-active', 'shared-view-active');
@@ -2961,7 +3034,7 @@ function handleSharedViewClick(event) {
 
 // --- Global Event Listeners Setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    loadInitialData(); // Checks for shareId internally
+    loadInitialData(); // Checks for shareId internally and manages initial UI state/loader
 
     if (searchInput) {
         searchInput.addEventListener('input', handleSearchInput);
